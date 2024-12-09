@@ -6,6 +6,20 @@
    - Mejora en la estructura del tema y componentes
    - Corrección de errores en el build del proyecto
 
+2. Optimización de Docker
+   - Eliminación de la versión obsoleta en docker-compose.yml
+   - Verificación exitosa de builds limpios para todos los servicios
+   - Tiempos de compilación optimizados:
+     * Frontend: ~120s (incluye instalación de dependencias)
+     * Backend: ~40s (optimizado para desarrollo)
+   - Confirmación de healthchecks funcionando correctamente
+
+3. Configuración de PM2 para Producción
+   - Creación de ecosystem.config.js para gestión de procesos
+   - Configuración de clusters para frontend y backend
+   - Definición de variables de entorno para producción
+   - Optimización de recursos del servidor
+
 ## 2024-12-08
 1. Configuración de Monorepo
    - Reorganización de la estructura del proyecto a monorepo

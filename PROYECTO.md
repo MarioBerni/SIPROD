@@ -94,6 +94,28 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 5. Code Review
 6. Merge a main
 
+## Entorno de Desarrollo
+
+### Docker
+- **Configuración Optimizada**
+  - Servicios containerizados: frontend, backend, base de datos
+  - Healthchecks implementados para todos los servicios
+  - Volúmenes configurados para desarrollo hot-reload
+  - Tiempos de compilación optimizados
+
+### Comandos Principales
+```bash
+# Iniciar servicios
+docker-compose up -d
+
+# Reconstruir servicios (build limpio)
+docker-compose build --no-cache
+
+# Construir servicio específico
+docker-compose build frontend
+docker-compose build backend
+```
+
 ## Despliegue
 
 ### Desarrollo

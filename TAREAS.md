@@ -136,6 +136,15 @@
 - [x] Configuración inicial del backend
 
 ## Completadas ✅
+
+### Infraestructura
+- [x] Configuración inicial de Docker
+- [x] Implementación de healthchecks en servicios
+- [x] Optimización de docker-compose.yml
+- [x] Verificación de builds limpios
+- [x] Configuración de volúmenes para desarrollo
+
+### Monorepo
 - [x] Definir estructura del proyecto
 - [x] Configurar Material UI y Emotion
 - [x] Configurar TypeScript y herramientas de desarrollo
@@ -146,3 +155,11 @@
 - [x] Inicializar proyecto backend con dependencias
 - [x] Estructura del Monorepo
 - [x] Implementar herramientas de monorepo (Turborepo)
+
+## En Curso 🔄
+
+### Optimizaciones
+- [ ] Reducir tiempo de build del frontend
+- [ ] Implementar cache de dependencias en Docker
+- [ ] Optimizar tamaño de imágenes Docker
+- [ ] Configurar CI/CD con GitHub Actions

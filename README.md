@@ -20,21 +20,40 @@ Este proyecto utiliza una arquitectura monorepo con Turborepo y pnpm workspaces.
 
 ### Prerequisitos
 
-- Node.js >= 16
-- pnpm >= 8.9.0
+- Docker y Docker Compose
+- pnpm (gestor de paquetes)
+- Node.js 18+
 
-### Instalación
+### Inicio Rápido
 
+1. Clonar el repositorio
 ```bash
-# Instalar dependencias
-pnpm install
-
-# Iniciar desarrollo
-pnpm dev
-
-# Construir todas las aplicaciones y paquetes
-pnpm build
+git clone [URL_REPOSITORIO]
+cd SIPROD
 ```
+
+2. Instalar dependencias
+```bash
+pnpm install
+```
+
+3. Iniciar servicios con Docker
+```bash
+# Iniciar todos los servicios
+docker-compose up -d
+
+# Para un build limpio
+docker-compose build --no-cache
+```
+
+4. Acceder a las aplicaciones
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
+
+### Tiempos de Compilación Esperados
+- Frontend: ~2 minutos (primera vez)
+- Backend: ~1 minuto (primera vez)
+- Builds subsecuentes: significativamente más rápidos
 
 ### Scripts Disponibles
 
