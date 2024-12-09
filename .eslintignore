@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/.vercel
+**/build
+**/coverage
+**/*.d.ts
+**/*.d.ts.map
+**/*.js.map

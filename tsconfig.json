@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@siprod/*": ["packages/*/src"]
+    }
+  },
+  "extends": "./packages/tsconfig/base/tsconfig.json"
+}

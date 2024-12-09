@@ -1,0 +1,5 @@
+{
+  "extends": "@siprod/tsconfig/library.json",
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"]
+}

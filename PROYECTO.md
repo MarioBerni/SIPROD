@@ -1,165 +1,113 @@
-# Documentación del Proyecto SIPROD
+# SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
 
-## Descripción General
-Sistema de Información de Patrullajes y Resultados Operativos Digitales (S.I.P.R.O.D.)
+## Descripción del Proyecto
+SIPROD es un sistema integral diseñado para la gestión eficiente de resultados policiales y recursos. El sistema está construido utilizando tecnologías modernas y una arquitectura monorepo que facilita el mantenimiento y la escalabilidad.
 
-## Estructura del Proyecto (Monorepo)
-```
-SIPROD/
-├── packages/
-│   ├── frontend/          # Next.js frontend
-│   │   ├── src/
-│   │   ├── public/
-│   │   └── Dockerfile.dev
-│   ├── backend/           # Node.js/Express backend
-│   │   ├── src/
-│   │   └── Dockerfile.dev
-│   ├── shared/           # Código compartido
-│   └── types/            # Tipos TypeScript compartidos
-├── docker-compose.yml    # Configuración de servicios
-├── .dockerignore        # Exclusiones para Docker
-├── turbo.json           # Configuración de Turborepo
-└── package.json         # Workspaces y dependencias root
-```
+## Estructura del Proyecto
 
-## Entorno de Desarrollo
+### Aplicaciones (`/apps`)
+- **web**: Aplicación web principal construida con Next.js
+  - Interfaz de usuario moderna y responsive
+  - Integración con Material-UI y Emotion para estilos
+  - SSR para mejor rendimiento y SEO
+- **api**: API REST construida con Node.js/Express
+  - Endpoints RESTful
+  - Autenticación y autorización
+  - Validación de datos
 
-### Requisitos Previos
-- Node.js 18 o superior
-- Docker Desktop
-- Git
+### Paquetes (`/packages`)
+- **ui**: Biblioteca de componentes compartidos
+  - Componentes reutilizables
+  - Tema personalizado
+  - Documentación de componentes
+- **utils**: Utilidades y funciones comunes
+  - Funciones helper
+  - Validadores
+  - Tipos compartidos
+- **config**: Configuraciones compartidas
+  - ESLint
+  - Prettier
+  - Otras configuraciones
+- **tsconfig**: Configuraciones de TypeScript
+  - Base
+  - Next.js
+  - Biblioteca
+  - API
 
-### Configuración Docker
-El proyecto utiliza Docker para desarrollo y producción:
-
-#### Servicios
-- **Frontend**: Next.js en puerto 3000
-  - Hot-reload habilitado
-  - Variables de entorno configuradas
-- **Backend**: Node.js/Express en puerto 4000
-  - Typescript con ts-node-dev
-  - Auto-recarga en desarrollo
-- **Base de Datos**: PostgreSQL 15
-  - Puerto 5432
-  - Volumen persistente para datos
-
-#### Comandos Principales
-```bash
-# Iniciar todos los servicios
-docker-compose up
-
-# Reconstruir imágenes
-docker-compose build
-
-# Detener servicios
-docker-compose down
-```
-
-## Componentes Principales
+## Tecnologías Principales
 
 ### Frontend
-
-#### Layouts
-- `MainLayout.tsx`: Layout principal de la aplicación
-- `dashboard/layout.tsx`: Layout específico para el dashboard
-
-#### Componentes
-- `Navbar.tsx`: Barra de navegación principal con drawer responsive
-  - Diseño moderno y minimalista
-  - Drawer superpuesto
-  - Navegación intuitiva
-  - Información de usuario y versión
-
-#### Configuración
-- `theme.ts`: Configuración del tema Material-UI
-  - Paleta de colores personalizada
-  - Sistema de tipografía responsive
-  - Estilos de componentes consistentes
-
-### Backend
-
-#### Dependencias Principales
-```json
-{
-  "dependencies": {
-    "express": "Servidor web",
-    "prisma": "ORM para base de datos",
-    "@prisma/client": "Cliente Prisma",
-    "bcrypt": "Encriptación de contraseñas",
-    "jsonwebtoken": "Autenticación JWT",
-    "zod": "Validación de datos",
-    "winston": "Sistema de logging",
-    "cors": "Middleware CORS"
-  },
-  "devDependencies": {
-    "typescript": "Soporte de TypeScript",
-    "@types/node": "Tipos de Node.js",
-    "@types/express": "Tipos de Express",
-    "@types/bcrypt": "Tipos de bcrypt",
-    "@types/jsonwebtoken": "Tipos de JWT",
-    "@types/cors": "Tipos de CORS",
-    "ts-node-dev": "Desarrollo con recarga automática"
-  }
-}
-```
-
-#### API Endpoints Planificados
-- Autenticación: `/api/auth`
-  - Login
-  - Registro
-  - Recuperación de contraseña
-- Usuarios: `/api/users`
-  - CRUD de usuarios
-  - Gestión de roles
-- Patrullajes: `/api/patrols`
-  - Registro de patrullajes
-  - Consulta de operativos
-  - Reportes y estadísticas
-
-## Tecnologías Utilizadas
-
-### Frontend
-- Next.js 14 con App Router
+- Next.js 14
 - TypeScript
-- Material-UI (MUI)
-- Emotion para estilos
-- React Icons
+- Material-UI
+- Emotion
+- TanStack Query
 
 ### Backend
-- Node.js con TypeScript
-- Express.js
-- Prisma ORM
+- Node.js
+- Express
+- TypeScript
+- Prisma (ORM)
 - PostgreSQL
-- JWT para autenticación
-- Zod para validación
-- Winston para logging
-- CORS para seguridad
 
-### Herramientas de Desarrollo
-- ESLint
-- Prettier
-- TypeScript Compiler
-- Git para control de versiones
-- ts-node-dev para desarrollo
+### DevOps
+- Docker
+- Docker Compose
+- GitHub Actions (CI/CD)
+- Turborepo
+
+## Configuración del Entorno
+
+### Requisitos
+- Node.js >= 18
+- PNPM
+- Docker y Docker Compose
+- PostgreSQL
+
+### Instalación
+1. Clonar el repositorio
+2. Instalar dependencias: `pnpm install`
+3. Copiar `.env.example` a `.env`
+4. Configurar variables de entorno
+5. Iniciar en desarrollo: `pnpm dev`
+
+### Scripts Disponibles
+- `pnpm dev`: Inicia el entorno de desarrollo
+- `pnpm build`: Construye todos los paquetes
+- `pnpm test`: Ejecuta las pruebas
+- `pnpm lint`: Ejecuta el linter
+- `pnpm format`: Formatea el código
 
 ## Guías de Desarrollo
 
-### Estándares de Código
-1. Usar TypeScript estricto
-2. Seguir las reglas de ESLint
-3. Mantener componentes modulares
-4. Documentar funciones y componentes principales
+### Convenciones de Código
+- Usar TypeScript estricto
+- Seguir guías de estilo de ESLint
+- Documentar componentes y funciones
+- Escribir pruebas unitarias
 
-### Estilos y Diseño
-1. Usar Emotion styled para componentes estilizados
-2. Seguir la guía de diseño de Material-UI
-3. Mantener consistencia en espaciados y tipografía
-4. Usar el sistema de temas para colores y estilos globales
+### Flujo de Trabajo Git
+1. Crear rama feature/fix
+2. Desarrollar cambios
+3. Ejecutar pruebas y lint
+4. Crear Pull Request
+5. Code Review
+6. Merge a main
 
-### Backend
-1. Arquitectura en capas (Controller -> Service -> Model)
-2. Validación de entrada con Zod
-3. Manejo centralizado de errores
-4. Logging estructurado con Winston
-5. Tests unitarios para lógica crítica
-6. Uso de variables de entorno para configuración
+## Despliegue
+
+### Desarrollo
+```bash
+docker-compose up
+```
+
+### Producción
+```bash
+docker-compose -f docker-compose.prod.yml up
+```
+
+## Documentación Adicional
+- [API Documentation](./docs/api.md)
+- [Component Library](./docs/ui.md)
+- [Database Schema](./docs/schema.md)
+- [Deployment Guide](./docs/deployment.md)

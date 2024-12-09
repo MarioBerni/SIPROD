@@ -1,5 +1,11 @@
 # Historial de Cambios - SIPROD
 
+## 2024-12-09
+1. Optimización de la configuración de TypeScript en todo el monorepo
+   - Resolución de problemas con Material-UI y Emotion
+   - Mejora en la estructura del tema y componentes
+   - Corrección de errores en el build del proyecto
+
 ## 2024-12-08
 1. Configuración de Monorepo
    - Reorganización de la estructura del proyecto a monorepo
@@ -72,6 +78,41 @@
    - Configuración inicial de Next.js con TypeScript
    - Implementación de Material-UI como framework de UI
    - Organización de la documentación del proyecto
+
+## Estructura del Monorepo
+
+### Apps
+- `web`: Aplicación web principal (Next.js)
+- `api`: API REST (Node.js/Express)
+
+### Packages
+- `ui`: Biblioteca de componentes compartidos
+- `utils`: Utilidades y funciones comunes
+- `config`: Configuraciones compartidas
+- `tsconfig`: Configuraciones de TypeScript
+
+## Decisiones Técnicas
+
+### TypeScript
+- Configuración base en la raíz del proyecto
+- Configuraciones específicas para cada tipo de proyecto (Next.js, biblioteca, API)
+- Estricta validación de tipos
+
+### Material-UI y Emotion
+- Implementación de ThemeRegistry para manejo de estilos
+- Cache de Emotion optimizado
+- Tema personalizado con soporte para modo claro/oscuro
+
+### Build y Deploy
+- Sistema de build optimizado con Turborepo
+- Cache distribuido para builds más rápidos
+- Configuración de Docker para desarrollo y producción
+
+## Próximos Pasos
+1. Implementación de autenticación y autorización
+2. Desarrollo de componentes UI base
+3. Configuración de pruebas automatizadas
+4. Implementación de CI/CD
 
 ## Próximas Actualizaciones Planificadas
 1. Configuración de Prisma y base de datos

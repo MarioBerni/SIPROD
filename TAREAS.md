@@ -92,7 +92,42 @@
 - [ ] Preparar scripts de despliegue
 - [ ] Configurar entornos de desarrollo y producción
 
-### Problemas Resueltos 🔧
+## En Progreso
+- [x] Configuración inicial del monorepo
+- [x] Configuración de TypeScript para todos los paquetes
+- [x] Configuración de Material-UI y Emotion
+- [x] Configuración del tema y estilos globales
+- [ ] Desarrollo de componentes UI base
+- [ ] Implementación de autenticación
+- [ ] Desarrollo de API REST
+
+## Próximas Tareas
+- [ ] Implementar sistema de roles y permisos
+- [ ] Desarrollar dashboard principal
+- [ ] Configurar sistema de notificaciones
+- [ ] Implementar gestión de documentos
+- [ ] Desarrollar módulo de reportes
+- [ ] Configurar sistema de logs
+- [ ] Implementar búsqueda avanzada
+
+## Tareas Técnicas
+- [ ] Configurar pruebas unitarias
+- [ ] Configurar pruebas de integración
+- [ ] Implementar CI/CD
+- [ ] Configurar monitoreo y métricas
+- [ ] Optimizar rendimiento de la aplicación
+- [ ] Implementar cache distribuido
+- [ ] Configurar backups automáticos
+
+## Tareas de Documentación
+- [ ] Documentar API REST
+- [ ] Crear guía de desarrollo
+- [ ] Documentar arquitectura del sistema
+- [ ] Crear manual de usuario
+- [ ] Documentar procesos de despliegue
+- [ ] Crear documentación de componentes UI
+
+## Problemas Resueltos 🔧
 - [x] Resolución de conflictos de dependencias de Material UI
 - [x] Corrección de errores TypeScript en Navbar
 - [x] Optimización de componentes de navegación
