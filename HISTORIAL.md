@@ -1,5 +1,52 @@
 # Historial de Cambios - SIPROD
 
+> **Propósito del Archivo**: Este documento mantiene un registro cronológico detallado de todos los cambios significativos realizados en el proyecto. Incluye actualizaciones, mejoras, correcciones y cambios en la configuración. Sirve como referencia histórica y ayuda a entender la evolución del proyecto.
+
+## 2024-12-10
+### Configuración Inicial del Servidor (VPS)
+1. Acceso y Configuración Base
+   - Acceso exitoso a la plataforma NetUy
+   - Cambio de contraseñas por seguridad
+   - Configuración inicial del VPS completada
+   - Hostname configurado correctamente
+
+2. Seguridad y Acceso
+   - Configuración SSH implementada
+   - Generación y configuración de claves SSH
+   - Habilitación de acceso root y autenticación por contraseña
+   - Servicio SSH reiniciado y verificado
+
+3. Sistema y Firewall
+   - Actualización completa del sistema (yum update)
+   - Instalación de repositorios EPEL
+   - Firewalld instalado y configurado
+   - Puertos necesarios habilitados (SSH, HTTP, HTTPS)
+
+4. Entorno de Desarrollo
+   - Node.js 18.x instalado y configurado
+   - pnpm instalado como gestor de paquetes principal
+   - Preparación inicial para PM2 y Nginx
+
+### Actualización de Configuración PM2
+1. Correcciones en ecosystem.config.js
+   - Actualización de rutas a absolutas
+   - Corrección del script del backend (index.js)
+   - Configuración de directorios de logs
+   - Actualización de rutas de trabajo (cwd)
+
+2. Mejoras en la Estructura
+   - Organización de logs en directorio dedicado
+   - Actualización de scripts de construcción
+   - Optimización de configuración de despliegue
+
+### Pendiente
+1. Configuración de cPanel y WHM
+2. Gestión de DNS y dominios
+3. Certificados SSL
+4. Backups automáticos
+5. Configuración de bases de datos
+6. Medidas adicionales de seguridad
+
 ## 2024-12-09
 1. Optimización de la configuración de TypeScript en todo el monorepo
    - Resolución de problemas con Material-UI y Emotion
@@ -19,6 +66,12 @@
    - Configuración de clusters para frontend y backend
    - Definición de variables de entorno para producción
    - Optimización de recursos del servidor
+
+4. Configuración de Producción
+   - Implementación de configuración Nginx con seguridad mejorada
+   - Configuración de variables de entorno para producción
+   - Optimización de PM2 con logging y monitoreo
+   - Preparación para SSL/TLS con Let's Encrypt
 
 ## 2024-12-08
 1. Configuración de Monorepo

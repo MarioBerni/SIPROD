@@ -1,4 +1,6 @@
-# Tareas del Proyecto SIPROD
+# Lista de Tareas - SIPROD
+
+> **Propósito del Archivo**: Este documento gestiona y da seguimiento a todas las tareas del proyecto. Organiza el trabajo en categorías (completadas, pendientes, en curso), establece prioridades y mantiene un registro claro del progreso. Es la herramienta principal para la gestión del trabajo y la planificación del proyecto.
 
 ## En Curso 🔄
 
@@ -137,12 +139,17 @@
 
 ## Completadas ✅
 
-### Infraestructura
+### Infraestructura y Despliegue
 - [x] Configuración inicial de Docker
 - [x] Implementación de healthchecks en servicios
 - [x] Optimización de docker-compose.yml
 - [x] Verificación de builds limpios
 - [x] Configuración de volúmenes para desarrollo
+- [x] Configuración de Nginx para producción
+- [x] Implementación de PM2 con logging
+- [x] Configuración de variables de entorno para producción
+- [x] Preparación de estructura para SSL/TLS
+- [x] Optimización de caché y seguridad en Nginx
 
 ### Monorepo
 - [x] Definir estructura del proyecto
@@ -158,8 +165,80 @@
 
 ## En Curso 🔄
 
-### Optimizaciones
-- [ ] Reducir tiempo de build del frontend
-- [ ] Implementar cache de dependencias en Docker
-- [ ] Optimizar tamaño de imágenes Docker
-- [ ] Configurar CI/CD con GitHub Actions
+### Configuración del Servidor
+
+### Completadas ✅
+1. **Acceso y Usuarios**
+   - [x] Conexión SSH con usuario d5baf91c
+   - [x] Creación de usuario mario_berni
+   - [x] Configuración de permisos de usuarios
+
+2. **Configuración de Directorios**
+   - [x] Cambio de propiedad de /var/www/siprod
+   - [x] Configuración de permisos de escritura
+   - [x] Verificación de accesos
+
+3. **Repositorio y Código**
+   - [x] Clonación de repositorio GitHub
+   - [x] Configuración de token de acceso
+   - [x] Verificación de archivos clonados
+
+4. **Dependencias**
+   - [x] Instalación con pnpm install
+   - [x] Descarga de paquetes necesarios
+   - [x] Verificación de instalación
+
+### Pendientes 🔄
+1. **Configuración de Husky**
+   - [ ] Ejecutar: git config --global --add safe.directory /var/www/siprod
+   - [ ] Verificar hooks de git
+   - [ ] Probar commits
+
+2. **Despliegue Docker**
+   - [ ] Ejecutar: docker-compose -f docker-compose.prod.yml up -d
+   - [ ] Verificar contenedores
+   - [ ] Comprobar logs
+
+3. **Configuración PM2**
+   - [ ] Ejecutar: pm2 start ecosystem.config.js
+   - [ ] Verificar procesos
+   - [ ] Configurar monitoreo
+
+4. **Verificación Final**
+   - [ ] Pruebas de acceso web
+   - [ ] Verificación de funcionalidades
+   - [ ] Documentación de resultados
+
+## Próximos Pasos
+
+### Prioridad Alta
+1. Completar configuración de Husky
+2. Levantar contenedores Docker
+3. Configurar PM2
+
+### Prioridad Media
+1. Implementar monitoreo
+2. Configurar logs
+3. Documentar proceso
+
+### Prioridad Baja
+1. Optimizar configuraciones
+2. Implementar métricas
+3. Revisar rendimiento
+
+## Próximos Pasos
+
+### Prioridad Alta
+1. Completar configuración de cPanel/WHM
+2. Implementar certificados SSL
+3. Configurar base de datos PostgreSQL
+
+### Prioridad Media
+1. Configurar sistema de backups
+2. Implementar monitoreo
+3. Documentar procedimientos
+
+### Prioridad Baja
+1. Optimizar configuraciones
+2. Implementar métricas adicionales
+3. Revisar logs y alertas

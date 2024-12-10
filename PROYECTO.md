@@ -128,8 +128,180 @@ docker-compose up
 docker-compose -f docker-compose.prod.yml up
 ```
 
+## Entorno de Producción
+
+### Configuración de Servidor
+- **Nginx**
+  - Proxy inverso para frontend y backend
+  - Optimización de caché para contenido estático
+  - Headers de seguridad configurados
+  - Preparado para SSL/TLS
+
+### Gestión de Procesos
+- **PM2**
+  - Modo cluster para escalabilidad
+  - Sistema de logs configurado
+  - Monitoreo de recursos
+  - Reinicio automático en caso de fallos
+
+### Variables de Entorno
+- **Producción**
+  ```bash
+  # Frontend (.env.production)
+  NEXT_PUBLIC_API_URL=https://siprod.uy/api
+  
+  # Backend (.env.production)
+  DATABASE_URL=postgresql://user:pass@localhost:5432/siprod
+  ```
+
+### Seguridad
+- Headers HTTP de seguridad
+- Configuración CORS
+- Rate limiting (planificado)
+- WAF (planificado)
+
+### Monitoreo
+- Logs centralizados
+- Métricas de rendimiento
+- Alertas configurables
+- Backups automatizados (planificado)
+
 ## Documentación Adicional
 - [API Documentation](./docs/api.md)
 - [Component Library](./docs/ui.md)
 - [Database Schema](./docs/schema.md)
 - [Deployment Guide](./docs/deployment.md)
+
+## Documentación Técnica - SIPROD
+
+> **Propósito del Archivo**: Este documento contiene la documentación técnica detallada del proyecto. Incluye la arquitectura del sistema, decisiones técnicas, configuraciones de infraestructura y guías de implementación. Es la referencia principal para entender los aspectos técnicos del proyecto.
+
+## Estado Actual del Proyecto
+
+### Despliegue en Servidor
+- **Usuario Principal:** d5baf91c, mario_berni
+- **Directorio:** /var/www/siprod
+- **Repositorio:** https://github.com/MarioBerni/SIPROD.git
+
+### Configuración Implementada
+1. **Acceso y Permisos**
+   - Conexión SSH configurada
+   - Permisos de directorio ajustados
+   - Usuarios configurados correctamente
+
+2. **Código y Dependencias**
+   - Repositorio clonado
+   - Dependencias instaladas con pnpm
+   - Husky pendiente de configuración
+
+### Próximos Pasos de Despliegue
+1. **Docker**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+2. **PM2**
+   ```bash
+   pm2 start ecosystem.config.js
+   ```
+
+## Arquitectura
+
+### Monorepo
+El proyecto utiliza una arquitectura monorepo para mantener todo el código fuente en un único repositorio, facilitando:
+- Gestión centralizada de dependencias
+- Integración continua
+- Reutilización de código
+- Versionado coherente
+
+### Componentes Principales
+1. **Frontend (apps/web)**
+   - Next.js 14
+   - Material UI + Emotion
+   - TypeScript
+   - Estado global con Redux Toolkit
+
+2. **Backend (apps/api)**
+   - Node.js 18.x
+   - Express/Next API Routes
+   - PostgreSQL + Prisma
+   - TypeScript
+
+3. **Paquetes Compartidos (packages/)**
+   - Tipos
+   - Utilidades
+   - Componentes UI
+   - Configuraciones
+
+## Infraestructura
+
+### Servidor de Producción
+- **Proveedor:** NetUy
+- **Sistema:** Almalinux 8 + cPanel
+- **Recursos:**
+  - 8GB RAM
+  - 2 vCPUs @ 3.35GHz
+  - 100GB SSD
+- **IP:** 179.27.203.219
+
+### Configuración de Despliegue
+1. **Nginx**
+   - Proxy inverso
+   - Caché estático
+   - Compresión gzip
+   - SSL/TLS
+
+2. **PM2**
+   - Gestión de procesos Node.js
+   - Clusters para escalabilidad
+   - Monitoreo y logs
+   - Reinicio automático
+
+3. **Docker**
+   - Contenedores para desarrollo y producción
+   - Volúmenes para persistencia
+   - Network bridge para comunicación
+   - Healthchecks
+
+4. **Base de Datos**
+   - PostgreSQL 14+
+   - Prisma como ORM
+   - Backups automáticos
+   - Migraciones versionadas
+
+## Seguridad
+
+### Medidas Implementadas
+- Firewall (firewalld)
+- SSH con claves
+- HTTPS/SSL
+- Rate limiting
+- Sanitización de inputs
+
+### Pendientes
+- Configuración de cPanel/WHM
+- Certificados SSL
+- Fail2ban
+- Monitoreo de seguridad
+
+## Desarrollo
+
+### Flujo de Trabajo
+1. Desarrollo local con Docker Compose
+2. Tests unitarios y e2e
+3. CI/CD con GitHub Actions
+4. Despliegue a producción
+
+### Comandos Principales
+```bash
+# Desarrollo
+pnpm dev
+
+# Build
+pnpm build
+
+# Tests
+pnpm test
+
+# Lint
+pnpm lint

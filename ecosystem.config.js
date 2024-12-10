@@ -4,32 +4,40 @@ module.exports = {
       name: "siprod-frontend",
       script: "node_modules/.bin/next",
       args: "start",
-      cwd: "./apps/web",
+      cwd: "/var/www/siprod/apps/web",
       instances: 1,
       exec_mode: "cluster",
+      watch: false,
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        NEXT_PUBLIC_API_URL: "https://api.siprod.gub.uy",
+        NEXT_PUBLIC_API_URL: "https://siprod.uy/api",
         NEXT_TELEMETRY_DISABLED: 1
-      }
+      },
+      max_memory_restart: "1G",
+      error_file: "/var/www/siprod/logs/frontend-error.log",
+      out_file: "/var/www/siprod/logs/frontend-out.log",
+      time: true
     },
     {
       name: "siprod-backend",
-      script: "dist/main.js",
-      cwd: "./apps/api",
+      script: "dist/index.js",
+      cwd: "/var/www/siprod/apps/api",
       instances: 2,
       exec_mode: "cluster",
+      watch: false,
       env: {
         NODE_ENV: "production",
         PORT: 4000,
         DATABASE_URL: "postgresql://siprod_user:siprod_pass@localhost:5432/siprod_db",
         JWT_SECRET: "your_production_jwt_secret_here",
-        CORS_ORIGIN: "https://siprod.gub.uy"
+        CORS_ORIGIN: "https://siprod.uy",
+        API_PREFIX: "/api"
       },
-      env_production: {
-        NODE_ENV: "production"
-      }
+      max_memory_restart: "1G",
+      error_file: "/var/www/siprod/logs/backend-error.log",
+      out_file: "/var/www/siprod/logs/backend-out.log",
+      time: true
     }
   ]
 };
