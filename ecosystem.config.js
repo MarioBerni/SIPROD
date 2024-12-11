@@ -2,11 +2,11 @@ module.exports = {
   apps: [
     {
       name: "siprod-frontend",
-      script: "node_modules/.bin/next",
+      script: "npm",  
       args: "start",
       cwd: "/var/www/siprod/apps/web",
       instances: 1,
-      exec_mode: "cluster",
+      exec_mode: "fork", 
       watch: false,
       env: {
         NODE_ENV: "production",
