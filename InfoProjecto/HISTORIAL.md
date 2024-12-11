@@ -27,6 +27,18 @@
    - pnpm instalado como gestor de paquetes principal
    - Preparación inicial para PM2 y Nginx
 
+### Configuración de Red y Accesibilidad
+1. Optimización de Conectividad
+   - Habilitación de escucha en IPv4 (0.0.0.0)
+   - Configuración de host para Next.js
+   - Mejora en accesibilidad del servidor
+
+2. Ajustes en ecosystem.config.js
+   - Actualización de script para Next.js
+   - Configuración de host IPv4
+   - Optimización de parámetros de red
+   - Mejora en la configuración de ambos servicios
+
 ### Actualización de Configuración PM2
 1. Correcciones en ecosystem.config.js
    - Actualización de rutas a absolutas

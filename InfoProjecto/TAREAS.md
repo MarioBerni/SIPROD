@@ -242,3 +242,15 @@
 1. Optimizar configuraciones
 2. Implementar métricas adicionales
 3. Revisar logs y alertas
+
+### Configuración de Red
+### Completadas ✅
+- [x] Configuración de escucha IPv4 en frontend
+- [x] Optimización de parámetros de red
+- [x] Configuración de host en Next.js
+- [x] Actualización de ecosystem.config.js
+
+### En Progreso 🔄
+- [ ] Verificación de conectividad
+- [ ] Pruebas de acceso remoto
+- [ ] Monitoreo de logs de red
