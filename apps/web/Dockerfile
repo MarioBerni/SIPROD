@@ -48,5 +48,5 @@ WORKDIR /app/apps/web
 
 EXPOSE 3000
 
-# Start Next.js using node directly
-CMD ["node", "./node_modules/.bin/next", "start"]
+# Start Next.js using pnpm start
+CMD ["pnpm", "start"]
