@@ -10,6 +10,7 @@ COPY package.json pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/utils/package.json ./packages/utils/
+COPY packages/config/package.json ./packages/config/
 COPY packages/tsconfig/package.json ./packages/tsconfig/
 COPY packages/tsconfig/nextjs.json ./packages/tsconfig/
 COPY packages/tsconfig/base/tsconfig.json ./packages/tsconfig/base/
