@@ -5,6 +5,7 @@
 ## En Curso 🔄
 
 ### Fase 1: Diseño Frontend
+
 - [x] Configurar Next.js con TypeScript
 - [x] Implementar tema Material UI base
 - [x] Crear layouts y componentes base
@@ -28,6 +29,7 @@
   - [ ] Página de reportes
 
 ### Fase 2: Configuración Backend
+
 - [x] Configuración inicial
   - [x] Inicializar proyecto Node.js con TypeScript
   - [x] Instalar Express y dependencias principales
@@ -54,7 +56,9 @@
   - [ ] Configurar Winston para logging
 
 ### Fase 3: Configuración de Monorepo y Docker 🆕
+
 - [x] Estructura del Monorepo
+
   - [x] Reorganizar estructura de carpetas
     - [x] Mover código frontend a `packages/frontend`
     - [x] Mover código backend a `packages/backend`
@@ -82,6 +86,7 @@
     - [ ] Scripts de inicialización
 
 ### Fase 4: Integración
+
 - [ ] Configurar sistema de autenticación
 - [ ] Implementar manejo de estado global
 - [ ] Configurar interceptores de API
@@ -89,12 +94,14 @@
 - [ ] Integrar endpoints con frontend
 
 ### Fase 5: Infraestructura
+
 - [ ] Configurar Docker
 - [ ] Configurar GitHub Actions
 - [ ] Preparar scripts de despliegue
 - [ ] Configurar entornos de desarrollo y producción
 
 ## En Progreso
+
 - [x] Configuración inicial del monorepo
 - [x] Configuración de TypeScript para todos los paquetes
 - [x] Configuración de Material-UI y Emotion
@@ -104,6 +111,7 @@
 - [ ] Desarrollo de API REST
 
 ## Próximas Tareas
+
 - [ ] Implementar sistema de roles y permisos
 - [ ] Desarrollar dashboard principal
 - [ ] Configurar sistema de notificaciones
@@ -113,6 +121,7 @@
 - [ ] Implementar búsqueda avanzada
 
 ## Tareas Técnicas
+
 - [ ] Configurar pruebas unitarias
 - [ ] Configurar pruebas de integración
 - [ ] Implementar CI/CD
@@ -122,6 +131,7 @@
 - [ ] Configurar backups automáticos
 
 ## Tareas de Documentación
+
 - [ ] Documentar API REST
 - [ ] Crear guía de desarrollo
 - [ ] Documentar arquitectura del sistema
@@ -130,6 +140,7 @@
 - [ ] Crear documentación de componentes UI
 
 ## Problemas Resueltos 🔧
+
 - [x] Resolución de conflictos de dependencias de Material UI
 - [x] Corrección de errores TypeScript en Navbar
 - [x] Optimización de componentes de navegación
@@ -140,6 +151,7 @@
 ## Completadas ✅
 
 ### Infraestructura y Despliegue
+
 - [x] Configuración inicial de Docker
 - [x] Implementación de healthchecks en servicios
 - [x] Optimización de docker-compose.yml
@@ -152,6 +164,7 @@
 - [x] Optimización de caché y seguridad en Nginx
 
 ### Monorepo
+
 - [x] Definir estructura del proyecto
 - [x] Configurar Material UI y Emotion
 - [x] Configurar TypeScript y herramientas de desarrollo
@@ -168,17 +181,21 @@
 ### Configuración del Servidor
 
 ### Completadas ✅
+
 1. **Acceso y Usuarios**
+
    - [x] Conexión SSH con usuario d5baf91c
    - [x] Creación de usuario mario_berni
    - [x] Configuración de permisos de usuarios
 
 2. **Configuración de Directorios**
+
    - [x] Cambio de propiedad de /var/www/siprod
    - [x] Configuración de permisos de escritura
    - [x] Verificación de accesos
 
 3. **Repositorio y Código**
+
    - [x] Clonación de repositorio GitHub
    - [x] Configuración de token de acceso
    - [x] Verificación de archivos clonados
@@ -189,17 +206,21 @@
    - [x] Verificación de instalación
 
 ### Pendientes 🔄
+
 1. **Configuración de Husky**
+
    - [ ] Ejecutar: git config --global --add safe.directory /var/www/siprod
    - [ ] Verificar hooks de git
    - [ ] Probar commits
 
 2. **Despliegue Docker**
+
    - [ ] Ejecutar: docker-compose -f docker-compose.prod.yml up -d
    - [ ] Verificar contenedores
    - [ ] Comprobar logs
 
 3. **Configuración PM2**
+
    - [ ] Ejecutar: pm2 start ecosystem.config.js
    - [ ] Verificar procesos
    - [ ] Configurar monitoreo
@@ -212,16 +233,19 @@
 ## Próximos Pasos
 
 ### Prioridad Alta
+
 1. Completar configuración de Husky
 2. Levantar contenedores Docker
 3. Configurar PM2
 
 ### Prioridad Media
+
 1. Implementar monitoreo
 2. Configurar logs
 3. Documentar proceso
 
 ### Prioridad Baja
+
 1. Optimizar configuraciones
 2. Implementar métricas
 3. Revisar rendimiento
@@ -229,16 +253,19 @@
 ## Próximos Pasos
 
 ### Prioridad Alta
+
 1. Completar configuración de cPanel/WHM
 2. Implementar certificados SSL
 3. Configurar base de datos PostgreSQL
 
 ### Prioridad Media
+
 1. Configurar sistema de backups
 2. Implementar monitoreo
 3. Documentar procedimientos
 
 ### Prioridad Baja
+
 1. Optimizar configuraciones
 2. Implementar métricas adicionales
 3. Revisar logs y alertas

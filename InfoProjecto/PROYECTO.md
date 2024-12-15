@@ -1,11 +1,13 @@
 # SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
 
 ## Descripción del Proyecto
+
 SIPROD es un sistema integral diseñado para la gestión eficiente de resultados policiales y recursos. El sistema está construido utilizando tecnologías modernas y una arquitectura monorepo que facilita el mantenimiento y la escalabilidad.
 
 ## Estructura del Proyecto
 
 ### Aplicaciones (`/apps`)
+
 - **web**: Aplicación web principal construida con Next.js
   - Interfaz de usuario moderna y responsive
   - Integración con Material-UI y Emotion para estilos
@@ -16,6 +18,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
   - Validación de datos
 
 ### Paquetes (`/packages`)
+
 - **ui**: Biblioteca de componentes compartidos
   - Componentes reutilizables
   - Tema personalizado
@@ -37,6 +40,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Tecnologías Principales
 
 ### Frontend
+
 - Next.js 14
 - TypeScript
 - Material-UI
@@ -44,6 +48,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 - TanStack Query
 
 ### Backend
+
 - Node.js
 - Express
 - TypeScript
@@ -51,6 +56,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 - PostgreSQL
 
 ### DevOps
+
 - Docker
 - Docker Compose
 - GitHub Actions (CI/CD)
@@ -59,12 +65,14 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Configuración del Entorno
 
 ### Requisitos
+
 - Node.js >= 18
 - PNPM
 - Docker y Docker Compose
 - PostgreSQL
 
 ### Instalación
+
 1. Clonar el repositorio
 2. Instalar dependencias: `pnpm install`
 3. Copiar `.env.example` a `.env`
@@ -72,6 +80,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 5. Iniciar en desarrollo: `pnpm dev`
 
 ### Scripts Disponibles
+
 - `pnpm dev`: Inicia el entorno de desarrollo
 - `pnpm build`: Construye todos los paquetes
 - `pnpm test`: Ejecuta las pruebas
@@ -81,12 +90,14 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Guías de Desarrollo
 
 ### Convenciones de Código
+
 - Usar TypeScript estricto
 - Seguir guías de estilo de ESLint
 - Documentar componentes y funciones
 - Escribir pruebas unitarias
 
 ### Flujo de Trabajo Git
+
 1. Crear rama feature/fix
 2. Desarrollar cambios
 3. Ejecutar pruebas y lint
@@ -97,6 +108,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Entorno de Desarrollo
 
 ### Docker
+
 - **Configuración Optimizada**
   - Servicios containerizados: frontend, backend, base de datos
   - Healthchecks implementados para todos los servicios
@@ -104,6 +116,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
   - Tiempos de compilación optimizados
 
 ### Comandos Principales
+
 ```bash
 # Iniciar servicios
 docker-compose up -d
@@ -119,11 +132,13 @@ docker-compose build backend
 ## Despliegue
 
 ### Desarrollo
+
 ```bash
 docker-compose up
 ```
 
 ### Producción
+
 ```bash
 docker-compose -f docker-compose.prod.yml up
 ```
@@ -131,6 +146,7 @@ docker-compose -f docker-compose.prod.yml up
 ## Entorno de Producción
 
 ### Configuración de Servidor
+
 - **Nginx**
   - Proxy inverso para frontend y backend
   - Optimización de caché para contenido estático
@@ -138,6 +154,7 @@ docker-compose -f docker-compose.prod.yml up
   - Preparado para SSL/TLS
 
 ### Gestión de Procesos
+
 - **PM2**
   - Modo cluster para escalabilidad
   - Sistema de logs configurado
@@ -145,28 +162,33 @@ docker-compose -f docker-compose.prod.yml up
   - Reinicio automático en caso de fallos
 
 ### Variables de Entorno
+
 - **Producción**
+
   ```bash
   # Frontend (.env.production)
   NEXT_PUBLIC_API_URL=https://siprod.uy/api
-  
+
   # Backend (.env.production)
   DATABASE_URL=postgresql://user:pass@localhost:5432/siprod
   ```
 
 ### Seguridad
+
 - Headers HTTP de seguridad
 - Configuración CORS
 - Rate limiting (planificado)
 - WAF (planificado)
 
 ### Monitoreo
+
 - Logs centralizados
 - Métricas de rendimiento
 - Alertas configurables
 - Backups automatizados (planificado)
 
 ## Documentación Adicional
+
 - [API Documentation](./docs/api.md)
 - [Component Library](./docs/ui.md)
 - [Database Schema](./docs/schema.md)
@@ -176,15 +198,169 @@ docker-compose -f docker-compose.prod.yml up
 
 > **Propósito del Archivo**: Este documento contiene la documentación técnica detallada del proyecto. Incluye la arquitectura del sistema, decisiones técnicas, configuraciones de infraestructura y guías de implementación. Es la referencia principal para entender los aspectos técnicos del proyecto.
 
+## Arquitectura del Sistema
+
+### Frontend (Next.js)
+- **Framework**: Next.js 14
+- **UI Library**: Material UI + Emotion
+- **State Management**: React Query + Zustand
+- **Form Management**: React Hook Form + Zod
+- **Testing**: Jest + React Testing Library
+
+### Backend (NestJS)
+- **Framework**: NestJS
+- **ORM**: Prisma
+- **Database**: PostgreSQL
+- **Authentication**: JWT + bcrypt
+- **API Documentation**: Swagger/OpenAPI
+- **Testing**: Jest
+
+### Infraestructura
+- **Containerization**: Docker + Docker Compose
+- **Database**: PostgreSQL 15
+- **CI/CD**: GitHub Actions
+- **Monitoreo**: Prometheus + Grafana (planificado)
+
+## Flujo de Desarrollo
+
+### Local Development
+1. Instalar dependencias con pnpm
+2. Configurar variables de entorno
+3. Iniciar servicios individualmente con `pnpm dev`
+4. Desarrollar y probar cambios localmente
+
+### Producción
+1. Clonar repositorio en servidor
+2. Configurar variables de entorno de producción
+3. Construir y ejecutar con Docker Compose
+4. Monitorear logs y métricas
+
+## Seguridad
+
+### Autenticación
+- JWT para tokens de acceso
+- Refresh tokens para sesiones largas
+- Rate limiting para prevenir ataques de fuerza bruta
+
+### Autorización
+- RBAC (Role-Based Access Control)
+- Middleware de autorización por ruta
+- Validación de permisos por acción
+
+### Protección de Datos
+- Encriptación de datos sensibles
+- HTTPS obligatorio en producción
+- Sanitización de inputs
+- Validación de datos con Zod
+
+## APIs y Endpoints
+
+### REST API
+- `/api/auth/*`: Endpoints de autenticación
+- `/api/users/*`: Gestión de usuarios
+- `/api/reports/*`: Gestión de reportes
+- `/api/resources/*`: Gestión de recursos
+
+### WebSocket (planificado)
+- Notificaciones en tiempo real
+- Actualizaciones de estado
+- Chat interno
+
+## Base de Datos
+
+### Modelos Principales
+- Users
+- Reports
+- Resources
+- Departments
+- Roles
+- Permissions
+
+### Relaciones
+- User -> Roles (many-to-many)
+- Reports -> Users (many-to-one)
+- Resources -> Departments (many-to-one)
+
+## Monitoreo y Logging
+
+### Logs
+- Winston para logging estructurado
+- Rotación de logs
+- Niveles de log configurables
+
+### Métricas (planificado)
+- Prometheus para métricas
+- Grafana para visualización
+- Alertas automáticas
+
+## Backups y Recuperación
+
+### Estrategia de Backup
+- Backups diarios de la base de datos
+- Retención de 30 días
+- Backups incrementales
+
+### Recuperación
+- Procedimientos documentados
+- Scripts de restauración
+- Pruebas periódicas
+
+## Escalabilidad
+
+### Horizontal
+- Containers stateless
+- Load balancing
+- Sesiones distribuidas
+
+### Vertical
+- Recursos configurables por container
+- Optimización de queries
+- Caching estratégico
+
+## Mantenimiento
+
+### Actualizaciones
+- Ventanas de mantenimiento programadas
+- Rollback automatizado
+- Testing en staging
+
+### Monitoreo
+- Healthchecks
+- Métricas de performance
+- Alertas configurables
+
+## Roadmap
+
+### Fase 1 (Actual)
+- ✅ Setup inicial del proyecto
+- ✅ Autenticación básica
+- ✅ CRUD de usuarios
+- 🔄 Gestión de reportes
+
+### Fase 2 (Próximo)
+- Dashboards analíticos
+- Sistema de notificaciones
+- Integración con sistemas externos
+- Reportes avanzados
+
+### Fase 3 (Futuro)
+- BI y análisis predictivo
+- Mobile app
+- Integración con GIS
+- Chat interno
+
 ## Estado Actual del Proyecto
 
 ### Despliegue en Servidor
+
 - **Usuario Principal:** d5baf91c, mario_berni
 - **Directorio:** /var/www/siprod
 - **Repositorio:** https://github.com/MarioBerni/SIPROD.git
 
 ### Configuración Implementada
+
 1. **Acceso y Permisos**
+
    - Conexión SSH configurada
    - Permisos de directorio ajustados
    - Usuarios configurados correctamente
@@ -195,7 +371,9 @@ docker-compose -f docker-compose.prod.yml up
    - Husky pendiente de configuración
 
 ### Próximos Pasos de Despliegue
+
 1. **Docker**
+
    ```bash
    docker-compose -f docker-compose.prod.yml up -d
    ```
@@ -204,104 +382,3 @@ docker-compose -f docker-compose.prod.yml up
    ```bash
    pm2 start ecosystem.config.js
    ```
-
-## Arquitectura
-
-### Monorepo
-El proyecto utiliza una arquitectura monorepo para mantener todo el código fuente en un único repositorio, facilitando:
-- Gestión centralizada de dependencias
-- Integración continua
-- Reutilización de código
-- Versionado coherente
-
-### Componentes Principales
-1. **Frontend (apps/web)**
-   - Next.js 14
-   - Material UI + Emotion
-   - TypeScript
-   - Estado global con Redux Toolkit
-
-2. **Backend (apps/api)**
-   - Node.js 18.x
-   - Express/Next API Routes
-   - PostgreSQL + Prisma
-   - TypeScript
-
-3. **Paquetes Compartidos (packages/)**
-   - Tipos
-   - Utilidades
-   - Componentes UI
-   - Configuraciones
-
-## Infraestructura
-
-### Servidor de Producción
-- **Proveedor:** NetUy
-- **Sistema:** Almalinux 8 + cPanel
-- **Recursos:**
-  - 8GB RAM
-  - 2 vCPUs @ 3.35GHz
-  - 100GB SSD
-- **IP:** 179.27.203.219
-
-### Configuración de Despliegue
-1. **Nginx**
-   - Proxy inverso
-   - Caché estático
-   - Compresión gzip
-   - SSL/TLS
-
-2. **PM2**
-   - Gestión de procesos Node.js
-   - Clusters para escalabilidad
-   - Monitoreo y logs
-   - Reinicio automático
-
-3. **Docker**
-   - Contenedores para desarrollo y producción
-   - Volúmenes para persistencia
-   - Network bridge para comunicación
-   - Healthchecks
-
-4. **Base de Datos**
-   - PostgreSQL 14+
-   - Prisma como ORM
-   - Backups automáticos
-   - Migraciones versionadas
-
-## Seguridad
-
-### Medidas Implementadas
-- Firewall (firewalld)
-- SSH con claves
-- HTTPS/SSL
-- Rate limiting
-- Sanitización de inputs
-
-### Pendientes
-- Configuración de cPanel/WHM
-- Certificados SSL
-- Fail2ban
-- Monitoreo de seguridad
-
-## Desarrollo
-
-### Flujo de Trabajo
-1. Desarrollo local con Docker Compose
-2. Tests unitarios y e2e
-3. CI/CD con GitHub Actions
-4. Despliegue a producción
-
-### Comandos Principales
-```bash
-# Desarrollo
-pnpm dev
-
-# Build
-pnpm build
-
-# Tests
-pnpm test
-
-# Lint
-pnpm lint

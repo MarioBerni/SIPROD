@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { CacheProvider } from '@emotion/react';
-import theme from '@/theme/theme';
-import createEmotionCache from '@/lib/createEmotionCache';
+import * as React from 'react'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import { CacheProvider } from '@emotion/react'
+import theme from '@/theme/theme'
+import createEmotionCache from '@/lib/createEmotionCache'
 
-const clientSideEmotionCache = createEmotionCache();
+const clientSideEmotionCache = createEmotionCache()
 
 export default function ThemeRegistry({ children }: { children: React.ReactNode }) {
   return (
@@ -17,5 +17,5 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
         {children}
       </ThemeProvider>
     </CacheProvider>
-  );
+  )
 }

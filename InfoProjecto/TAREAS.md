@@ -171,6 +171,7 @@
 ## Completadas
 
 ### Configuración del Entorno
+
 - [x] Configuración inicial del monorepo
 - [x] Configuración de Docker para desarrollo
 - [x] Resolución de conflictos de puertos en Docker

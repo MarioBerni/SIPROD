@@ -5,6 +5,7 @@
 ## Estándares de Código
 
 ### Convenciones de Nombrado
+
 - **Componentes React:** PascalCase (ej: UserProfile.tsx)
 - **Archivos de utilidad:** camelCase (ej: formatDate.ts)
 - **Constantes:** UPPER_SNAKE_CASE
@@ -12,6 +13,7 @@
 - **Tipos y interfaces:** PascalCase
 
 ### Estructura de Carpetas
+
 ```
 apps/
   ├── web/
@@ -33,7 +35,9 @@ packages/
 ```
 
 ### Flujo de Trabajo Git
+
 1. **Ramas:**
+
    - `main`: Producción
    - `develop`: Desarrollo principal
    - `feature/*`: Nuevas funcionalidades
@@ -41,11 +45,13 @@ packages/
    - `release/*`: Preparación para producción
 
 2. **Commits:**
+
    ```
    tipo(alcance): descripción corta
 
    Descripción detallada si es necesaria
    ```
+
    Tipos: feat, fix, docs, style, refactor, test, chore
 
 3. **Pull Requests:**
@@ -57,12 +63,15 @@ packages/
 ## Guías de Implementación
 
 ### Frontend
+
 1. **Componentes:**
+
    - Usar componentes funcionales
    - Implementar React.memo para optimización
    - Mantener componentes pequeños y reutilizables
 
 2. **Estado:**
+
    - Usar Redux Toolkit para estado global
    - useState para estado local
    - useContext para temas y configuraciones
@@ -73,12 +82,15 @@ packages/
    - Mantener consistencia en espaciados
 
 ### Backend
+
 1. **API:**
+
    - RESTful para endpoints principales
    - GraphQL para consultas complejas
    - Documentar con OpenAPI/Swagger
 
 2. **Base de Datos:**
+
    - Usar Prisma para consultas
    - Mantener migraciones versionadas
    - Implementar índices apropiados
@@ -91,6 +103,7 @@ packages/
 ## Pruebas
 
 ### Frontend
+
 ```typescript
 // Ejemplo de prueba de componente
 describe('Component', () => {
@@ -102,23 +115,26 @@ describe('Component', () => {
 ```
 
 ### Backend
+
 ```typescript
 // Ejemplo de prueba de servicio
 describe('Service', () => {
   it('should process data correctly', async () => {
-    const result = await service.process(data);
-    expect(result).toMatchSnapshot();
-  });
-});
+    const result = await service.process(data)
+    expect(result).toMatchSnapshot()
+  })
+})
 ```
 
 ## Métricas y Calidad
+
 - Coverage mínimo: 80%
 - Complejidad ciclomática máxima: 10
 - Longitud máxima de función: 20 líneas
 - Profundidad máxima de anidación: 3 niveles
 
 ## Proceso de Review
+
 1. Verificar estándares de código
 2. Revisar pruebas
 3. Validar rendimiento
@@ -126,6 +142,7 @@ describe('Service', () => {
 5. Aprobar o solicitar cambios
 
 ## Documentación
+
 - Documentar APIs con OpenAPI
 - Mantener README actualizado
 - Comentar código complejo

@@ -29,17 +29,20 @@ Este proyecto utiliza una arquitectura monorepo con Turborepo y pnpm workspaces.
 ### Inicio Rápido
 
 1. Clonar el repositorio
+
 ```bash
 git clone [URL_REPOSITORIO]
 cd SIPROD
 ```
 
 2. Instalar dependencias
+
 ```bash
 pnpm install
 ```
 
 3. Iniciar servicios con Docker
+
 ```bash
 # Iniciar todos los servicios
 docker-compose up -d
@@ -49,10 +52,12 @@ docker-compose build --no-cache
 ```
 
 4. Acceder a las aplicaciones
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:4000
 
 ### Tiempos de Compilación Esperados
+
 - Frontend: ~2 minutos (primera vez)
 - Backend: ~1 minuto (primera vez)
 - Builds subsecuentes: significativamente más rápidos
@@ -68,6 +73,7 @@ docker-compose build --no-cache
 ## Despliegue en Producción
 
 ### Prerequisitos
+
 - Nginx
 - PM2
 - Node.js 18+
@@ -77,6 +83,7 @@ docker-compose build --no-cache
 ### Configuración del Servidor
 
 1. **Nginx**
+
 ```bash
 # Copiar configuración
 sudo cp nginx/siprod.conf /etc/nginx/conf.d/
@@ -85,6 +92,7 @@ sudo systemctl restart nginx
 ```
 
 2. **PM2**
+
 ```bash
 # Instalar PM2
 npm install -g pm2
@@ -98,6 +106,7 @@ pm2 save
 ```
 
 3. **Variables de Entorno**
+
 ```bash
 # Copiar archivos de ejemplo
 cp .env.example .env
@@ -105,6 +114,7 @@ cp .env.example .env
 ```
 
 ### Monitoreo
+
 ```bash
 # Ver estado de las aplicaciones
 pm2 status
@@ -117,6 +127,7 @@ pm2 monit
 ```
 
 ## Estado Actual
+
 - ✅ Conexión SSH configurada
 - ✅ Repositorio clonado
 - ✅ Dependencias instaladas
@@ -127,6 +138,7 @@ pm2 monit
 ## Infraestructura
 
 ### Servidor de Producción
+
 - **Sistema Operativo:** Almalinux 8 + cPanel
 - **Recursos:**
   - RAM: 8GB
@@ -134,6 +146,7 @@ pm2 monit
   - Almacenamiento: 100GB SSD
 
 ### Stack Tecnológico
+
 - **Frontend:** Next.js, Material UI + Emotion, TypeScript
 - **Backend:** Node.js, Express/Next API Routes, PostgreSQL + Prisma
 - **Infraestructura:** Docker, Nginx, PM2

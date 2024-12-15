@@ -1,11 +1,13 @@
 # SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
 
 ## Descripción del Proyecto
+
 SIPROD es un sistema integral diseñado para la gestión eficiente de resultados policiales y recursos. El sistema está construido utilizando tecnologías modernas y una arquitectura monorepo que facilita el mantenimiento y la escalabilidad.
 
 ## Estructura del Proyecto
 
 ### Aplicaciones (`/apps`)
+
 - **web**: Aplicación web principal construida con Next.js
   - Interfaz de usuario moderna y responsive
   - Integración con Material-UI y Emotion para estilos
@@ -16,6 +18,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
   - Validación de datos
 
 ### Paquetes (`/packages`)
+
 - **ui**: Biblioteca de componentes compartidos
   - Componentes reutilizables
   - Tema personalizado
@@ -37,6 +40,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Tecnologías Principales
 
 ### Frontend
+
 - Next.js 14
 - TypeScript
 - Material-UI
@@ -44,6 +48,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 - TanStack Query
 
 ### Backend
+
 - Node.js
 - Express
 - TypeScript
@@ -51,6 +56,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 - PostgreSQL
 
 ### DevOps
+
 - Docker
 - Docker Compose
 - GitHub Actions (CI/CD)
@@ -59,12 +65,14 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Configuración del Entorno
 
 ### Requisitos
+
 - Node.js >= 18
 - PNPM
 - Docker y Docker Compose
 - PostgreSQL
 
 ### Instalación
+
 1. Clonar el repositorio
 2. Instalar dependencias: `pnpm install`
 3. Copiar `.env.example` a `.env`
@@ -72,6 +80,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 5. Iniciar en desarrollo: `pnpm dev`
 
 ### Scripts Disponibles
+
 - `pnpm dev`: Inicia el entorno de desarrollo
 - `pnpm build`: Construye todos los paquetes
 - `pnpm test`: Ejecuta las pruebas
@@ -81,12 +90,14 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Guías de Desarrollo
 
 ### Convenciones de Código
+
 - Usar TypeScript estricto
 - Seguir guías de estilo de ESLint
 - Documentar componentes y funciones
 - Escribir pruebas unitarias
 
 ### Flujo de Trabajo Git
+
 1. Crear rama feature/fix
 2. Desarrollar cambios
 3. Ejecutar pruebas y lint
@@ -97,6 +108,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
 ## Entorno de Desarrollo
 
 ### Docker
+
 - **Configuración Optimizada**
   - Servicios containerizados: frontend, backend, base de datos
   - Healthchecks implementados para todos los servicios
@@ -104,6 +116,7 @@ SIPROD es un sistema integral diseñado para la gestión eficiente de resultados
   - Tiempos de compilación optimizados
 
 ### Comandos Principales
+
 ```bash
 # Iniciar servicios
 docker-compose up -d
@@ -119,11 +132,13 @@ docker-compose build backend
 ## Despliegue
 
 ### Desarrollo
+
 ```bash
 docker-compose up
 ```
 
 ### Producción
+
 ```bash
 docker-compose -f docker-compose.prod.yml up
 ```
@@ -131,6 +146,7 @@ docker-compose -f docker-compose.prod.yml up
 ## Entorno de Producción
 
 ### Configuración de Servidor
+
 - **Nginx**
   - Proxy inverso para frontend y backend
   - Optimización de caché para contenido estático
@@ -138,6 +154,7 @@ docker-compose -f docker-compose.prod.yml up
   - Preparado para SSL/TLS
 
 ### Gestión de Procesos
+
 - **PM2**
   - Modo cluster para escalabilidad
   - Sistema de logs configurado
@@ -145,28 +162,33 @@ docker-compose -f docker-compose.prod.yml up
   - Reinicio automático en caso de fallos
 
 ### Variables de Entorno
+
 - **Producción**
+
   ```bash
   # Frontend (.env.production)
   NEXT_PUBLIC_API_URL=https://siprod.uy/api
-  
+
   # Backend (.env.production)
   DATABASE_URL=postgresql://user:pass@localhost:5432/siprod
   ```
 
 ### Seguridad
+
 - Headers HTTP de seguridad
 - Configuración CORS
 - Rate limiting (planificado)
 - WAF (planificado)
 
 ### Monitoreo
+
 - Logs centralizados
 - Métricas de rendimiento
 - Alertas configurables
 - Backups automatizados (planificado)
 
 ## Documentación Adicional
+
 - [API Documentation](./docs/api.md)
 - [Component Library](./docs/ui.md)
 - [Database Schema](./docs/schema.md)
@@ -179,12 +201,15 @@ docker-compose -f docker-compose.prod.yml up
 ## Estado Actual del Proyecto
 
 ### Despliegue en Servidor
+
 - **Usuario Principal:** d5baf91c, mario_berni
 - **Directorio:** /var/www/siprod
 - **Repositorio:** https://github.com/MarioBerni/SIPROD.git
 
 ### Configuración Implementada
+
 1. **Acceso y Permisos**
+
    - Conexión SSH configurada
    - Permisos de directorio ajustados
    - Usuarios configurados correctamente
@@ -195,7 +220,9 @@ docker-compose -f docker-compose.prod.yml up
    - Husky pendiente de configuración
 
 ### Próximos Pasos de Despliegue
+
 1. **Docker**
+
    ```bash
    docker-compose -f docker-compose.prod.yml up -d
    ```
@@ -208,20 +235,25 @@ docker-compose -f docker-compose.prod.yml up
 ## Arquitectura
 
 ### Monorepo
+
 El proyecto utiliza una arquitectura monorepo para mantener todo el código fuente en un único repositorio, facilitando:
+
 - Gestión centralizada de dependencias
 - Integración continua
 - Reutilización de código
 - Versionado coherente
 
 ### Componentes Principales
+
 1. **Frontend (apps/web)**
+
    - Next.js 14
    - Material UI + Emotion
    - TypeScript
    - Estado global con Redux Toolkit
 
 2. **Backend (apps/api)**
+
    - Node.js 18.x
    - Express/Next API Routes
    - PostgreSQL + Prisma
@@ -236,6 +268,7 @@ El proyecto utiliza una arquitectura monorepo para mantener todo el código fuen
 ## Infraestructura
 
 ### Servidor de Producción
+
 - **Proveedor:** NetUy
 - **Sistema:** Almalinux 8 + cPanel
 - **Recursos:**
@@ -245,19 +278,23 @@ El proyecto utiliza una arquitectura monorepo para mantener todo el código fuen
 - **IP:** 179.27.203.219
 
 ### Configuración de Despliegue
+
 1. **Nginx**
+
    - Proxy inverso
    - Caché estático
    - Compresión gzip
    - SSL/TLS
 
 2. **PM2**
+
    - Gestión de procesos Node.js
    - Clusters para escalabilidad
    - Monitoreo y logs
    - Reinicio automático
 
 3. **Docker**
+
    - Contenedores para desarrollo y producción
    - Volúmenes para persistencia
    - Network bridge para comunicación
@@ -272,6 +309,7 @@ El proyecto utiliza una arquitectura monorepo para mantener todo el código fuen
 ## Seguridad
 
 ### Medidas Implementadas
+
 - Firewall (firewalld)
 - SSH con claves
 - HTTPS/SSL
@@ -279,6 +317,7 @@ El proyecto utiliza una arquitectura monorepo para mantener todo el código fuen
 - Sanitización de inputs
 
 ### Pendientes
+
 - Configuración de cPanel/WHM
 - Certificados SSL
 - Fail2ban
@@ -287,12 +326,14 @@ El proyecto utiliza una arquitectura monorepo para mantener todo el código fuen
 ## Desarrollo
 
 ### Flujo de Trabajo
+
 1. Desarrollo local con Docker Compose
 2. Tests unitarios y e2e
 3. CI/CD con GitHub Actions
 4. Despliegue a producción
 
 ### Comandos Principales
+
 ```bash
 # Desarrollo
 pnpm dev
@@ -305,3 +346,4 @@ pnpm test
 
 # Lint
 pnpm lint
+```

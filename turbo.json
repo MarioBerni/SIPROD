@@ -22,9 +22,5 @@
       "outputs": ["coverage/**"]
     }
   },
-  "globalEnv": [
-    "NODE_ENV",
-    "PORT",
-    "DATABASE_URL"
-  ]
+  "globalEnv": ["NODE_ENV", "PORT", "DATABASE_URL"]
 }

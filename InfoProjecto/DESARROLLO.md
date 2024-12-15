@@ -117,31 +117,34 @@ packages/
 ## Configuración del Entorno Docker
 
 ### Puertos Utilizados
+
 - Frontend: 3000
 - Backend: 4000
 - PostgreSQL: 5433 (cambiado de 5432 para evitar conflictos con instalaciones locales)
 
 ### Estructura de Contenedores
+
 ```yaml
 services:
   frontend:
     build:
       context: .
       dockerfile: apps/web/Dockerfile.dev
-    ports: ["3000:3000"]
-    
+    ports: ['3000:3000']
+
   backend:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile.dev
-    ports: ["4000:4000"]
-    
+    ports: ['4000:4000']
+
   db:
     image: postgres:15-alpine
-    ports: ["5433:5432"]
+    ports: ['5433:5432']
 ```
 
 ### Comandos Docker Útiles
+
 ```bash
 # Iniciar servicios
 docker-compose up -d
@@ -156,14 +159,93 @@ docker-compose down
 docker-compose logs -f
 ```
 
+## Docker y Despliegue
+
+### Configuración de Desarrollo
+
+1. Requisitos Previos
+
+   ```bash
+   # Instalar Docker y Docker Compose
+   # Instalar pnpm globalmente
+   npm install -g pnpm
+   ```
+
+2. Variables de Entorno
+
+   - Copiar `.env.example` a `.env`
+   - Ajustar variables según el entorno
+   - NO compartir el archivo `.env` en el repositorio
+
+3. Iniciar el Proyecto
+
+   ```bash
+   # Construir e iniciar contenedores
+   docker-compose up --build
+
+   # En modo detached
+   docker-compose up -d --build
+   ```
+
+4. Monitoreo y Logs
+
+   ```bash
+   # Ver logs de todos los servicios
+   docker-compose logs -f
+
+   # Ver logs de un servicio específico
+   docker-compose logs -f [frontend|backend|db]
+   ```
+
+### Gestión de Recursos
+
+1. Límites de Recursos
+
+   - Frontend: 1 CPU, 2GB RAM
+   - Backend: 1 CPU, 1.5GB RAM
+   - Database: 1 CPU, 1GB RAM
+
+2. Healthchecks
+
+   - Intervalos de verificación: 10-20 segundos
+   - Timeouts: 5-10 segundos
+   - Reintentos: 3-5 veces
+
+3. Persistencia de Datos
+   - Volumen nombrado para PostgreSQL
+   - Backup regular recomendado
+   - Punto de montaje: /var/lib/postgresql/data
+
+### Buenas Prácticas
+
+1. Desarrollo
+
+   - Usar `pnpm` como gestor de paquetes
+   - Mantener Dockerfiles optimizados
+   - Seguir principios de 12-factor app
+
+2. Seguridad
+
+   - No exponer secretos en código
+   - Usar variables de entorno
+   - Implementar rate limiting
+   - Configurar CORS apropiadamente
+
+3. Monitoreo
+   - Revisar logs regularmente
+   - Monitorear uso de recursos
+   - Verificar healthchecks
+
 ## Configuración de TypeScript
 
 ### Estructura Base
+
 - `@siprod/tsconfig`: Configuración base compartida
 - Ubicación: `packages/tsconfig/base.json`
 - Extensión en otros paquetes mediante `extends: "@siprod/tsconfig/base.json"`
 
 ### Configuración por Servicio
+
 - Backend: Modo CommonJS, ES2020
 - Frontend: Next.js, ESNext
 - Paquetes compartidos: ESNext, declaraciones habilitadas
@@ -416,7 +498,6 @@ const rows = [
 
 ```tsx
 import { Card } from '@siprod/ui'
-
 ;<Card
   title="Título"
   subtitle="Subtítulo"

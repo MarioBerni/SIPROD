@@ -2,166 +2,93 @@
 
 > **Propósito del Archivo**: Este documento sirve como punto de entrada principal al proyecto. Proporciona una visión general del sistema, instrucciones de configuración inicial, y enlaces a documentación más detallada. Es el primer archivo que debe consultar cualquier persona que se una al proyecto.
 
-## Estructura del Monorepo
+## Descripción
+Sistema centralizado para la gestión y análisis de información policial y recursos.
 
-Este proyecto utiliza una arquitectura monorepo con Turborepo y pnpm workspaces.
+## Estructura del Proyecto
+```
+SIPROD/
+├── apps/
+│   ├── api/         # Backend API (NestJS)
+│   └── web/         # Frontend (Next.js)
+├── packages/
+│   ├── config/      # Configuraciones compartidas
+│   ├── tsconfig/    # Configuraciones de TypeScript
+│   ├── ui/          # Componentes UI compartidos
+│   └── utils/       # Utilidades compartidas
+└── docker-compose.yml
+```
 
-### Aplicaciones (`apps/`)
+## Requisitos Previos
+- Node.js 18 o superior
+- PNPM
+- PostgreSQL (para desarrollo local)
+- Docker y Docker Compose (para producción)
 
-- `web/`: Frontend en Next.js
-- `api/`: Backend en Express + Prisma
+## Desarrollo Local
 
-### Paquetes Compartidos (`packages/`)
+1. Instalar dependencias:
+```bash
+pnpm install
+```
 
-- `config/`: Configuraciones compartidas (ESLint, etc.)
-- `tsconfig/`: Configuraciones de TypeScript
-- `ui/`: Componentes de UI reutilizables
-- `utils/`: Utilidades y funciones compartidas
+2. Configurar variables de entorno:
+```bash
+cp .env.example .env
+# Editar .env con tus valores
+```
 
-## Desarrollo
+3. Iniciar servicios en modo desarrollo:
+```bash
+# Terminal 1 - Backend
+cd apps/api
+pnpm dev
 
-### Prerequisitos
+# Terminal 2 - Frontend
+cd apps/web
+pnpm dev
+```
 
-- Docker y Docker Compose
-- pnpm (gestor de paquetes)
-- Node.js 18+
+## Despliegue en Producción
 
-### Inicio Rápido
-
-1. Clonar el repositorio
+1. Clonar el repositorio en el servidor:
 ```bash
 git clone [URL_REPOSITORIO]
 cd SIPROD
 ```
 
-2. Instalar dependencias
+2. Configurar variables de entorno:
 ```bash
-pnpm install
-```
-
-3. Iniciar servicios con Docker
-```bash
-# Iniciar todos los servicios
-docker-compose up -d
-
-# Para un build limpio
-docker-compose build --no-cache
-```
-
-4. Acceder a las aplicaciones
-- Frontend: http://localhost:3000
-- Backend: http://localhost:4000
-
-### Tiempos de Compilación Esperados
-- Frontend: ~2 minutos (primera vez)
-- Backend: ~1 minuto (primera vez)
-- Builds subsecuentes: significativamente más rápidos
-
-### Scripts Disponibles
-
-- `pnpm dev`: Inicia todos los proyectos en modo desarrollo
-- `pnpm build`: Construye todos los proyectos
-- `pnpm lint`: Ejecuta el linting en todos los proyectos
-- `pnpm test`: Ejecuta las pruebas en todos los proyectos
-- `pnpm clean`: Limpia todos los archivos generados
-
-## Despliegue en Producción
-
-### Prerequisitos
-- Nginx
-- PM2
-- Node.js 18+
-- PostgreSQL
-- Let's Encrypt (para SSL)
-
-### Configuración del Servidor
-
-1. **Nginx**
-```bash
-# Copiar configuración
-sudo cp nginx/siprod.conf /etc/nginx/conf.d/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-2. **PM2**
-```bash
-# Instalar PM2
-npm install -g pm2
-
-# Iniciar aplicación
-pm2 start ecosystem.config.js
-
-# Configurar inicio automático
-pm2 startup
-pm2 save
-```
-
-3. **Variables de Entorno**
-```bash
-# Copiar archivos de ejemplo
 cp .env.example .env
-# Editar variables según el entorno
+# Editar .env con valores de producción
 ```
 
-### Monitoreo
+3. Construir y ejecutar con Docker:
 ```bash
-# Ver estado de las aplicaciones
-pm2 status
-
-# Ver logs
-pm2 logs
-
-# Monitoreo en tiempo real
-pm2 monit
+docker-compose up --build -d
 ```
 
-## Estado Actual
-- ✅ Conexión SSH configurada
-- ✅ Repositorio clonado
-- ✅ Dependencias instaladas
-- 🔄 Configuración de Husky pendiente
-- 🔄 Despliegue con Docker pendiente
-- 🔄 Configuración de PM2 pendiente
+## Variables de Entorno
+- `DB_PASSWORD`: Contraseña de la base de datos
+- `JWT_SECRET`: Secreto para firmar tokens JWT
+- `RATE_LIMIT_WINDOW`: Ventana de tiempo para rate limiting
+- `RATE_LIMIT_MAX`: Máximo de peticiones en la ventana
+- `POSTGRES_USER`: Usuario de PostgreSQL
+- `POSTGRES_DB`: Nombre de la base de datos
+- `NEXT_PUBLIC_API_URL`: URL de la API
 
-## Infraestructura
+## Estructura de Directorios
+- `apps/api`: API backend en NestJS
+- `apps/web`: Frontend en Next.js
+- `packages/config`: Configuraciones compartidas
+- `packages/tsconfig`: Configuraciones de TypeScript
+- `packages/ui`: Componentes de UI compartidos
+- `packages/utils`: Utilidades compartidas
 
-### Servidor de Producción
-- **Sistema Operativo:** Almalinux 8 + cPanel
-- **Recursos:**
-  - RAM: 8GB
-  - CPU: 2 vCPUs @ 3.35GHz
-  - Almacenamiento: 100GB SSD
+## Contribución
+1. Crear una rama para tu feature
+2. Hacer commit de tus cambios
+3. Crear un pull request
 
-### Stack Tecnológico
-- **Frontend:** Next.js, Material UI + Emotion, TypeScript
-- **Backend:** Node.js, Express/Next API Routes, PostgreSQL + Prisma
-- **Infraestructura:** Docker, Nginx, PM2
-- **CI/CD:** GitHub Actions
-- **Calidad:** TypeScript, ESLint, Prettier, Jest/Cypress
-
-## Convenciones
-
-- Todos los paquetes internos usan el prefijo `@siprod/`
-- La configuración de TypeScript se extiende desde `@siprod/tsconfig`
-- Los componentes UI compartidos se encuentran en `@siprod/ui`
-- Las utilidades compartidas se encuentran en `@siprod/utils`
-
-## Convenciones de Commits
-
-Usamos [Conventional Commits](https://www.conventionalcommits.org/) para el formato de mensajes de commit:
-
-- `feat`: Nueva característica
-- `fix`: Corrección de bug
-- `docs`: Cambios en documentación
-- `style`: Cambios que no afectan el código
-- `refactor`: Refactorización de código
-- `test`: Añadir o modificar tests
-- `chore`: Cambios en el proceso de build o herramientas
-
-## Guías de Contribución
-
-1. Crear una nueva rama desde `main`
-2. Hacer cambios siguiendo las convenciones de código
-3. Ejecutar pruebas y linter
-4. Crear un PR con una descripción clara
+## Licencia
+Propiedad de la Policía Nacional

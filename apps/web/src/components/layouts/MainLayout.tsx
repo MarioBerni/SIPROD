@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
-import { Box, Container } from '@mui/material';
+import { ReactNode } from 'react'
+import { Box, Container } from '@mui/material'
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
@@ -12,5 +12,5 @@ export function MainLayout({ children }: MainLayoutProps) {
         {children}
       </Container>
     </Box>
-  );
+  )
 }
