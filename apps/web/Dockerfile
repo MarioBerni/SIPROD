@@ -34,15 +34,14 @@ WORKDIR /app
 COPY --from=builder /app/apps/web/.next ./.next
 COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/node_modules ./node_modules
-# Crear directorio public si no existe y copiar su contenido si existe
+
+# Create public directory and copy contents if they exist
 RUN mkdir -p ./public
-COPY --from=builder /app/apps/web/public/. ./public/ 2>/dev/null || true
+COPY --from=builder /app/apps/web/public ./public/ || true
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Expose port
 EXPOSE 3000
 
-# Start production server
 CMD ["pnpm", "start"]
