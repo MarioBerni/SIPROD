@@ -30,14 +30,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built assets
+# Copy necessary files from builder
 COPY --from=builder /app/apps/web/.next ./.next
-COPY --from=builder /app/apps/web/package.json ./package.json
+COPY --from=builder /app/apps/web/package.json ./
 COPY --from=builder /app/apps/web/node_modules ./node_modules
-
-# Create public directory and copy contents if they exist
-RUN mkdir -p ./public
-COPY --from=builder /app/apps/web/public ./public/ || true
+COPY --from=builder /app/apps/web/public ./public
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
