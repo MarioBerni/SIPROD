@@ -205,7 +205,7 @@
 - [x] Estructura del Monorepo
 - [x] Implementar herramientas de monorepo (Turborepo)
 
-## En Curso
+## En Progreso
 
 ### Configuración del Servidor
 
@@ -313,3 +313,18 @@
 - [ ] Verificación de conectividad
 - [ ] Pruebas de acceso remoto
 - [ ] Monitoreo de logs de red
+
+## En Progreso 
+
+- [x] Configuración inicial de Prisma
+  - [x] Crear archivo schema.prisma
+  - [x] Configurar variables de entorno
+  - [x] Actualizar Dockerfile para soporte de Prisma
+  - [x] Agregar scripts de Prisma en package.json
+
+## Próximas Tareas 
+
+- [ ] Definir modelos de datos completos en schema.prisma
+- [ ] Crear migraciones iniciales de la base de datos
+- [ ] Implementar endpoints básicos usando Prisma Client
+- [ ] Configurar pruebas de integración con la base de datos

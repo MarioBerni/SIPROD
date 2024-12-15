@@ -1,5 +1,8 @@
 FROM node:18-alpine AS builder
 
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Install pnpm
@@ -37,7 +40,7 @@ COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/apps/api/prisma ./prisma
 
 # Expose port
-EXPOSE 4000
+EXPOSE 3000
 
 # Start production server
 CMD ["node", "dist/main"]

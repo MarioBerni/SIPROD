@@ -2,6 +2,36 @@
 
 > **Propósito del Archivo**: Este documento mantiene un registro cronológico detallado de todos los cambios significativos realizados en el proyecto. Incluye actualizaciones, mejoras, correcciones y cambios en la configuración. Sirve como referencia histórica y ayuda a entender la evolución del proyecto.
 
+## 2024-12-14
+### Configuración de Prisma
+- Se configuró Prisma en el proyecto para la gestión de la base de datos
+- Se creó el archivo `schema.prisma` con la configuración inicial
+- Se actualizó el Dockerfile para incluir OpenSSL necesario para Prisma
+- Se configuraron las variables de entorno para la conexión con PostgreSQL
+- Se agregaron scripts de Prisma en el package.json de la API
+
+### Cambios Realizados
+1. **Estructura de Archivos**
+   - Nuevo archivo: `apps/api/prisma/schema.prisma`
+   - Nuevo archivo: `apps/api/.env` con configuración de base de datos
+   
+2. **Configuraciones**
+   - Actualización del Dockerfile para soporte de Prisma
+   - Configuración de variables de entorno para PostgreSQL
+   - Integración con el sistema de base de datos existente
+
+3. **Scripts Agregados**
+   ```json
+   "prisma:generate": "prisma generate"
+   "prisma:migrate": "prisma migrate dev"
+   "prisma:studio": "prisma studio"
+   ```
+
+### Estado Actual
+- Sistema preparado para usar Prisma como ORM
+- Conexión configurada con PostgreSQL en entorno Docker
+- Estructura base para modelos de datos establecida
+
 ## 2024-12-13
 
 ### Optimización de Configuración Docker

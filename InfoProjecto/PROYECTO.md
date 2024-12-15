@@ -268,6 +268,47 @@ docker-compose -f docker-compose.prod.yml up
 
 ## Base de Datos
 
+### Configuración de Prisma
+El proyecto utiliza Prisma como ORM para la gestión de la base de datos PostgreSQL. La configuración se encuentra en:
+
+```
+apps/api/prisma/schema.prisma
+```
+
+#### Variables de Entorno
+Las variables de entorno necesarias para la conexión a la base de datos están configuradas en:
+- `.env` (raíz del proyecto): Variables globales de PostgreSQL
+- `apps/api/.env`: URL de conexión para Prisma
+
+#### Scripts Disponibles
+```bash
+# Generar cliente Prisma
+pnpm prisma:generate
+
+# Ejecutar migraciones
+pnpm prisma:migrate
+
+# Abrir Prisma Studio
+pnpm prisma:studio
+```
+
+#### Estructura Inicial de la Base de Datos
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+### Configuración Docker
+El contenedor de la API incluye las dependencias necesarias para Prisma:
+- OpenSSL para la generación del cliente
+- Variables de entorno configuradas para la conexión
+- Generación automática del cliente durante el build
+
 ### Modelos Principales
 - Users
 - Reports
