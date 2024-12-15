@@ -32,9 +32,14 @@ WORKDIR /app
 
 # Copy built assets
 COPY --from=builder /app/apps/web/.next ./.next
-COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder /app/apps/web/package.json ./
+COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/node_modules ./node_modules
+# Crear directorio public si no existe y copiar su contenido si existe
+RUN mkdir -p ./public
+COPY --from=builder /app/apps/web/public/. ./public/ 2>/dev/null || true
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Expose port
 EXPOSE 3000
