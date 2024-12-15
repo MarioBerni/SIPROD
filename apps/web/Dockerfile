@@ -30,6 +30,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy necessary files from builder
 COPY --from=builder /app/apps/web/.next ./.next
 COPY --from=builder /app/apps/web/package.json ./

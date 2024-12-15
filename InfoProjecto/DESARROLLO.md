@@ -114,6 +114,30 @@ packages/
    - Minimizar tamaño de imágenes
    - Implementar health checks
 
+#### Docker
+
+1. **Configuración de Contenedores:**
+   - Frontend (Next.js):
+     - Puerto expuesto: 3000
+     - Requiere pnpm en la imagen de producción
+     - Variables de entorno necesarias: NEXT_PUBLIC_API_URL
+   
+   - Backend (NestJS):
+     - Puerto expuesto: 4000
+     - Requiere OpenSSL en la imagen de producción
+     - Variables de entorno críticas: DATABASE_URL, JWT_SECRET
+
+2. **Consideraciones de Construcción:**
+   - Usar `--no-cache` al reconstruir imágenes después de cambios en Dockerfile
+   - Verificar la generación correcta de archivos en etapa de build
+   - Mantener consistencia entre puertos expuestos y mapeados
+
+3. **Mejores Prácticas:**
+   - Separar etapas de build y producción
+   - Minimizar tamaño de imágenes finales
+   - Copiar solo archivos necesarios en cada etapa
+   - Mantener variables sensibles en archivos .env (no versionados)
+
 ## Configuración del Entorno Docker
 
 ### Puertos Utilizados

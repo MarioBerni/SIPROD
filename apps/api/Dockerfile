@@ -31,6 +31,9 @@ RUN pnpm build
 # Production image
 FROM node:18-alpine
 
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Copy built assets
@@ -40,7 +43,7 @@ COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/apps/api/prisma ./prisma
 
 # Expose port
-EXPOSE 3000
+EXPOSE 4000
 
 # Start production server
 CMD ["node", "dist/main"]
