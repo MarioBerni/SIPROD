@@ -30,6 +30,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install pnpm in production
+RUN npm install -g pnpm
+
 # Copy necessary files from builder
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/web/package.json ./apps/web/
@@ -45,5 +48,5 @@ WORKDIR /app/apps/web
 
 EXPOSE 3000
 
-# Start Next.js
-CMD ["pnpm", "start"]
+# Start Next.js using node directly
+CMD ["node", "./node_modules/.bin/next", "start"]
