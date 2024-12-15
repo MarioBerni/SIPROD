@@ -31,9 +31,9 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy necessary files from builder
+COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/apps/web/.next ./.next
 COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder /app/apps/web/package.json ./
 COPY --from=builder /app/apps/web/node_modules ./node_modules
 
 ENV NODE_ENV=production
@@ -42,4 +42,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
 
 # Start Next.js
-CMD ["node_modules/.bin/next", "start"]
+CMD ["npm", "run", "start"]

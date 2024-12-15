@@ -34,8 +34,8 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy necessary files from builder
+COPY --from=builder /app/apps/api/package.json ./package.json
 COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./
 COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/apps/api/prisma ./prisma
 
@@ -44,4 +44,4 @@ ENV NODE_ENV=production
 EXPOSE 4000
 
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
