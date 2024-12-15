@@ -33,6 +33,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy necessary files from builder
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/api/package.json ./apps/api/
@@ -48,5 +51,5 @@ WORKDIR /app/apps/api
 
 EXPOSE 4000
 
-# Start the application
-CMD ["pnpm", "start"]
+# Start the application using node directly
+CMD ["node", "dist/index.js"]
