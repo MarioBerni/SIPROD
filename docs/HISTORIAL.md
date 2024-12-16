@@ -2,6 +2,13 @@
 
 > **Propósito del Archivo**: Este documento mantiene un registro cronológico detallado de todos los cambios significativos realizados en el proyecto. Incluye actualizaciones, mejoras, correcciones y cambios en la configuración. Sirve como referencia histórica y ayuda a entender la evolución del proyecto.
 
+## 2024-12-16
+### Actualización de Configuración de Producción
+- Actualizado docker-compose.prod.yml para usar el dominio siprod.uy
+- Configurado el entorno para usar HTTPS por defecto
+- Actualizada la documentación de infraestructura con detalles de cPanel y SSL
+- Ajustados los puertos y URLs para el nuevo dominio
+
 ## 2024-12-14
 ### Configuración de Prisma
 - Se configuró Prisma en el proyecto para la gestión de la base de datos

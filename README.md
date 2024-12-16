@@ -1,180 +1,91 @@
 # SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
 
-> **Propósito del Archivo**: Este documento sirve como punto de entrada principal al proyecto. Proporciona una visión general del sistema, instrucciones de configuración inicial, y enlaces a documentación más detallada. Es el primer archivo que debe consultar cualquier persona que se una al proyecto.
+> **Propósito**: Este documento es el punto de entrada principal al proyecto SIPROD. Proporciona una visión general del sistema y guía a los nuevos colaboradores hacia la documentación detallada.
 
-## Estructura del Monorepo
+## ¿Qué es SIPROD?
 
-Este proyecto utiliza una arquitectura monorepo con Turborepo y pnpm workspaces.
+SIPROD es un sistema integral diseñado para la gestión eficiente de resultados policiales y recursos. El sistema permite:
 
-### Aplicaciones (`apps/`)
+- Centralización de información policial
+- Análisis y reportes estadísticos
+- Gestión de recursos humanos y materiales
+- Herramientas CRUD seguras
+- Escalabilidad y adaptabilidad
 
-- `web/`: Frontend en Next.js
-- `api/`: Backend en Express + Prisma
+## Documentación
 
-### Paquetes Compartidos (`packages/`)
+La documentación completa del proyecto se encuentra en la carpeta `docs/`:
 
-- `config/`: Configuraciones compartidas (ESLint, etc.)
-- `tsconfig/`: Configuraciones de TypeScript
-- `ui/`: Componentes de UI reutilizables
-- `utils/`: Utilidades y funciones compartidas
+- [Proyecto](docs/PROYECTO.md): Documentación técnica detallada, arquitectura y estructura
+- [Desarrollo](docs/DESARROLLO.md): Estándares, mejores prácticas y guías de implementación
+- [Infraestructura](docs/INFRAESTRUCTURA.md): Configuración del servidor y detalles operativos
+- [Historial](docs/HISTORIAL.md): Registro de cambios y evolución del proyecto
+- [Tareas](docs/TAREAS.md): Backlog y seguimiento de actividades
 
-## Desarrollo
+## Inicio Rápido
 
-### Prerequisitos
-
+### Requisitos Previos
+- Node.js 18 o superior
+- PNPM
 - Docker y Docker Compose
-- pnpm (gestor de paquetes)
-- Node.js 18+
+- Git
 
-### Inicio Rápido
+### Configuración Local
 
-1. Clonar el repositorio
-
+1. Clonar el repositorio:
 ```bash
-git clone [URL_REPOSITORIO]
-cd SIPROD
+git clone https://[repositorio]/siprod.git
+cd siprod
 ```
 
-2. Instalar dependencias
-
+2. Instalar dependencias:
 ```bash
 pnpm install
 ```
 
-3. Iniciar servicios con Docker
-
+3. Configurar variables de entorno:
 ```bash
-# Iniciar todos los servicios
+cp .env.example .env
+# Editar .env con valores locales
+```
+
+4. Iniciar servicios:
+```bash
+# Con Docker
 docker-compose up -d
 
-# Para un build limpio
-docker-compose build --no-cache
+# O en desarrollo local
+pnpm dev
 ```
 
-4. Acceder a las aplicaciones
-
-- Frontend: http://localhost:3000
-- Backend: http://localhost:4000
-
-### Tiempos de Compilación Esperados
-
-- Frontend: ~2 minutos (primera vez)
-- Backend: ~1 minuto (primera vez)
-- Builds subsecuentes: significativamente más rápidos
-
-### Scripts Disponibles
-
-- `pnpm dev`: Inicia todos los proyectos en modo desarrollo
-- `pnpm build`: Construye todos los proyectos
-- `pnpm lint`: Ejecuta el linting en todos los proyectos
-- `pnpm test`: Ejecuta las pruebas en todos los proyectos
-- `pnpm clean`: Limpia todos los archivos generados
-
-## Despliegue en Producción
-
-### Prerequisitos
-
-- Nginx
-- PM2
-- Node.js 18+
-- PostgreSQL
-- Let's Encrypt (para SSL)
-
-### Configuración del Servidor
-
-1. **Nginx**
-
-```bash
-# Copiar configuración
-sudo cp nginx/siprod.conf /etc/nginx/conf.d/
-sudo nginx -t
-sudo systemctl restart nginx
+## Estructura del Proyecto
+```
+SIPROD/
+├── apps/
+│   ├── api/         # Backend (NestJS)
+│   └── web/         # Frontend (Next.js)
+├── packages/
+│   ├── config/      # Configuraciones
+│   ├── ui/          # Componentes UI
+│   └── utils/       # Utilidades
+├── docs/            # Documentación
+└── docker-compose.yml
 ```
 
-2. **PM2**
+## Contribución
 
-```bash
-# Instalar PM2
-npm install -g pm2
+1. Revisa la [Guía de Desarrollo](docs/DESARROLLO.md)
+2. Crea una rama para tu feature
+3. Desarrolla y prueba tus cambios
+4. Crea un pull request
+5. Espera la revisión y aprobación
 
-# Iniciar aplicación
-pm2 start ecosystem.config.js
+## Soporte
 
-# Configurar inicio automático
-pm2 startup
-pm2 save
-```
+- **Problemas técnicos**: Crear issue en el repositorio
+- **Preguntas**: Consultar la documentación en `docs/`
+- **Emergencias**: Contactar al equipo DevOps (ver [Infraestructura](docs/INFRAESTRUCTURA.md))
 
-3. **Variables de Entorno**
+## Licencia
 
-```bash
-# Copiar archivos de ejemplo
-cp .env.example .env
-# Editar variables según el entorno
-```
-
-### Monitoreo
-
-```bash
-# Ver estado de las aplicaciones
-pm2 status
-
-# Ver logs
-pm2 logs
-
-# Monitoreo en tiempo real
-pm2 monit
-```
-
-## Estado Actual
-
-- ✅ Conexión SSH configurada
-- ✅ Repositorio clonado
-- ✅ Dependencias instaladas
-- 🔄 Configuración de Husky pendiente
-- 🔄 Despliegue con Docker pendiente
-- 🔄 Configuración de PM2 pendiente
-
-## Infraestructura
-
-### Servidor de Producción
-
-- **Sistema Operativo:** Almalinux 8 + cPanel
-- **Recursos:**
-  - RAM: 8GB
-  - CPU: 2 vCPUs @ 3.35GHz
-  - Almacenamiento: 100GB SSD
-
-### Stack Tecnológico
-
-- **Frontend:** Next.js, Material UI + Emotion, TypeScript
-- **Backend:** Node.js, Express/Next API Routes, PostgreSQL + Prisma
-- **Infraestructura:** Docker, Nginx, PM2
-- **CI/CD:** GitHub Actions
-- **Calidad:** TypeScript, ESLint, Prettier, Jest/Cypress
-
-## Convenciones
-
-- Todos los paquetes internos usan el prefijo `@siprod/`
-- La configuración de TypeScript se extiende desde `@siprod/tsconfig`
-- Los componentes UI compartidos se encuentran en `@siprod/ui`
-- Las utilidades compartidas se encuentran en `@siprod/utils`
-
-## Convenciones de Commits
-
-Usamos [Conventional Commits](https://www.conventionalcommits.org/) para el formato de mensajes de commit:
-
-- `feat`: Nueva característica
-- `fix`: Corrección de bug
-- `docs`: Cambios en documentación
-- `style`: Cambios que no afectan el código
-- `refactor`: Refactorización de código
-- `test`: Añadir o modificar tests
-- `chore`: Cambios en el proceso de build o herramientas
-
-## Guías de Contribución
-
-1. Crear una nueva rama desde `main`
-2. Hacer cambios siguiendo las convenciones de código
-3. Ejecutar pruebas y linter
-4. Crear un PR con una descripción clara
+[Pendiente]
