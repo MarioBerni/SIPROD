@@ -10,7 +10,7 @@
 - **Hostname**: 179-27-203-219.cprapid.com
 - **IPv4 Pública**: 179.27.203.219
 - **IPv6 Pública**: 2800:a8:a03:40::435
-- **Sistema Operativo**: Linux (basado en CentOS/RHEL)
+- **Sistema Operativo**: AlmaLinux 8
 - **Panel de Control**: cPanel/WHM (versión 118.0 build 30)
 - **Tipo**: VPS gestionado con cPanel y WHM
 
@@ -27,6 +27,76 @@
 ### Gestores de Paquetes
 - npm: 10.9.2
 - pnpm: 9.15.0
+
+## Componentes Principales
+
+### Servidor Base
+- **Sistema Operativo**: AlmaLinux 8
+- **Panel de Control**: cPanel/WHM
+
+### Contenedores y Servicios
+- **Orquestación**: Docker y Docker Compose
+- **Frontend**: 
+  - Next.js v14
+  - Puerto: 3000
+  - Contenedor Docker dedicado
+- **Backend**: 
+  - Node.js (Express)
+  - Puerto: 4000
+  - Contenedor Docker dedicado
+- **Base de Datos**: 
+  - PostgreSQL v15 (Alpine)
+  - Puerto: 5432
+  - Contenedor Docker dedicado
+
+### Networking
+- Red interna gestionada por Docker Compose
+- Puertos mapeados al host:
+  - 3000 (Frontend)
+  - 4000 (Backend)
+  - 5432 (PostgreSQL)
+
+## Configuración Web
+
+### Servidores Web
+- **Apache**: Gestionado por cPanel
+- **Nginx**: Configurado como proxy inverso (EA Nginx)
+- **Dominio**: https://siprod.uy
+
+### Configuración del Proxy
+- Redirección del tráfico desde el dominio al contenedor frontend
+- Gestión a través de WHM:
+  - Apache Include Editor para VirtualHosts
+  - Archivos de inclusión en /usr/local/apache/conf/userdata/
+
+## Estado Actual de los Servicios
+
+### Backend (Express)
+- Estado: Operativo
+- Endpoint de salud: GET /api/health respondiendo correctamente
+
+### Frontend (Next.js)
+- Estado: Parcialmente operativo
+- Problemas detectados: 
+  - Dificultades de acceso externo al puerto 3000
+  - Posibles problemas de configuración de red/proxy
+
+### Base de Datos (PostgreSQL)
+- Estado: Estable
+- Sin errores reportados en logs
+
+## Puntos de Atención
+
+### Configuración Pendiente
+1. Revisar configuración del proxy inverso:
+   - Verificar directivas ProxyPass/ProxyPassReverse
+   - Confirmar apuntamiento al puerto 3000
+2. Validación de servicios:
+   - Realizar pruebas internas con curl
+   - Verificar respuesta del puerto 3000
+3. Organización de directivas:
+   - Evaluar ubicación de includes
+   - Considerar migración a includes específicos por dominio
 
 ## Arquitectura Docker
 

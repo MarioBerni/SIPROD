@@ -2,79 +2,6 @@
 
 > **Propósito del Archivo**: Este documento mantiene un registro cronológico detallado de todos los cambios significativos realizados en el proyecto. Incluye actualizaciones, mejoras, correcciones y cambios en la configuración. Sirve como referencia histórica y ayuda a entender la evolución del proyecto.
 
-## 2024-12-16
-### Actualización de Configuración de Producción
-- Actualizado docker-compose.prod.yml para usar el dominio siprod.uy
-- Configurado el entorno para usar HTTPS por defecto
-- Actualizada la documentación de infraestructura con detalles de cPanel y SSL
-- Ajustados los puertos y URLs para el nuevo dominio
-
-## 2024-12-14
-### Configuración de Prisma
-- Se configuró Prisma en el proyecto para la gestión de la base de datos
-- Se creó el archivo `schema.prisma` con la configuración inicial
-- Se actualizó el Dockerfile para incluir OpenSSL necesario para Prisma
-- Se configuraron las variables de entorno para la conexión con PostgreSQL
-- Se agregaron scripts de Prisma en el package.json de la API
-
-### Cambios Realizados
-1. **Estructura de Archivos**
-   - Nuevo archivo: `apps/api/prisma/schema.prisma`
-   - Nuevo archivo: `apps/api/.env` con configuración de base de datos
-   
-2. **Configuraciones**
-   - Actualización del Dockerfile para soporte de Prisma
-   - Configuración de variables de entorno para PostgreSQL
-   - Integración con el sistema de base de datos existente
-
-3. **Scripts Agregados**
-   ```json
-   "prisma:generate": "prisma generate"
-   "prisma:migrate": "prisma migrate dev"
-   "prisma:studio": "prisma studio"
-   ```
-
-### Estado Actual
-- Sistema preparado para usar Prisma como ORM
-- Conexión configurada con PostgreSQL en entorno Docker
-- Estructura base para modelos de datos establecida
-
-## 2024-12-13
-
-### Optimización de Configuración Docker
-
-1. Dockerfiles y Compose
-
-   - Creación de Dockerfile.dev para frontend y backend
-   - Optimización de docker-compose.yml con:
-     - Límites de recursos (CPU y memoria) para cada servicio
-     - Healthchecks mejorados para todos los servicios
-     - Configuración de reinicio automático (restart: unless-stopped)
-     - Volumen persistente para PostgreSQL
-
-2. Estructura y Rutas
-
-   - Corrección de rutas en docker-compose.yml
-   - Actualización de la estructura de directorios frontend/backend
-   - Optimización de volúmenes montados
-
-3. Variables de Entorno
-
-   - Verificación y validación de variables en .env.example
-   - Configuración de límites de tasa (rate limiting)
-   - Separación clara de variables por entorno (desarrollo/producción)
-
-4. Base de Datos
-
-   - Configuración optimizada de PostgreSQL 15
-   - Implementación de healthchecks para la base de datos
-   - Configuración de volumen persistente nombrado
-
-5. Seguridad
-   - Implementación de variables de entorno seguras
-   - Configuración de CORS y rate limiting
-   - Protección de secretos y credenciales
-
 ## 2024-12-10
 
 ### Configuración Inicial del Servidor (VPS)
@@ -105,20 +32,6 @@
    - pnpm instalado como gestor de paquetes principal
    - Preparación inicial para PM2 y Nginx
 
-### Configuración de Red y Accesibilidad
-
-1. Optimización de Conectividad
-
-   - Habilitación de escucha en IPv4 (0.0.0.0)
-   - Configuración de host para Next.js
-   - Mejora en accesibilidad del servidor
-
-2. Ajustes en ecosystem.config.js
-   - Actualización de script para Next.js
-   - Configuración de host IPv4
-   - Optimización de parámetros de red
-   - Mejora en la configuración de ambos servicios
-
 ### Actualización de Configuración PM2
 
 1. Correcciones en ecosystem.config.js
@@ -132,20 +45,6 @@
    - Organización de logs en directorio dedicado
    - Actualización de scripts de construcción
    - Optimización de configuración de despliegue
-
-### Optimización de Configuración PM2 Frontend
-
-1. Ajustes en ecosystem.config.js
-
-   - Cambio de script a npm para mejor compatibilidad con Next.js
-   - Modificación del modo de ejecución a fork
-   - Optimización de la configuración del frontend
-   - Actualización de rutas de logs
-
-2. Mejoras en el Despliegue
-   - Ajuste de parámetros de ejecución
-   - Optimización del manejo de procesos
-   - Mejora en la gestión de logs
 
 ### Pendiente
 
