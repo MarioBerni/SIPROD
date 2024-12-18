@@ -2,6 +2,27 @@
 
 > **Propósito del Archivo**: Este documento mantiene un registro cronológico detallado de todos los cambios significativos realizados en el proyecto. Incluye actualizaciones, mejoras, correcciones y cambios en la configuración. Sirve como referencia histórica y ayuda a entender la evolución del proyecto.
 
+## 2024-12-18
+
+### Mejoras en la Configuración del Backend
+
+1. Optimización de Endpoints y Middleware
+   - Reestructuración del endpoint de health check
+   - Implementación de CORS configurable
+   - Mejora en el manejo de errores global
+   - Implementación de prefijo API configurable
+
+2. Cambios en la Arquitectura
+   - Separación de rutas API con router dedicado
+   - Mejora en la configuración de logging
+   - Optimización de respuestas JSON con más información
+   - Actualización de la documentación del sistema
+
+3. Compilación y Despliegue
+   - Compilación exitosa de todos los paquetes del monorepo
+   - Verificación de tipos y linting
+   - Generación de builds optimizados para producción
+
 ## 2024-12-10
 
 ### Configuración Inicial del Servidor (VPS)
