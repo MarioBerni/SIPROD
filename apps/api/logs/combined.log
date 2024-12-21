@@ -43,3 +43,33 @@
 2024-12-20T04:37:51.997Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":3}
 2024-12-20T04:37:52.016Z [error] Error en el login de usuario {"error":{}}
 2024-12-20T04:37:52.018Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":3}
+2024-12-21T01:48:21.035Z [info] Metrics endpoint configured at /metrics
+2024-12-21T01:48:24.033Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2751}
+2024-12-21T01:48:26.765Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2681}
+2024-12-21T01:48:29.453Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2674}
+2024-12-21T01:48:32.136Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2670}
+2024-12-21T01:48:34.829Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2673}
+2024-12-21T02:20:29.739Z [info] Metrics endpoint configured at /metrics
+2024-12-21T02:20:32.562Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2717}
+2024-12-21T02:20:35.270Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2674}
+2024-12-21T02:20:37.971Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2686}
+2024-12-21T02:20:40.654Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2672}
+2024-12-21T02:20:43.340Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2672}
+2024-12-21T02:36:45.749Z [info] Metrics endpoint configured at /metrics
+2024-12-21T02:36:48.677Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2740}
+2024-12-21T02:36:51.389Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2676}
+2024-12-21T02:36:54.083Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2678}
+2024-12-21T02:36:56.775Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2677}
+2024-12-21T02:36:59.465Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2674}
+2024-12-21T02:38:42.328Z [info] Metrics endpoint configured at /metrics
+2024-12-21T02:38:45.209Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2747}
+2024-12-21T02:38:47.932Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2695}
+2024-12-21T02:38:50.627Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2679}
+2024-12-21T02:38:53.319Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2675}
+2024-12-21T02:38:56.002Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2677}
+2024-12-21T02:40:30.046Z [info] Metrics endpoint configured at /metrics
+2024-12-21T02:40:32.977Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2820}
+2024-12-21T02:40:35.711Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":2684}
+2024-12-21T02:40:38.401Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2678}
+2024-12-21T02:40:41.089Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2675}
+2024-12-21T02:40:43.794Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2690}

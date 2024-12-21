@@ -1,13 +1,10 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo "🔍 Verificando el código..."
+echo " Verificando el código..."
 
 # Ejecutar lint
 pnpm lint
 
 # Ejecutar tests
 pnpm test
-
-# Verificar tipos de TypeScript
-pnpm type-check

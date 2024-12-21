@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -7,7 +7,7 @@ import { metricsMiddleware, setupMetrics } from './middleware/metrics';
 import { errorHandler } from './middleware/error';
 import authRouter from './routes/auth';
 
-const app = express();
+const app: Express = express();
 
 // Middlewares básicos
 app.use(express.json());
