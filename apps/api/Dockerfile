@@ -10,6 +10,7 @@ RUN npm install -g pnpm
 
 # Copy workspace files
 COPY package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/config/package.json ./packages/config/
 COPY packages/utils/package.json ./packages/utils/
@@ -41,6 +42,7 @@ RUN npm install -g pnpm
 
 # Copy necessary files from builder
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
