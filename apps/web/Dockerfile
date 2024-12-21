@@ -16,7 +16,7 @@ COPY packages/tsconfig/nextjs.json ./packages/tsconfig/
 COPY packages/tsconfig/base/tsconfig.json ./packages/tsconfig/base/
 
 # Install dependencies
-RUN pnpm install --filter @siprod/web...
+RUN pnpm install --filter @siprod/web... --frozen-lockfile
 
 # Copy the rest of the application
 COPY . .
@@ -26,27 +26,32 @@ WORKDIR /app/apps/web
 RUN pnpm build
 
 # Production image
-FROM node:18-alpine
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 
-# Install pnpm in production
+# Install production dependencies only
 RUN npm install -g pnpm
 
 # Copy necessary files from builder
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/web/package.json ./apps/web/
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
 
 WORKDIR /app/apps/web
 
+# Add non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
 EXPOSE 3000
 
-# Start Next.js using pnpm start
-CMD ["pnpm", "start"]
+CMD ["node", "server.js"]

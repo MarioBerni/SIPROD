@@ -1,0 +1,52 @@
+groups:
+  - name: siprod_alerts
+    rules:
+      # Alta latencia en solicitudes HTTP
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, rate(siprod_http_request_duration_ms_bucket[5m])) > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alta latencia en solicitudes HTTP"
+          description: "95% de las solicitudes están tomando más de 500ms"
+
+      # Tasa de error alta
+      - alert: HighErrorRate
+        expr: rate(siprod_http_requests_total{status=~"5.."}[5m]) / rate(siprod_http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alta tasa de errores"
+          description: "Más del 5% de las solicitudes están resultando en errores 5xx"
+
+      # Uso alto de CPU
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alto uso de CPU"
+          description: "El uso de CPU está por encima del 80%"
+
+      # Memoria baja
+      - alert: LowMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memoria disponible baja"
+          description: "Menos del 20% de memoria disponible"
+
+      # Disco lleno
+      - alert: DiskFull
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disco casi lleno"
+          description: "Menos del 15% de espacio en disco disponible"

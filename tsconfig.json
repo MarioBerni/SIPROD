@@ -3,7 +3,22 @@
     "baseUrl": ".",
     "paths": {
       "@siprod/*": ["packages/*/src"]
-    }
+    },
+    "outDir": "./dist", // Directorio de salida claro y separado de las fuentes
+    "strict": true, // Opcional: Mejora el análisis de tipos
+    "esModuleInterop": true, // Opcional: Facilita el uso de módulos comunes
+    "skipLibCheck": true // Opcional: Evita verificar las definiciones de tipos en node_modules
   },
-  "extends": "./packages/tsconfig/base/tsconfig.json"
+  "extends": "./packages/tsconfig/base/tsconfig.json",
+  "files": [],
+  "references": [
+    { "path": "apps/api" },
+    { "path": "apps/web" },
+    { "path": "packages/ui" }
+  ],
+  "exclude": [
+    "node_modules", // Excluir dependencias externas
+    "coverage", // Evita conflictos con los archivos generados por herramientas de cobertura
+    "dist" // Evita conflictos con el directorio de salida
+  ]
 }

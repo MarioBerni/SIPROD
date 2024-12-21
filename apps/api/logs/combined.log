@@ -1,0 +1,45 @@
+2024-12-19T20:21:51.309Z [info] Metrics endpoint configured at /metrics
+2024-12-19T20:21:51.507Z [info] Request metrics {"method":"POST","path":"/register","status":201,"duration":32}
+2024-12-19T20:21:51.565Z [info] Request metrics {"method":"POST","path":"/register","status":400,"duration":5}
+2024-12-19T20:21:51.596Z [info] Request metrics {"method":"POST","path":"/login","status":200,"duration":13}
+2024-12-19T20:21:51.620Z [info] Request metrics {"method":"POST","path":"/login","status":401,"duration":3}
+2024-12-19T20:24:23.096Z [info] Metrics endpoint configured at /metrics
+2024-12-19T20:24:23.252Z [info] Request metrics {"method":"POST","path":"/register","status":201,"duration":30}
+2024-12-19T20:24:23.320Z [info] Request metrics {"method":"POST","path":"/register","status":400,"duration":3}
+2024-12-19T20:24:23.346Z [info] Request metrics {"method":"POST","path":"/login","status":200,"duration":8}
+2024-12-19T20:24:23.374Z [info] Request metrics {"method":"POST","path":"/login","status":401,"duration":6}
+2024-12-20T03:58:30.749Z [info] Metrics endpoint configured at /metrics
+2024-12-20T03:58:30.909Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T03:58:30.935Z [info] Request metrics {"method":"POST","path":"/auth/register","status":500,"duration":26}
+2024-12-20T03:58:30.967Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T03:58:30.972Z [info] Request metrics {"method":"POST","path":"/auth/register","status":500,"duration":5}
+2024-12-20T03:58:30.989Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T03:58:30.997Z [info] Request metrics {"method":"POST","path":"/auth/login","status":500,"duration":7}
+2024-12-20T03:58:31.014Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T03:58:31.018Z [info] Request metrics {"method":"POST","path":"/auth/login","status":500,"duration":4}
+2024-12-20T04:10:39.988Z [info] Metrics endpoint configured at /metrics
+2024-12-20T04:10:40.103Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T04:10:40.123Z [info] Request metrics {"method":"POST","path":"/auth/register","status":500,"duration":20}
+2024-12-20T04:10:40.160Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T04:10:40.167Z [info] Request metrics {"method":"POST","path":"/auth/register","status":500,"duration":7}
+2024-12-20T04:10:40.185Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T04:10:40.191Z [info] Request metrics {"method":"POST","path":"/auth/login","status":500,"duration":6}
+2024-12-20T04:10:40.206Z [error] Error: Internal Server Error {"statusCode":500}
+2024-12-20T04:10:40.209Z [info] Request metrics {"method":"POST","path":"/auth/login","status":500,"duration":3}
+2024-12-20T04:35:04.585Z [info] Metrics endpoint configured at /metrics
+2024-12-20T04:35:04.825Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":27}
+2024-12-20T04:35:04.872Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":6}
+2024-12-20T04:35:04.893Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":5}
+2024-12-20T04:35:04.917Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":5}
+2024-12-20T04:35:04.944Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":7}
+2024-12-20T04:37:51.794Z [info] Metrics endpoint configured at /metrics
+2024-12-20T04:37:51.917Z [error] Error en el registro de usuario {"error":{}}
+2024-12-20T04:37:51.925Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":9}
+2024-12-20T04:37:51.963Z [error] Error en el registro de usuario {"error":{}}
+2024-12-20T04:37:51.965Z [info] Request metrics {"method":"POST","path":"/register","status":500,"duration":3}
+2024-12-20T04:37:51.978Z [error] Error en el login de usuario {"error":{}}
+2024-12-20T04:37:51.981Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":2}
+2024-12-20T04:37:51.994Z [error] Error en el login de usuario {"error":{}}
+2024-12-20T04:37:51.997Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":3}
+2024-12-20T04:37:52.016Z [error] Error en el login de usuario {"error":{}}
+2024-12-20T04:37:52.018Z [info] Request metrics {"method":"POST","path":"/login","status":500,"duration":3}

@@ -1,6 +1,6 @@
 FROM node:18-alpine AS builder
 
-# Install OpenSSL
+# Install OpenSSL and build dependencies
 RUN apk add --no-cache openssl
 
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY packages/tsconfig/api.json ./packages/tsconfig/
 COPY packages/tsconfig/base/tsconfig.json ./packages/tsconfig/base/
 
 # Install dependencies
-RUN pnpm install --filter @siprod/api...
+RUN pnpm install --filter @siprod/api... --frozen-lockfile
 
 # Copy the rest of the application
 COPY . .
@@ -29,7 +29,10 @@ RUN pnpm prisma generate
 RUN pnpm build
 
 # Production image
-FROM node:18-alpine
+FROM node:18-alpine AS runner
+
+# Install production dependencies
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -40,16 +43,24 @@ RUN npm install -g pnpm
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+
+# Install production dependencies only
+WORKDIR /app/apps/api
+RUN pnpm install --prod --frozen-lockfile
 
 ENV NODE_ENV=production
 ENV PORT=4000
 
-WORKDIR /app/apps/api
+# Add non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 apiuser
+RUN chown -R apiuser:nodejs /app
+USER apiuser
 
 EXPOSE 4000
 
-# Start the application using node directly
-CMD ["node", "dist/index.js"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
+
+CMD ["node", "dist/main.js"]

@@ -1,0 +1,16 @@
+{"level":"info","message":"Metrics endpoint configured at /metrics","service":"siprod-api","timestamp":"2024-12-19T15:56:54.426Z"}
+{"level":"info","message":"Metrics endpoint configured at /metrics","service":"siprod-api","timestamp":"2024-12-19T16:01:20.112Z"}
+{"duration":36,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":201,"timestamp":"2024-12-19T16:01:20.466Z"}
+{"duration":4,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":400,"timestamp":"2024-12-19T16:01:20.532Z"}
+{"duration":11,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":200,"timestamp":"2024-12-19T16:01:20.563Z"}
+{"duration":3,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":401,"timestamp":"2024-12-19T16:01:20.587Z"}
+{"level":"info","message":"Metrics endpoint configured at /metrics","service":"siprod-api","timestamp":"2024-12-19T16:03:48.456Z"}
+{"duration":27,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":201,"timestamp":"2024-12-19T16:03:48.605Z"}
+{"duration":2,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":400,"timestamp":"2024-12-19T16:03:48.643Z"}
+{"duration":10,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":200,"timestamp":"2024-12-19T16:03:48.675Z"}
+{"duration":6,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":401,"timestamp":"2024-12-19T16:03:48.698Z"}
+{"level":"info","message":"Metrics endpoint configured at /metrics","service":"siprod-api","timestamp":"2024-12-19T18:06:50.173Z"}
+{"duration":12,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":201,"timestamp":"2024-12-19T18:06:50.294Z"}
+{"duration":1,"level":"info","message":"Request metrics","method":"POST","path":"/register","service":"siprod-api","status":400,"timestamp":"2024-12-19T18:06:50.318Z"}
+{"duration":5,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":200,"timestamp":"2024-12-19T18:06:50.334Z"}
+{"duration":3,"level":"info","message":"Request metrics","method":"POST","path":"/login","service":"siprod-api","status":401,"timestamp":"2024-12-19T18:06:50.348Z"}

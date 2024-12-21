@@ -1,149 +1,306 @@
-# Guía de Desarrollo - SIPROD
+# Guía de Desarrollo SIPROD
 
-> **Propósito del Archivo**: Este documento establece los estándares, mejores prácticas y guías de desarrollo para el proyecto. Define las convenciones de código, estructura de carpetas, flujos de trabajo Git, y procesos de desarrollo. Es la referencia principal para mantener la consistencia y calidad del código en todo el proyecto.
+## Entorno de Desarrollo
 
-## Estándares de Código
+### Configuración del Entorno
+1. **Requisitos del Sistema**
+   - Node.js 18+ (recomendado 18.17.0+)
+   - pnpm 8+ (recomendado 8.9.0+)
+   - Docker Desktop 4.20+
+   - Git 2.40+
+   - VS Code (recomendado)
 
-### Convenciones de Nombrado
+2. **Extensiones VS Code Esenciales**
+   - ESLint
+   - Prettier
+   - Docker
+   - GitLens
+   - Prisma
+   - Tailwind CSS IntelliSense
+   - Error Lens
+   - GitHub Copilot
+   - Import Cost
+   - REST Client
 
-- **Componentes React:** PascalCase (ej: UserProfile.tsx)
-- **Archivos de utilidad:** camelCase (ej: formatDate.ts)
-- **Constantes:** UPPER_SNAKE_CASE
-- **Variables y funciones:** camelCase
-- **Tipos y interfaces:** PascalCase
+3. **Configuración de Desarrollo**
+   ```bash
+   # Clonar repositorio
+   git clone https://[repositorio]/siprod.git
+   cd siprod
 
-### Estructura de Carpetas
+   # Instalar dependencias
+   pnpm install
 
-```
-apps/
-  ├── web/
-  │   ├── components/     # Componentes React reutilizables
-  │   ├── features/       # Componentes específicos de funcionalidad
-  │   ├── hooks/         # Custom hooks
-  │   ├── utils/         # Utilidades y helpers
-  │   └── types/         # Tipos TypeScript
-  └── api/
-      ├── controllers/   # Controladores de rutas
-      ├── services/      # Lógica de negocio
-      ├── models/        # Modelos de datos
-      └── utils/         # Utilidades del backend
+   # Configurar husky
+   pnpm prepare
 
-packages/
-  ├── ui/               # Biblioteca de componentes compartidos
-  ├── types/           # Tipos compartidos
-  └── utils/           # Utilidades compartidas
-```
+   # Configurar variables de entorno
+   cp .env.example .env
 
-### Flujo de Trabajo Git
-
-1. **Ramas:**
-
-   - `main`: Producción
-   - `develop`: Desarrollo principal
-   - `feature/*`: Nuevas funcionalidades
-   - `fix/*`: Correcciones
-   - `release/*`: Preparación para producción
-
-2. **Commits:**
-
-   ```
-   tipo(alcance): descripción corta
-
-   Descripción detallada si es necesaria
+   # Iniciar servicios de desarrollo
+   pnpm dev
    ```
 
-   Tipos: feat, fix, docs, style, refactor, test, chore
+## Estándares y Mejores Prácticas
 
-3. **Pull Requests:**
-   - Título descriptivo
-   - Descripción de cambios
-   - Referencias a issues
-   - Checklist de pruebas
+### TypeScript
+- Strict mode obligatorio
+- Tipos explícitos para APIs públicas
+- Interfaces para contratos públicos
+- Types para implementaciones internas
+- Documentación TSDoc completa
+- No any sin justificación
 
-## Guías de Implementación
+### React y Next.js
+- Server Components por defecto
+- Client Components solo cuando necesario
+- Hooks personalizados para lógica reutilizable
+- Patrón de composición sobre herencia
+- Lazy loading para optimización
+- Manejo de estado distribuido
 
-### Frontend
+### Testing
+- Jest para unit testing
+- React Testing Library para componentes
+- Cypress para E2E
+- MSW para mocking de API
+- Cobertura mínima: 80%
 
-1. **Componentes:**
+### Seguridad
+- OWASP Top 10 compliance
+- Sanitización de inputs
+- Rate limiting
+- CORS configurado
+- Headers de seguridad
+- Auditoría regular de dependencias
 
-   - Usar componentes funcionales
-   - Implementar React.memo para optimización
-   - Mantener componentes pequeños y reutilizables
+### Performance
+- Lighthouse score >90
+- Bundle size monitoring
+- Code splitting automático
+- Optimización de imágenes
+- Caché agresivo
+- Lazy loading de recursos
 
-2. **Estado:**
+## Herramientas de Desarrollo
 
-   - Usar Redux Toolkit para estado global
-   - useState para estado local
-   - useContext para temas y configuraciones
+### CLI Interactivo
+```bash
+node scripts/dev.js
+```
+Proporciona una interfaz para:
+- Iniciar servicios específicos
+- Ejecutar comandos de desarrollo
+- Ver estado del proyecto
+- Gestionar base de datos
 
-3. **Estilos:**
-   - Usar Material UI + Emotion
-   - Seguir sistema de diseño establecido
-   - Mantener consistencia en espaciados
+### Scripts Principales
+- `pnpm dev`: Iniciar todos los servicios
+- `pnpm test`: Ejecutar pruebas
+- `pnpm build`: Construir para producción
+- `pnpm lint`: Ejecutar linting
+- `pnpm db:studio`: Abrir Prisma Studio
 
-### Backend
+## Arquitectura
 
-1. **API:**
+### Frontend (Next.js)
+- App Router
+- Server Components
+- Tailwind CSS
+- SWC para compilación
+- Optimizaciones automáticas
 
-   - RESTful para endpoints principales
-   - GraphQL para consultas complejas
-   - Documentar con OpenAPI/Swagger
+### Backend (Express)
+- Arquitectura por capas
+- Middleware modular
+- Validación con Zod
+- Caché y optimizaciones
+- Métricas y logging
 
-2. **Base de Datos:**
+### Base de Datos
+- Prisma como ORM
+- Migraciones automáticas
+- Seeds para desarrollo
+- Studio para gestión
 
-   - Usar Prisma para consultas
-   - Mantener migraciones versionadas
-   - Implementar índices apropiados
+## Optimizaciones Recientes
 
-3. **Seguridad:**
-   - Validar inputs con Zod
-   - Implementar rate limiting
-   - Manejar errores consistentemente
+### Configuración de Bundle
+- Implementado análisis de bundle con `@next/bundle-analyzer`
+- Optimización de chunks con configuración personalizada en `next.config.js`
+- Code splitting mejorado para componentes y módulos
 
-## Pruebas
-
-### Frontend
+### Lazy Loading y Dynamic Imports
+Se ha implementado una estrategia de carga optimizada:
 
 ```typescript
-// Ejemplo de prueba de componente
-describe('Component', () => {
-  it('should render correctly', () => {
-    render(<Component />);
-    expect(screen.getByText('text')).toBeInTheDocument();
+// Configuración en optimization.ts
+const dynamicImports = {
+  DashboardLayout: lazy(() => import('@siprod/ui').then(mod => ({ default: mod.DashboardLayout }))),
+  DashboardStats: lazy(() => import('@siprod/ui').then(mod => ({ default: mod.DashboardStats }))),
+  // ...otros componentes
+};
+
+// Configuración de preload
+export const preloadComponents = (components: Array<keyof typeof dynamicImports>) => {
+  components.forEach((component) => {
+    const importFn = dynamicImports[component];
+    importFn.preload?.();
   });
-});
+};
 ```
 
-### Backend
+### Mejoras de Tipado
+Se han fortalecido los tipos en varios componentes:
 
 ```typescript
-// Ejemplo de prueba de servicio
-describe('Service', () => {
-  it('should process data correctly', async () => {
-    const result = await service.process(data)
-    expect(result).toMatchSnapshot()
-  })
-})
+// Ejemplo en AnalyticsProvider
+type GTagEvent = {
+  event_category?: string;
+  event_label?: string;
+  value?: number;
+  [key: string]: unknown;
+};
+
+interface AnalyticsContextType {
+  trackEvent: (eventName: string, properties?: GTagEvent) => void;
+  trackPageView: (path: string) => void;
+}
 ```
 
-## Métricas y Calidad
+### Optimizaciones de Webpack
+```javascript
+// next.config.js
+config.optimization.splitChunks = {
+  chunks: 'all',
+  minSize: 20000,
+  maxSize: 70000,
+  minChunks: 1,
+  maxAsyncRequests: 30,
+  maxInitialRequests: 30,
+  cacheGroups: {
+    common: {
+      name: 'common',
+      minChunks: 2,
+      priority: 10,
+      reuseExistingChunk: true,
+      enforce: true
+    },
+    components: {
+      name: 'components',
+      test: /[\\/]components[\\/]/,
+      minChunks: 1,
+      priority: 20,
+    },
+    vendor: {
+      name: 'vendor',
+      test: /[\\/]node_modules[\\/]/,
+      priority: 30,
+      reuseExistingChunk: true
+    }
+  }
+};
+```
 
-- Coverage mínimo: 80%
-- Complejidad ciclomática máxima: 10
-- Longitud máxima de función: 20 líneas
-- Profundidad máxima de anidación: 3 niveles
+### Caché y Headers
+```javascript
+// Configuración de caché para recursos estáticos
+async headers() {
+  return [
+    {
+      source: '/:all*(svg|jpg|png)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    }
+  ];
+}
+```
 
-## Proceso de Review
+## Testing
 
-1. Verificar estándares de código
-2. Revisar pruebas
-3. Validar rendimiento
-4. Confirmar documentación
-5. Aprobar o solicitar cambios
+### Frontend
+```bash
+# Ejecutar tests de web
+pnpm --filter @siprod/web test
+
+# Watch mode
+pnpm --filter @siprod/web test:watch
+```
+- Jest + Testing Library
+- Pruebas de componentes
+- Pruebas de integración
+- Mocks y fixtures
+
+### Backend
+```bash
+# Ejecutar tests de API
+pnpm --filter @siprod/api test
+
+# Cobertura
+pnpm --filter @siprod/api test:coverage
+```
+- Jest
+- Supertest para API
+- Mocks de servicios
+- Base de datos de prueba
+
+## CI/CD
+
+### GitHub Actions
+- Lint y tipos en PRs
+- Tests automáticos
+- Build de verificación
+- Análisis de dependencias
+
+### Despliegue
+- Proceso automatizado
+- Verificaciones previas
+- Rollback automático
+- Notificaciones
+
+## Monitoreo y Logs
+
+### Logging
+- Winston configurado
+- Rotación de logs
+- Niveles por ambiente
+- Formato estructurado
+
+### Métricas
+- Endpoints personalizados
+- Latencia y errores
+- Uso de recursos
+- Dashboard custom
+
+## Seguridad
+
+### Prácticas
+- Validación de entrada
+- Sanitización de datos
+- Rate limiting
+- CORS configurado
+- Headers seguros
+
+### Autenticación
+- JWT
+- Refresh tokens
+- Roles y permisos
+- Sesiones seguras
 
 ## Documentación
 
-- Documentar APIs con OpenAPI
-- Mantener README actualizado
-- Comentar código complejo
-- Actualizar changelog
+### API
+- Swagger UI
+- OpenAPI 3.0
+- Ejemplos y schemas
+- Autenticación documentada
+
+### Código
+- TSDoc en funciones
+- README por package
+- Diagramas actualizados
+- Guías de migración
