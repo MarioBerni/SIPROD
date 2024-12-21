@@ -13,7 +13,6 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
-  // Optimizaciones de webpack
   webpack(config, { dev }) {
     if (!dev) {
       config.optimization.splitChunks = {
@@ -36,7 +35,6 @@ const nextConfig = {
     return config;
   },
 
-  // Optimizaciones de imágenes
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -44,7 +42,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Headers de caché
   async headers() {
     return [
       {
@@ -68,26 +65,18 @@ const nextConfig = {
     ];
   },
 
-  // Compresión de fuentes
   async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/fonts/:path*',
-          destination: '/static/fonts/:path*',
-        },
-      ],
-      afterFiles: [],
-      fallback: [],
-    };
+    return [
+      {
+        source: '/fonts/:path*',
+        destination: '/static/fonts/:path*',
+      },
+    ];
   },
 
-  // Configuraciones requeridas para Next.js 15
-  analyticsId: undefined,
-  optimizeFonts: true,
-  outputFileTracing: true,
   swcMinify: true,
+  poweredByHeader: false,
 };
 
-// @ts-expect-error - Ignorar error de tipos entre versiones de Next.js
+// @ts-expect-error - Next.js config type incompatibility
 module.exports = withBundleAnalyzer(nextConfig);
