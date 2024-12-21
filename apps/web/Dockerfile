@@ -7,6 +7,7 @@ RUN npm install -g pnpm
 
 # Copy workspace files
 COPY package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/utils/package.json ./packages/utils/
@@ -30,21 +31,24 @@ FROM node:18-alpine AS runner
 
 WORKDIR /app
 
-# Install production dependencies only
+# Install pnpm
 RUN npm install -g pnpm
 
 # Copy necessary files from builder
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/web/package.json ./apps/web/
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
 
+# Install production dependencies
+WORKDIR /app/apps/web
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-
-WORKDIR /app/apps/web
 
 # Add non-root user for security
 RUN addgroup --system --gid 1001 nodejs
