@@ -49,10 +49,15 @@ COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 
 # Install production dependencies only
 WORKDIR /app/apps/api
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN pnpm prisma generate
 
+# Set environment variables
 ENV NODE_ENV=production
-ENV PORT=4000
+ENV PORT=3000
+
+# Expose port
+EXPOSE ${PORT}
 
 # Add non-root user for security
 RUN addgroup --system --gid 1001 nodejs
@@ -60,9 +65,8 @@ RUN adduser --system --uid 1001 apiuser
 RUN chown -R apiuser:nodejs /app
 USER apiuser
 
-EXPOSE 4000
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+#     CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
-
+# Start the application
 CMD ["node", "dist/main.js"]
