@@ -50,6 +50,7 @@ COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 # Install production dependencies only
 WORKDIR /app/apps/api
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN pnpm add -D prisma
 RUN pnpm prisma generate
 
 # Set environment variables
