@@ -46,12 +46,14 @@ COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder /app/node_modules/.pnpm/@prisma+engines@*/node_modules/@prisma/engines ./node_modules/@prisma/engines
 
-# Install production dependencies only
+# Set working directory
 WORKDIR /app/apps/api
+
+# Install production dependencies
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
-RUN pnpm add -D prisma
-RUN pnpm prisma generate
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -65,9 +67,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 apiuser
 RUN chown -R apiuser:nodejs /app
 USER apiuser
-
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#     CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
 
 # Start the application
 CMD ["node", "dist/main.js"]
