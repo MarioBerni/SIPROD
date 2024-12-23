@@ -20,13 +20,15 @@ app.use((req, res, next) => {
   next()
 })
 
-// Health Check (sin prefijo API para acceso directo)
-app.get('/health', (req, res) => {
+// Health Check bajo el prefijo API para consistencia
+app.get(`${API_PREFIX}/health`, (req, res) => {
   console.log('Health check endpoint called')
-  res.status(200).json({ 
-    status: 'ok',
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV || 'development',
+    version: process.env.npm_package_version || '1.0.0',
+    uptime: process.uptime()
   })
 })
 
@@ -45,13 +47,13 @@ apiRouter.get('/', (req, res) => {
 app.use(API_PREFIX, apiRouter)
 
 // Error handling middleware (debe ir después de todas las rutas)
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response) => {
   console.error(err.stack)
   res.status(500).json({ error: 'Internal Server Error' })
 })
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port} in ${process.env.NODE_ENV} mode`)
-  console.log(`Health check endpoint: http://localhost:${port}/health`)
+  console.log(`Health check endpoint: http://localhost:${port}${API_PREFIX}/health`)
   console.log(`API endpoint: http://localhost:${port}${API_PREFIX}`)
 })

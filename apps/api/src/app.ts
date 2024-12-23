@@ -5,14 +5,19 @@ import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import { metricsMiddleware, setupMetrics } from './middleware/metrics';
 import { errorHandler } from './middleware/error';
-import authRouter from './routes/auth';
+import router from './routes';
 
 const app: Express = express();
+const API_PREFIX = process.env.API_PREFIX || '/api';
 
 // Middlewares básicos
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(helmet());
 app.use(compression());
 
@@ -26,16 +31,30 @@ app.use(rateLimit({
 app.use(metricsMiddleware);
 setupMetrics(app);
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health Check endpoint
+app.get(`${API_PREFIX}/health`, (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: process.env.npm_package_version || '1.0.0',
+    uptime: process.uptime()
+  });
 });
 
-// Rutas
-app.use('/auth', authRouter);
+// Root API endpoint
+app.get(API_PREFIX, (req, res) => {
+  res.json({ 
+    message: 'SIPROD API',
+    version: process.env.npm_package_version || '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Rutas de la API
+app.use(API_PREFIX, router);
 
 // Manejador de errores
 app.use(errorHandler);
 
-// Exportar la app
-export { app };
+export default app;
