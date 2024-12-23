@@ -85,69 +85,253 @@ keepalive_timeout 65;
 
 ## Despliegue
 
-### Proceso
-1. Build en CI
-2. Tests automáticos
-3. Backup pre-deploy
-4. Deploy gradual
-5. Verificación
-6. Rollback si necesario
+### Preparación del Servidor
 
-### Scripts
-```bash
-# Build y deploy
-pnpm build
-pnpm deploy:prod
+1. Requisitos del sistema:
+   - Node.js 18 o superior
+   - pnpm 8 o superior
+   - PostgreSQL 15 o superior
+   - Redis (opcional)
+   - PM2 (instalación global)
+   - Nginx
 
-# Rollback
-pnpm deploy:rollback
+2. Instalación de PM2:
+   ```bash
+   npm install -g pm2
+   ```
 
-# Verificación
-pnpm verify:deployment
+3. Configuración de Nginx:
+   ```nginx
+   server {
+       listen 80;
+       server_name siprod.example.com;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+
+       location /api {
+           proxy_pass http://localhost:4000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+### Proceso de Despliegue
+
+1. Clonar el repositorio:
+   ```bash
+   git clone <repositorio>
+   cd SIPROD
+   ```
+
+2. Instalar dependencias:
+   ```bash
+   pnpm install
+   ```
+
+3. Configurar variables de entorno:
+   ```bash
+   cp .env.example .env.production
+   # Editar .env.production con valores de producción
+   ```
+
+4. Construir la aplicación:
+   ```bash
+   pnpm build
+   ```
+
+5. Iniciar con PM2:
+   ```bash
+   pm2 start ecosystem.config.js --env production
+   ```
+
+6. Configurar inicio automático:
+   ```bash
+   pm2 startup
+   pm2 save
+   ```
+
+## Gestión de Procesos con PM2
+
+### Configuración Local
+El proyecto utiliza PM2 para gestionar los procesos en desarrollo local. La configuración se encuentra en `ecosystem.local.config.js`:
+
+```javascript
+// Frontend
+{
+  name: "siprod-frontend-dev",
+  script: "node_modules/next/dist/bin/next",
+  args: "dev",
+  cwd: "./apps/web",
+  env: {
+    NODE_ENV: "development",
+    PORT: 3000,
+    NEXT_PUBLIC_API_URL: "http://localhost:4000/api"
+  }
+}
+
+// Backend
+{
+  name: "siprod-backend-dev",
+  script: "dist/index.js",
+  cwd: "./apps/api",
+  watch: true,
+  env: {
+    NODE_ENV: "development",
+    PORT: 4000,
+    DATABASE_URL: "postgresql://...",
+    CORS_ORIGIN: "http://localhost:3000"
+  }
+}
 ```
+
+### Comandos Básicos de PM2
+
+```bash
+# Iniciar servicios
+pm2 start ecosystem.local.config.js
+
+# Ver logs
+pm2 logs [--lines 100]
+
+# Estado de servicios
+pm2 status
+
+# Reiniciar servicios
+pm2 restart all
+
+# Detener servicios
+pm2 stop all
+
+# Eliminar servicios
+pm2 delete all
+```
+
+### Monitoreo de Servicios
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:4000/api
+- Health Check: http://localhost:4000/health
+
+## Monitoreo
+
+### PM2
+
+1. Ver estado de los procesos:
+   ```bash
+   pm2 list
+   ```
+
+2. Monitoreo en tiempo real:
+   ```bash
+   pm2 monit
+   ```
+
+3. Ver logs:
+   ```bash
+   pm2 logs
+   ```
+
+4. Reiniciar procesos:
+   ```bash
+   pm2 restart all  # Todos los procesos
+   pm2 restart web  # Solo frontend
+   pm2 restart api  # Solo backend
+   ```
+
+### Logs
+
+- Logs de aplicación: `~/.pm2/logs/`
+- Logs de Nginx: `/var/log/nginx/`
+- Logs de PostgreSQL: `/var/log/postgresql/`
+
+## Backups
+
+### Base de Datos
+
+1. Backup manual:
+   ```bash
+   pg_dump -U postgres siprod > backup.sql
+   ```
+
+2. Backup automático (crontab):
+   ```bash
+   0 2 * * * pg_dump -U postgres siprod > /backups/siprod_$(date +\%Y\%m\%d).sql
+   ```
 
 ## Mantenimiento
 
 ### Actualizaciones
-- SO: Trimestral
-- Dependencias: Mensual
-- Seguridad: Inmediata
-- Aplicación: Según sprint
+
+1. Actualizar código:
+   ```bash
+   git pull origin main
+   pnpm install
+   pnpm build
+   pm2 restart all
+   ```
+
+2. Actualizar dependencias:
+   ```bash
+   pnpm update
+   ```
 
 ### Limpieza
-- Logs: Rotación semanal
-- Backups: Purga >30 días
-- Caché: Limpieza automática
-- Temporales: Limpieza diaria
 
-## Recuperación
+1. Logs antiguos:
+   ```bash
+   pm2 flush  # Limpiar logs de PM2
+   ```
 
-### Disaster Recovery
-1. Backup verification
-2. System restore
-3. Data recovery
-4. Service verification
-5. DNS update if needed
+2. Backups antiguos:
+   ```bash
+   find /backups/ -name "siprod_*.sql" -mtime +30 -delete
+   ```
 
-### Contingencia
-- Servidor backup listo
-- DNS failover configurado
-- Procedimientos documentados
-- Equipo capacitado
+## Resolución de Problemas
 
-## Optimización
+### Comandos Útiles
 
-### Performance
-- CDN para estáticos
-- Caché en múltiples niveles
-- Compresión habilitada
-- DB indexing optimizado
+1. Verificar estado de servicios:
+   ```bash
+   pm2 list
+   systemctl status postgresql
+   systemctl status nginx
+   ```
 
-### Recursos
-- Auto-scaling configurado
-- Load balancing preparado
-- Monitoreo predictivo
-- Alertas tempranas
+2. Reiniciar servicios:
+   ```bash
+   pm2 restart all
+   systemctl restart postgresql
+   systemctl restart nginx
+   ```
+
+### Problemas Comunes
+
+1. Error de conexión a la base de datos:
+   - Verificar PostgreSQL: `systemctl status postgresql`
+   - Verificar variables de entorno
+   - Verificar permisos de usuario
+
+2. Error 502 Bad Gateway:
+   - Verificar que los servicios están corriendo: `pm2 list`
+   - Verificar logs de Nginx
+   - Verificar configuración de proxy
+
+3. Problemas de memoria:
+   - Verificar uso de recursos: `pm2 monit`
+   - Ajustar límites en ecosystem.config.js
+   - Considerar escalado horizontal
 
 ## Contactos
 

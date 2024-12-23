@@ -4,23 +4,18 @@
 
 ### Configuración del Entorno
 1. **Requisitos del Sistema**
-   - Node.js 18+ (recomendado 18.17.0+)
-   - pnpm 8+ (recomendado 8.9.0+)
-   - Docker Desktop 4.20+
-   - Git 2.40+
-   - VS Code (recomendado)
+   - Node.js 18 o superior
+   - PNPM 8.6 o superior
+   - PostgreSQL 15 o superior
+   - PM2 (instalación global)
 
 2. **Extensiones VS Code Esenciales**
    - ESLint
    - Prettier
-   - Docker
-   - GitLens
+   - TypeScript + JavaScript
    - Prisma
-   - Tailwind CSS IntelliSense
+   - GitLens
    - Error Lens
-   - GitHub Copilot
-   - Import Cost
-   - REST Client
 
 3. **Configuración de Desarrollo**
    ```bash
@@ -28,17 +23,21 @@
    git clone https://[repositorio]/siprod.git
    cd siprod
 
+   # Instalar PM2 globalmente
+   npm install -g pm2
+
    # Instalar dependencias
    pnpm install
-
-   # Configurar husky
-   pnpm prepare
 
    # Configurar variables de entorno
    cp .env.example .env
 
+   # Configurar la base de datos
+   pnpm --filter @siprod/api prisma:generate
+   pnpm --filter @siprod/api prisma:migrate
+
    # Iniciar servicios de desarrollo
-   pnpm dev
+   pm2 start ecosystem.local.config.js
    ```
 
 ## Estándares y Mejores Prácticas
@@ -304,3 +303,81 @@ pnpm --filter @siprod/api test:coverage
 - README por package
 - Diagramas actualizados
 - Guías de migración
+
+## Flujo de Trabajo Git
+
+1. Crear rama feature:
+```bash
+git checkout -b feature/nombre-feature
+```
+
+2. Commit convencional:
+```bash
+git commit -m "feat: descripción del cambio"
+```
+
+Tipos de commit:
+- `feat`: Nueva característica
+- `fix`: Corrección de bug
+- `docs`: Documentación
+- `style`: Cambios de estilo
+- `refactor`: Refactorización
+- `test`: Tests
+- `chore`: Mantenimiento
+
+3. Push y Pull Request:
+```bash
+git push origin feature/nombre-feature
+# Crear PR en GitHub
+```
+
+## Despliegue
+
+### Desarrollo
+
+```bash
+# Construir
+pnpm build
+
+# Iniciar con PM2
+pm2 start ecosystem.local.config.js
+```
+
+### Producción
+
+```bash
+# Construir
+pnpm build
+
+# Iniciar con PM2
+pm2 start ecosystem.config.js --env production
+```
+
+## Depuración
+
+### Backend
+
+1. Logs de PM2:
+```bash
+pm2 logs
+```
+
+2. Monitoreo:
+```bash
+pm2 monit
+```
+
+### Frontend
+
+- Chrome DevTools
+- React Developer Tools
+- Next.js Debug Mode:
+```bash
+NODE_OPTIONS='--inspect' pnpm dev
+```
+
+## Recursos
+
+- [Documentación Next.js](https://nextjs.org/docs)
+- [Documentación Prisma](https://www.prisma.io/docs)
+- [Documentación PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)

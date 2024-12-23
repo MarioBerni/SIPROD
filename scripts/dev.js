@@ -22,11 +22,6 @@ const services = {
     command: 'pnpm',
     args: ['--filter', '@siprod/api', 'dev'],
   },
-  monitoring: {
-    name: 'Monitoreo (Prometheus + Grafana)',
-    command: 'docker-compose',
-    args: ['-f', path.join('docker', 'monitoring', 'docker-compose.yml'), 'up'],
-  },
 };
 
 // Comandos adicionales

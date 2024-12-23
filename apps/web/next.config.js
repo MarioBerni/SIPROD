@@ -66,12 +66,18 @@ const nextConfig = {
   },
 
   async rewrites() {
-    return [
-      {
-        source: '/fonts/:path*',
-        destination: '/static/fonts/:path*',
-      },
-    ];
+    return {
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:4000/api/:path*'
+        },
+        {
+          source: '/health',
+          destination: 'http://localhost:4000/health'
+        }
+      ]
+    }
   },
 
   swcMinify: true,

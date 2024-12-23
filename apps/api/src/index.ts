@@ -15,14 +15,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Log all requests
-app.use((req) => {
+app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`)
-})
-
-// Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response) => {
-  console.error(err.stack)
-  res.status(500).json({ error: 'Internal Server Error' })
+  next()
 })
 
 // Health Check (sin prefijo API para acceso directo)
@@ -48,6 +43,12 @@ apiRouter.get('/', (req, res) => {
 
 // Aplicar el prefijo API a todas las rutas del apiRouter
 app.use(API_PREFIX, apiRouter)
+
+// Error handling middleware (debe ir después de todas las rutas)
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack)
+  res.status(500).json({ error: 'Internal Server Error' })
+})
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port} in ${process.env.NODE_ENV} mode`)

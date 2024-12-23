@@ -55,7 +55,7 @@ La documentación completa del proyecto se encuentra en la carpeta `docs/`:
 - Redis para caché
 
 ### DevOps
-- Docker y Docker Compose
+- PM2 para gestión de procesos
 - GitHub Actions para CI/CD
 - Nginx como proxy inverso
 - Monitoreo avanzado
@@ -64,9 +64,10 @@ La documentación completa del proyecto se encuentra en la carpeta `docs/`:
 
 ### Requisitos Previos
 - Node.js 18 o superior
-- PNPM
-- Docker y Docker Compose
-- Git
+- pnpm 8 o superior
+- PostgreSQL 15 o superior
+- Redis (opcional)
+- PM2 (global)
 
 ### Configuración Local
 
@@ -76,54 +77,94 @@ git clone https://[repositorio]/siprod.git
 cd siprod
 ```
 
-2. Instalar dependencias:
+2. Instalar PM2 globalmente:
+```bash
+npm install -g pm2
+```
+
+3. Instalar dependencias:
 ```bash
 pnpm install
 ```
 
-3. Configurar variables de entorno:
+4. Configurar variables de entorno:
 ```bash
 cp .env.example .env
 # Editar .env con valores locales
 ```
 
-4. Iniciar servicios:
+5. Generar el cliente Prisma:
 ```bash
-# Con Docker
-docker-compose up -d
+pnpm --filter @siprod/api prisma generate
+```
 
-# O en desarrollo local
+## Desarrollo
+
+Iniciar en modo desarrollo:
+```bash
 pnpm dev
+```
+
+La aplicación estará disponible en:
+- Frontend: http://localhost:3000
+- API: http://localhost:4000/api
+- Health Check: http://localhost:4000/health
+
+## Producción
+
+1. Construir la aplicación:
+```bash
+pnpm build
+```
+
+2. Iniciar con PM2:
+```bash
+pm2 start ecosystem.config.js --env production
+```
+
+3. Monitorear:
+```bash
+pm2 monit
 ```
 
 ## Estructura del Proyecto
 ```
 SIPROD/
 ├── apps/
-│   ├── api/         # Backend (NestJS)
-│   └── web/         # Frontend (Next.js)
+│   ├── api/         # Backend en Express + Prisma
+│   └── web/         # Frontend en Next.js
 ├── packages/
-│   ├── config/      # Configuraciones
-│   ├── ui/          # Componentes UI
-│   └── utils/       # Utilidades
+│   ├── ui/          # Componentes UI compartidos
+│   ├── config/      # Configuraciones compartidas
+│   └── utils/       # Utilidades compartidas
 ├── docs/            # Documentación
-└── docker-compose.yml
+└── scripts/         # Scripts de utilidad
 ```
 
-## Contribución
+## Scripts Disponibles
 
-1. Revisa la [Guía de Desarrollo](docs/DESARROLLO.md)
-2. Crea una rama para tu feature
-3. Desarrolla y prueba tus cambios
-4. Crea un pull request
-5. Espera la revisión y aprobación
+- `pnpm dev`: Iniciar en modo desarrollo
+- `pnpm build`: Construir para producción
+- `pnpm start`: Iniciar en producción
+- `pnpm lint`: Ejecutar linter
+- `pnpm test`: Ejecutar tests
+- `pnpm clean`: Limpiar builds
+
+## Documentación
+
+Para más información, consulta:
+- [Guía de Desarrollo](docs/DESARROLLO.md)
+- [Guía de Operaciones](docs/OPERACIONES.md)
+- [Guía de Mantenimiento](docs/MANTENIMIENTO.md)
 
 ## Soporte
 
-- **Problemas técnicos**: Crear issue en el repositorio
-- **Preguntas**: Consultar la documentación en `docs/`
-- **Emergencias**: Contactar al equipo DevOps (ver [Infraestructura](docs/INFRAESTRUCTURA.md))
+Para reportar problemas o sugerir mejoras, por favor crear un issue en el repositorio.
 
-## Licencia
+### Comandos Útiles de PM2
 
-[Pendiente]
+- Ver logs: `pm2 logs`
+- Estado de servicios: `pm2 status`
+- Reiniciar servicios: `pm2 restart all`
+- Detener servicios: `pm2 stop all`
+- Eliminar servicios: `pm2 delete all`
