@@ -1,383 +1,252 @@
-# Guía de Desarrollo SIPROD
+# Guía de Desarrollo
 
-## Entorno de Desarrollo
+## Índice
+1. [Configuración del Entorno](#configuración-del-entorno)
+2. [Estructura del Proyecto](#estructura-del-proyecto)
+3. [Estándares de Código](#estándares-de-código)
+4. [Flujo de Desarrollo](#flujo-de-desarrollo)
+5. [Testing](#testing)
+6. [Debugging](#debugging)
+7. [Performance](#performance)
+8. [Seguridad](#seguridad)
 
-### Configuración del Entorno
-1. **Requisitos del Sistema**
-   - Node.js 18 o superior
-   - PNPM 8.6 o superior
-   - PostgreSQL 15 o superior
-   - PM2 (instalación global)
+## Configuración del Entorno
 
-2. **Extensiones VS Code Esenciales**
-   - ESLint
-   - Prettier
-   - TypeScript + JavaScript
-   - Prisma
-   - GitLens
-   - Error Lens
+### Requisitos del Sistema
+- Node.js 18+ (recomendado 18.17.0+)
+- PNPM 8+ (recomendado 8.9.0+)
+- PostgreSQL 15+
+- PM2 (global)
+- Git 2.40+
+- VS Code (recomendado)
 
-3. **Configuración de Desarrollo**
-   ```bash
-   # Clonar repositorio
-   git clone https://[repositorio]/siprod.git
-   cd siprod
+### Extensiones VS Code Recomendadas
+- ESLint
+- Prettier
+- TypeScript + JavaScript
+- Tailwind CSS IntelliSense
+- Prisma
+- GitLens
 
-   # Instalar PM2 globalmente
-   npm install -g pm2
+### Configuración Inicial
 
-   # Instalar dependencias
-   pnpm install
+1. **Instalación de Herramientas Globales**
+```bash
+# Instalar pnpm
+npm install -g pnpm
 
-   # Configurar variables de entorno
-   cp .env.example .env
+# Instalar PM2
+npm install -g pm2
+```
 
-   # Configurar la base de datos
-   pnpm --filter @siprod/api prisma:generate
-   pnpm --filter @siprod/api prisma:migrate
+2. **Configuración del Proyecto**
+```bash
+# Clonar repositorio
+git clone [URL_REPOSITORIO]
+cd SIPROD
 
-   # Iniciar servicios de desarrollo
-   pm2 start ecosystem.local.config.js
-   ```
+# Instalar dependencias
+pnpm install
 
-## Estándares y Mejores Prácticas
+# Configurar variables de entorno
+cp .env.example .env
+
+# Configurar base de datos
+pnpm --filter @siprod/api prisma:generate
+pnpm --filter @siprod/api prisma:migrate
+```
+
+## Estructura del Proyecto
+
+### Organización de Carpetas
+```
+SIPROD/
+├── apps/
+│   ├── api/                 # Backend
+│   │   ├── src/
+│   │   │   ├── controllers/
+│   │   │   ├── middlewares/
+│   │   │   ├── routes/
+│   │   │   ├── services/
+│   │   │   └── utils/
+│   │   ├── prisma/
+│   │   └── tests/
+│   └── web/                 # Frontend
+│       ├── src/
+│       │   ├── app/
+│       │   ├── components/
+│       │   ├── hooks/
+│       │   ├── lib/
+│       │   └── utils/
+│       └── public/
+├── packages/
+│   ├── config/             # Configuraciones compartidas
+│   ├── tsconfig/          # Configuraciones de TypeScript
+│   ├── ui/                # Componentes UI compartidos
+│   └── utils/             # Utilidades compartidas
+└── docs/                  # Documentación
+```
+
+### Convenciones de Nombrado
+- **Archivos**: PascalCase para componentes, camelCase para utilidades
+- **Carpetas**: camelCase
+- **Componentes React**: PascalCase
+- **Funciones**: camelCase
+- **Interfaces/Types**: PascalCase con prefijo I para interfaces
+- **Constants**: UPPER_SNAKE_CASE
+
+## Estándares de Código
 
 ### TypeScript
-- Strict mode obligatorio
-- Tipos explícitos para APIs públicas
-- Interfaces para contratos públicos
-- Types para implementaciones internas
-- Documentación TSDoc completa
-- No any sin justificación
+```typescript
+// Usar tipos explícitos
+interface IUser {
+  id: string;
+  name: string;
+  email: string;
+}
 
-### React y Next.js
-- Server Components por defecto
-- Client Components solo cuando necesario
-- Hooks personalizados para lógica reutilizable
-- Patrón de composición sobre herencia
-- Lazy loading para optimización
-- Manejo de estado distribuido
+// Evitar any
+function processUser(user: IUser): void {
+  // ...
+}
 
-### Testing
-- Jest para unit testing
-- React Testing Library para componentes
-- Cypress para E2E
-- MSW para mocking de API
-- Cobertura mínima: 80%
+// Usar enums para valores constantes
+enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
+```
 
-### Seguridad
-- OWASP Top 10 compliance
-- Sanitización de inputs
-- Rate limiting
-- CORS configurado
-- Headers de seguridad
-- Auditoría regular de dependencias
+### React/Next.js
+```typescript
+// Componentes funcionales con tipos
+interface Props {
+  title: string;
+  children: React.ReactNode;
+}
 
-### Performance
-- Lighthouse score >90
-- Bundle size monitoring
-- Code splitting automático
-- Optimización de imágenes
-- Caché agresivo
-- Lazy loading de recursos
+const Layout: React.FC<Props> = ({ title, children }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+};
 
-## Herramientas de Desarrollo
+// Hooks personalizados
+const useUser = () => {
+  // ...
+};
+```
 
-### CLI Interactivo
+### API/Backend
+```typescript
+// Controllers tipados
+interface CreateUserDTO {
+  name: string;
+  email: string;
+}
+
+async function createUser(data: CreateUserDTO): Promise<IUser> {
+  // ...
+}
+```
+
+## Flujo de Desarrollo
+
+### Proceso de Desarrollo
+1. Crear rama feature/fix
+2. Desarrollar cambios
+3. Ejecutar tests
+4. Crear PR
+5. Code review
+6. Merge a develop
+
+### Commits
 ```bash
-node scripts/dev.js
-```
-Proporciona una interfaz para:
-- Iniciar servicios específicos
-- Ejecutar comandos de desarrollo
-- Ver estado del proyecto
-- Gestionar base de datos
+# Formato
+tipo(alcance): descripción
 
-### Scripts Principales
-- `pnpm dev`: Iniciar todos los servicios
-- `pnpm test`: Ejecutar pruebas
-- `pnpm build`: Construir para producción
-- `pnpm lint`: Ejecutar linting
-- `pnpm db:studio`: Abrir Prisma Studio
-
-## Arquitectura
-
-### Frontend (Next.js)
-- App Router
-- Server Components
-- Tailwind CSS
-- SWC para compilación
-- Optimizaciones automáticas
-
-### Backend (Express)
-- Arquitectura por capas
-- Middleware modular
-- Validación con Zod
-- Caché y optimizaciones
-- Métricas y logging
-
-### Base de Datos
-- Prisma como ORM
-- Migraciones automáticas
-- Seeds para desarrollo
-- Studio para gestión
-
-## Optimizaciones Recientes
-
-### Configuración de Bundle
-- Implementado análisis de bundle con `@next/bundle-analyzer`
-- Optimización de chunks con configuración personalizada en `next.config.js`
-- Code splitting mejorado para componentes y módulos
-
-### Lazy Loading y Dynamic Imports
-Se ha implementado una estrategia de carga optimizada:
-
-```typescript
-// Configuración en optimization.ts
-const dynamicImports = {
-  DashboardLayout: lazy(() => import('@siprod/ui').then(mod => ({ default: mod.DashboardLayout }))),
-  DashboardStats: lazy(() => import('@siprod/ui').then(mod => ({ default: mod.DashboardStats }))),
-  // ...otros componentes
-};
-
-// Configuración de preload
-export const preloadComponents = (components: Array<keyof typeof dynamicImports>) => {
-  components.forEach((component) => {
-    const importFn = dynamicImports[component];
-    importFn.preload?.();
-  });
-};
+# Ejemplos
+feat(auth): implementar autenticación JWT
+fix(api): corregir validación de entrada
+docs(readme): actualizar instrucciones de instalación
 ```
 
-### Mejoras de Tipado
-Se han fortalecido los tipos en varios componentes:
-
-```typescript
-// Ejemplo en AnalyticsProvider
-type GTagEvent = {
-  event_category?: string;
-  event_label?: string;
-  value?: number;
-  [key: string]: unknown;
-};
-
-interface AnalyticsContextType {
-  trackEvent: (eventName: string, properties?: GTagEvent) => void;
-  trackPageView: (path: string) => void;
-}
-```
-
-### Optimizaciones de Webpack
-```javascript
-// next.config.js
-config.optimization.splitChunks = {
-  chunks: 'all',
-  minSize: 20000,
-  maxSize: 70000,
-  minChunks: 1,
-  maxAsyncRequests: 30,
-  maxInitialRequests: 30,
-  cacheGroups: {
-    common: {
-      name: 'common',
-      minChunks: 2,
-      priority: 10,
-      reuseExistingChunk: true,
-      enforce: true
-    },
-    components: {
-      name: 'components',
-      test: /[\\/]components[\\/]/,
-      minChunks: 1,
-      priority: 20,
-    },
-    vendor: {
-      name: 'vendor',
-      test: /[\\/]node_modules[\\/]/,
-      priority: 30,
-      reuseExistingChunk: true
-    }
-  }
-};
-```
-
-### Caché y Headers
-```javascript
-// Configuración de caché para recursos estáticos
-async headers() {
-  return [
-    {
-      source: '/:all*(svg|jpg|png)',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        },
-      ],
-    }
-  ];
-}
-```
+### Pull Requests
+- Usar plantilla proporcionada
+- Incluir tests
+- Actualizar documentación
+- Screenshots/videos si hay cambios visuales
 
 ## Testing
 
-### Frontend
+### Tests Unitarios
 ```bash
-# Ejecutar tests de web
+# Frontend
 pnpm --filter @siprod/web test
 
-# Watch mode
-pnpm --filter @siprod/web test:watch
+# Backend
+pnpm --filter @siprod/api test
 ```
-- Jest + Testing Library
-- Pruebas de componentes
-- Pruebas de integración
-- Mocks y fixtures
+
+### Tests de Integración
+```bash
+pnpm test:integration
+```
+
+### Tests E2E
+```bash
+pnpm test:e2e
+```
+
+## Debugging
+
+### Frontend
+- React DevTools
+- Chrome DevTools
+- Next.js Debug Mode
 
 ### Backend
+- Node Inspector
+- PM2 Logs
 ```bash
-# Ejecutar tests de API
-pnpm --filter @siprod/api test
-
-# Cobertura
-pnpm --filter @siprod/api test:coverage
+pm2 logs siprod-backend-dev
 ```
-- Jest
-- Supertest para API
-- Mocks de servicios
-- Base de datos de prueba
 
-## CI/CD
+## Performance
 
-### GitHub Actions
-- Lint y tipos en PRs
-- Tests automáticos
-- Build de verificación
-- Análisis de dependencias
+### Frontend
+- Lazy loading
+- Image optimization
+- Bundle analysis
+```bash
+pnpm analyze
+```
 
-### Despliegue
-- Proceso automatizado
-- Verificaciones previas
-- Rollback automático
-- Notificaciones
-
-## Monitoreo y Logs
-
-### Logging
-- Winston configurado
-- Rotación de logs
-- Niveles por ambiente
-- Formato estructurado
-
-### Métricas
-- Endpoints personalizados
-- Latencia y errores
-- Uso de recursos
-- Dashboard custom
+### Backend
+- Query optimization
+- Caching
+- Rate limiting
 
 ## Seguridad
 
 ### Prácticas
 - Validación de entrada
 - Sanitización de datos
-- Rate limiting
 - CORS configurado
+- Rate limiting
 - Headers seguros
 
 ### Autenticación
 - JWT
 - Refresh tokens
-- Roles y permisos
-- Sesiones seguras
+- Session management
 
-## Documentación
-
-### API
-- Swagger UI
-- OpenAPI 3.0
-- Ejemplos y schemas
-- Autenticación documentada
-
-### Código
-- TSDoc en funciones
-- README por package
-- Diagramas actualizados
-- Guías de migración
-
-## Flujo de Trabajo Git
-
-1. Crear rama feature:
-```bash
-git checkout -b feature/nombre-feature
-```
-
-2. Commit convencional:
-```bash
-git commit -m "feat: descripción del cambio"
-```
-
-Tipos de commit:
-- `feat`: Nueva característica
-- `fix`: Corrección de bug
-- `docs`: Documentación
-- `style`: Cambios de estilo
-- `refactor`: Refactorización
-- `test`: Tests
-- `chore`: Mantenimiento
-
-3. Push y Pull Request:
-```bash
-git push origin feature/nombre-feature
-# Crear PR en GitHub
-```
-
-## Despliegue
-
-### Desarrollo
-
-```bash
-# Construir
-pnpm build
-
-# Iniciar con PM2
-pm2 start ecosystem.local.config.js
-```
-
-### Producción
-
-```bash
-# Construir
-pnpm build
-
-# Iniciar con PM2
-pm2 start ecosystem.config.js --env production
-```
-
-## Depuración
-
-### Backend
-
-1. Logs de PM2:
-```bash
-pm2 logs
-```
-
-2. Monitoreo:
-```bash
-pm2 monit
-```
-
-### Frontend
-
-- Chrome DevTools
-- React Developer Tools
-- Next.js Debug Mode:
-```bash
-NODE_OPTIONS='--inspect' pnpm dev
-```
-
-## Recursos
-
-- [Documentación Next.js](https://nextjs.org/docs)
-- [Documentación Prisma](https://www.prisma.io/docs)
-- [Documentación PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+## Recursos Adicionales
+- [Next.js Docs](https://nextjs.org/docs)
+- [Prisma Docs](https://www.prisma.io/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start)

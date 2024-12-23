@@ -1,346 +1,311 @@
-# Operaciones SIPROD
+# Guía de Operaciones
+
+## Índice
+1. [Infraestructura](#infraestructura)
+2. [Despliegue](#despliegue)
+3. [Monitoreo](#monitoreo)
+4. [Mantenimiento](#mantenimiento)
+5. [Backups](#backups)
+6. [Seguridad](#seguridad)
+7. [Resolución de Problemas](#resolución-de-problemas)
 
 ## Infraestructura
 
-### Servidor Principal
-- **Hosting**: Servidor VPS Dedicado
-- **Proveedor**: cPanel Rapid
-- **Ubicación**: Data Center Regional
-- **IP**: 179.27.203.219
-
-### Especificaciones
-- **CPU**: 2 vCPUs @ 3.35 GHz
-- **RAM**: 8 GB
-- **Almacenamiento**: 100 GB SSD
-- **OS**: AlmaLinux 8.10
-
-## Componentes del Sistema
-
-### Servidor Web (Nginx)
-```nginx
-# Configuración optimizada
-gzip on;
-gzip_types text/plain text/css application/json application/javascript;
-client_max_body_size 50M;
-keepalive_timeout 65;
+### Arquitectura del Sistema
+```
+[Cliente] → [Nginx] → [PM2/Node.js] → [PostgreSQL/Redis]
 ```
 
-### Base de Datos
-- **Motor**: PostgreSQL 14
-- **Backup**: Diario automático
-- **Monitoreo**: Métricas personalizadas
+### Componentes Principales
+- **Frontend**: Next.js 14 (SSR)
+- **Backend**: Express/Node.js
+- **Base de Datos**: PostgreSQL 15
+- **Cache**: Redis (opcional)
+- **Process Manager**: PM2
+- **Reverse Proxy**: Nginx
+- **CI/CD**: GitHub Actions
 
-### Correo
-- **SMTP**: Exim
-- **IMAP/POP3**: Dovecot
-- **Seguridad**: Anti-spam y anti-virus
-
-## Seguridad
-
-### Certificados SSL
-- **Proveedor**: Let's Encrypt
-- **Dominios**: *.siprod.uy
-- **Renovación**: Automática
-- **Validez**: Hasta 03/11/2025
-
-### Firewall y Protección
-- CSF (ConfigServer)
-- ModSecurity WAF
-- Rate limiting
-- IP whitelisting
-
-### Backups
-- **Frecuencia**: Diaria
-- **Retención**: 30 días
-- **Tipo**: Full + Incremental
-- **Almacenamiento**: Offsite
-
-## Monitoreo
-
-### Sistemas
-- CPU, RAM, Disco
-- Servicios críticos
-- Logs centralizados
-- Alertas configuradas
-
-### Aplicación
-- Métricas de rendimiento
-- Errores y excepciones
-- Tiempos de respuesta
-- Uso de caché
-
-## DNS y Dominios
-
-### Configuración
-- **Principal**: siprod.uy
-- **Subdominios**:
-  - www.siprod.uy
-  - api.siprod.uy
-  - admin.siprod.uy
-
-### Email
-- SPF configurado
-- DKIM activo
-- DMARC implementado
+### Requisitos de Sistema
+- CPU: 4 cores mínimo
+- RAM: 8GB mínimo
+- Almacenamiento: 50GB SSD
+- OS: Ubuntu 22.04 LTS
 
 ## Despliegue
 
 ### Preparación del Servidor
+```bash
+# Actualizar sistema
+sudo apt update && sudo apt upgrade -y
 
-1. Requisitos del sistema:
-   - Node.js 18 o superior
-   - pnpm 8 o superior
-   - PostgreSQL 15 o superior
-   - Redis (opcional)
-   - PM2 (instalación global)
-   - Nginx
+# Instalar dependencias
+sudo apt install -y curl git build-essential
 
-2. Instalación de PM2:
-   ```bash
-   npm install -g pm2
-   ```
+# Instalar Node.js 18
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
 
-3. Configuración de Nginx:
-   ```nginx
-   server {
-       listen 80;
-       server_name siprod.example.com;
+# Instalar PM2
+sudo npm install -g pm2
 
-       location / {
-           proxy_pass http://localhost:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-       }
+# Instalar PNPM
+sudo npm install -g pnpm@8
+```
 
-       location /api {
-           proxy_pass http://localhost:4000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
+### Configuración de Nginx
+```nginx
+server {
+    listen 80;
+    server_name siprod.example.com;
 
-### Proceso de Despliegue
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
 
-1. Clonar el repositorio:
-   ```bash
-   git clone <repositorio>
-   cd SIPROD
-   ```
-
-2. Instalar dependencias:
-   ```bash
-   pnpm install
-   ```
-
-3. Configurar variables de entorno:
-   ```bash
-   cp .env.example .env.production
-   # Editar .env.production con valores de producción
-   ```
-
-4. Construir la aplicación:
-   ```bash
-   pnpm build
-   ```
-
-5. Iniciar con PM2:
-   ```bash
-   pm2 start ecosystem.config.js --env production
-   ```
-
-6. Configurar inicio automático:
-   ```bash
-   pm2 startup
-   pm2 save
-   ```
-
-## Gestión de Procesos con PM2
-
-### Configuración Local
-El proyecto utiliza PM2 para gestionar los procesos en desarrollo local. La configuración se encuentra en `ecosystem.local.config.js`:
-
-```javascript
-// Frontend
-{
-  name: "siprod-frontend-dev",
-  script: "node_modules/next/dist/bin/next",
-  args: "dev",
-  cwd: "./apps/web",
-  env: {
-    NODE_ENV: "development",
-    PORT: 3000,
-    NEXT_PUBLIC_API_URL: "http://localhost:4000/api"
-  }
-}
-
-// Backend
-{
-  name: "siprod-backend-dev",
-  script: "dist/index.js",
-  cwd: "./apps/api",
-  watch: true,
-  env: {
-    NODE_ENV: "development",
-    PORT: 4000,
-    DATABASE_URL: "postgresql://...",
-    CORS_ORIGIN: "http://localhost:3000"
-  }
+    location /api {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
 }
 ```
 
-### Comandos Básicos de PM2
+### Despliegue con PM2
 
+1. **Configuración de Producción**
+```javascript
+// ecosystem.config.js
+module.exports = {
+  apps: [
+    {
+      name: 'siprod-frontend',
+      script: 'apps/web/.next/standalone/server.js',
+      env_production: {
+        PORT: 3000,
+        NODE_ENV: 'production'
+      },
+      instances: 'max',
+      exec_mode: 'cluster'
+    },
+    {
+      name: 'siprod-backend',
+      script: 'apps/api/dist/index.js',
+      env_production: {
+        PORT: 4000,
+        NODE_ENV: 'production'
+      },
+      instances: 'max',
+      exec_mode: 'cluster'
+    }
+  ]
+};
+```
+
+2. **Script de Despliegue**
 ```bash
-# Iniciar servicios
-pm2 start ecosystem.local.config.js
+#!/bin/bash
 
-# Ver logs
-pm2 logs [--lines 100]
+# Actualizar código
+git pull origin main
 
-# Estado de servicios
-pm2 status
+# Instalar dependencias
+pnpm install
+
+# Construir aplicaciones
+pnpm build
 
 # Reiniciar servicios
-pm2 restart all
+pm2 reload ecosystem.config.js --env production
 
-# Detener servicios
-pm2 stop all
-
-# Eliminar servicios
-pm2 delete all
+# Guardar configuración PM2
+pm2 save
 ```
 
-### Monitoreo de Servicios
+3. **Comandos de Despliegue**
+```bash
+# Primer despliegue
+pm2 start ecosystem.config.js --env production
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000/api
-- Health Check: http://localhost:4000/health
+# Actualizaciones posteriores
+pm2 reload ecosystem.config.js --env production
+
+# Ver estado
+pm2 status
+
+# Ver logs
+pm2 logs
+```
 
 ## Monitoreo
 
-### PM2
+### PM2 Monitoring
+```bash
+# Ver dashboard
+pm2 monit
 
-1. Ver estado de los procesos:
-   ```bash
-   pm2 list
-   ```
-
-2. Monitoreo en tiempo real:
-   ```bash
-   pm2 monit
-   ```
-
-3. Ver logs:
-   ```bash
-   pm2 logs
-   ```
-
-4. Reiniciar procesos:
-   ```bash
-   pm2 restart all  # Todos los procesos
-   pm2 restart web  # Solo frontend
-   pm2 restart api  # Solo backend
-   ```
+# Ver métricas
+pm2 plus
+```
 
 ### Logs
+```bash
+# Ver todos los logs
+pm2 logs
 
-- Logs de aplicación: `~/.pm2/logs/`
-- Logs de Nginx: `/var/log/nginx/`
-- Logs de PostgreSQL: `/var/log/postgresql/`
+# Ver logs específicos
+pm2 logs siprod-frontend
+pm2 logs siprod-backend
+
+# Ver logs con timestamp
+pm2 logs --timestamp
+
+# Limpiar logs
+pm2 flush
+```
+
+### Métricas de Sistema
+- CPU Usage
+- Memory Usage
+- Network I/O
+- Disk Usage
+- Response Times
+- Error Rates
+
+## Mantenimiento
+
+### Tareas Diarias
+- Verificar logs por errores
+- Monitorear uso de recursos
+- Revisar métricas de rendimiento
+
+### Tareas Semanales
+- Actualizar dependencias no críticas
+- Backup de base de datos
+- Limpieza de logs antiguos
+
+### Tareas Mensuales
+- Actualizar sistema operativo
+- Revisar certificados SSL
+- Análisis de seguridad
+- Optimización de base de datos
 
 ## Backups
 
 ### Base de Datos
+```bash
+# Backup manual
+pg_dump -U usuario -d siprod > backup.sql
 
-1. Backup manual:
-   ```bash
-   pg_dump -U postgres siprod > backup.sql
-   ```
+# Backup automático (cron)
+0 0 * * * pg_dump -U usuario -d siprod > /backups/siprod_$(date +\%Y\%m\%d).sql
+```
 
-2. Backup automático (crontab):
-   ```bash
-   0 2 * * * pg_dump -U postgres siprod > /backups/siprod_$(date +\%Y\%m\%d).sql
-   ```
+### Archivos
+```bash
+# Backup de archivos
+tar -czf /backups/siprod_files_$(date +%Y%m%d).tar.gz /path/to/siprod
+```
 
-## Mantenimiento
+### Restauración
+```bash
+# Restaurar base de datos
+psql -U usuario -d siprod < backup.sql
 
-### Actualizaciones
+# Restaurar archivos
+tar -xzf backup_files.tar.gz -C /path/to/restore
+```
 
-1. Actualizar código:
-   ```bash
-   git pull origin main
-   pnpm install
-   pnpm build
-   pm2 restart all
-   ```
+## Seguridad
 
-2. Actualizar dependencias:
-   ```bash
-   pnpm update
-   ```
+### Firewall (UFW)
+```bash
+# Habilitar UFW
+sudo ufw enable
 
-### Limpieza
+# Configurar reglas
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
+```
 
-1. Logs antiguos:
-   ```bash
-   pm2 flush  # Limpiar logs de PM2
-   ```
+### SSL/TLS
+```bash
+# Instalar Certbot
+sudo apt install certbot python3-certbot-nginx
 
-2. Backups antiguos:
-   ```bash
-   find /backups/ -name "siprod_*.sql" -mtime +30 -delete
-   ```
+# Obtener certificado
+sudo certbot --nginx -d siprod.example.com
+```
+
+### Actualizaciones de Seguridad
+```bash
+# Actualizar sistema
+sudo apt update && sudo apt upgrade -y
+
+# Actualizar dependencias Node.js
+pnpm audit fix
+```
 
 ## Resolución de Problemas
 
-### Comandos Útiles
-
-1. Verificar estado de servicios:
-   ```bash
-   pm2 list
-   systemctl status postgresql
-   systemctl status nginx
-   ```
-
-2. Reiniciar servicios:
-   ```bash
-   pm2 restart all
-   systemctl restart postgresql
-   systemctl restart nginx
-   ```
-
 ### Problemas Comunes
 
-1. Error de conexión a la base de datos:
-   - Verificar PostgreSQL: `systemctl status postgresql`
-   - Verificar variables de entorno
-   - Verificar permisos de usuario
+1. **Servicio no Inicia**
+```bash
+# Verificar logs
+pm2 logs
 
-2. Error 502 Bad Gateway:
-   - Verificar que los servicios están corriendo: `pm2 list`
-   - Verificar logs de Nginx
-   - Verificar configuración de proxy
+# Verificar estado
+pm2 status
 
-3. Problemas de memoria:
-   - Verificar uso de recursos: `pm2 monit`
-   - Ajustar límites en ecosystem.config.js
-   - Considerar escalado horizontal
+# Reiniciar servicio
+pm2 restart service-name
+```
 
-## Contactos
+2. **Alto Uso de CPU/Memoria**
+```bash
+# Monitorear recursos
+pm2 monit
 
-### Soporte
-- **Nivel 1**: equipo@siprod.uy
-- **Nivel 2**: admin@siprod.uy
-- **Emergencias**: +598 99 123 456
+# Reiniciar en caso necesario
+pm2 reload all
+```
 
-### Proveedores
-- **Hosting**: soporte@cpanel.net
-- **DNS**: admin@nic.uy
-- **SSL**: support@letsencrypt.org
+3. **Errores de Base de Datos**
+```bash
+# Verificar conexión
+psql -U usuario -d siprod -c '\l'
+
+# Reiniciar PostgreSQL
+sudo systemctl restart postgresql
+```
+
+### Comandos Útiles
+```bash
+# Reiniciar todos los servicios
+pm2 reload all
+
+# Limpiar cache de Node.js
+pm2 flush
+pm2 reset all
+
+# Ver detalles de un proceso
+pm2 show service-name
+
+# Rotar logs
+pm2 logrotate -u user
+```
+
+## Referencias
+- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
+- [Nginx Documentation](https://nginx.org/en/docs/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
