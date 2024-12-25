@@ -331,3 +331,334 @@ pnpm dev
 
 ## Licencia
 Propiedad del Ministerio del Interior - República Oriental del Uruguay
+
+## Documentación Técnica del Proyecto SIPROD
+
+### Índice
+1. [Arquitectura](#arquitectura)
+2. [Estructura del Monorepo](#estructura-del-monorepo)
+3. [Stack Tecnológico](#stack-tecnológico)
+4. [Configuración](#configuración)
+5. [Flujo de Datos](#flujo-de-datos)
+6. [Seguridad](#seguridad)
+7. [Integración y Despliegue](#integración-y-despliegue)
+
+### Arquitectura
+
+#### Visión General
+```mermaid
+graph TB
+    Client[Cliente Web/Mobile]
+    API[API Backend]
+    DB[(PostgreSQL)]
+    Cache[(Redis)]
+    Auth[Auth Service]
+    
+    Client --> API
+    API --> DB
+    API --> Cache
+    API --> Auth
+```
+
+#### Componentes Principales
+
+##### Frontend (Next.js)
+- Server Components para renderizado óptimo
+- App Router para enrutamiento moderno
+- Zustand para gestión de estado
+- TailwindCSS para estilos
+- React Query para gestión de datos
+
+##### Backend (Express)
+- Arquitectura modular
+- Middleware personalizado
+- Validación con Zod
+- ORM con Prisma
+- Caché con Redis
+
+##### Base de Datos
+- PostgreSQL como almacenamiento principal
+- Prisma para migraciones y schema
+- Índices optimizados
+- Particionamiento por fecha
+
+### Estructura del Monorepo
+
+#### Organización de Carpetas
+```
+SIPROD/
+├── apps/
+│   ├── api/                 # Backend
+│   │   ├── src/
+│   │   │   ├── controllers/
+│   │   │   ├── middlewares/
+│   │   │   ├── routes/
+│   │   │   ├── services/
+│   │   │   └── utils/
+│   │   ├── prisma/
+│   │   └── tests/
+│   └── web/                 # Frontend
+│       ├── src/
+│       │   ├── app/
+│       │   ├── components/
+│       │   ├── hooks/
+│       │   ├── lib/
+│       │   └── utils/
+│       └── public/
+├── packages/
+│   ├── config/             # Configuraciones compartidas
+│   ├── tsconfig/          # Configuraciones de TypeScript
+│   ├── ui/                # Componentes UI compartidos
+│   └── utils/             # Utilidades compartidas
+└── docs/                  # Documentación
+```
+
+#### Packages Compartidos
+
+##### @siprod/ui
+```typescript
+// Componentes reutilizables
+export * from './components/Button'
+export * from './components/Card'
+export * from './components/Table'
+export * from './components/Form'
+```
+
+##### @siprod/config
+```typescript
+// Configuraciones compartidas
+export const API_CONFIG = {
+  baseUrl: process.env.API_URL,
+  timeout: 5000,
+  retries: 3
+}
+```
+
+##### @siprod/utils
+```typescript
+// Utilidades compartidas
+export * from './date'
+export * from './format'
+export * from './validation'
+```
+
+### Stack Tecnológico
+
+#### Frontend
+- **Framework**: Next.js 14
+- **UI/Estilos**: 
+  - TailwindCSS
+  - Headless UI
+  - Framer Motion
+- **Estado**: 
+  - Zustand
+  - React Query
+- **Formularios**: 
+  - React Hook Form
+  - Zod
+- **Gráficos**: 
+  - Chart.js
+  - D3.js
+
+#### Backend
+- **Runtime**: Node.js 18
+- **Framework**: Express
+- **ORM**: Prisma
+- **Validación**: Zod
+- **Autenticación**: JWT
+- **Caché**: Redis
+- **Logging**: Winston
+
+#### Base de Datos
+- **Motor**: PostgreSQL 15
+- **Migraciones**: Prisma Migrate
+- **Backup**: pg_dump automatizado
+- **Monitoreo**: pg_stat_statements
+
+#### DevOps
+- **Process Manager**: PM2
+- **CI/CD**: GitHub Actions
+- **Monitoreo**: 
+  - PM2 Plus
+  - Grafana
+  - Prometheus
+
+### Configuración
+
+#### Variables de Entorno
+```bash
+# Frontend (.env)
+NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_GA_ID=UA-XXXXX-Y
+
+# Backend (.env)
+DATABASE_URL=postgresql://user:pass@localhost:5432/siprod
+JWT_SECRET=your-secret-key
+REDIS_URL=redis://localhost:6379
+```
+
+#### PM2 Ecosystem
+```javascript
+// ecosystem.config.js
+module.exports = {
+  apps: [
+    {
+      name: 'siprod-frontend',
+      script: 'apps/web/.next/standalone/server.js',
+      env: {
+        PORT: 3000,
+        NODE_ENV: 'production'
+      }
+    },
+    {
+      name: 'siprod-backend',
+      script: 'apps/api/dist/index.js',
+      env: {
+        PORT: 4000,
+        NODE_ENV: 'production'
+      }
+    }
+  ]
+}
+```
+
+#### Base de Datos
+```prisma
+// schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+### Flujo de Datos
+
+#### Autenticación
+```mermaid
+sequenceDiagram
+    Client->>+API: POST /auth/login
+    API->>+DB: Verificar credenciales
+    DB-->>-API: Usuario encontrado
+    API->>API: Generar JWT
+    API-->>-Client: Token JWT
+```
+
+#### Peticiones API
+```typescript
+// Frontend
+const fetchData = async () => {
+  const response = await fetch('/api/data', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  return response.json()
+}
+
+// Backend
+app.get('/api/data', auth, async (req, res) => {
+  const data = await prisma.data.findMany()
+  res.json(data)
+})
+```
+
+### Seguridad
+
+#### Autenticación
+- JWT con rotación de tokens
+- Refresh tokens
+- Rate limiting
+- CORS configurado
+
+#### API Security
+```typescript
+// Middleware de seguridad
+app.use(helmet())
+app.use(cors({
+  origin: process.env.CORS_ORIGIN,
+  credentials: true
+}))
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}))
+```
+
+#### Validación de Datos
+```typescript
+// Schema de validación
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().optional()
+})
+
+// Middleware de validación
+const validate = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      schema.parse(req.body)
+      next()
+    } catch (error) {
+      res.status(400).json(error)
+    }
+  }
+}
+```
+
+### Integración y Despliegue
+
+#### GitHub Actions
+```yaml
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: pnpm install
+      - run: pnpm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: pnpm install
+      - run: pnpm build
+      - run: pnpm deploy
+```
+
+#### Monitoreo
+- PM2 para logs y métricas
+- Grafana para visualización
+- Alertas configuradas
+- Backup automático
+
+## Referencias
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Express Documentation](https://expressjs.com/)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
