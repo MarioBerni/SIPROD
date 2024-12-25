@@ -20,6 +20,8 @@
     "@next/bundle-analyzer": "^14.0.4",
     "@siprod/ui": "workspace:*",
     "@siprod/utils": "workspace:*",
+    "@types/axios": "^0.14.4",
+    "axios": "^1.7.9",
     "next": "^14.0.4",
     "plaiceholder": "^3.0.0",
     "react": "^18.2.0",
