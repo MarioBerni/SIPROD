@@ -1,77 +1,59 @@
-import express from 'express'
-import cors from 'cors'
+import express from 'express';
+import { errorHandler } from './middleware/error';
+import routes from './routes';
+import configureSecurityMiddleware from './middleware/security';
+import logger from './utils/logger';
 
-const app = express()
-const port = Number(process.env.PORT) || 4000
-const API_PREFIX = process.env.API_PREFIX || '/api'
+const app = express();
+const port = Number(process.env.PORT) || 4000;
+const API_PREFIX = process.env.API_PREFIX || '/api';
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// 1. Configurar middlewares de seguridad (incluye cors, helmet, rate limit)
+configureSecurityMiddleware(app);
 
-// Log all requests
+// 2. Logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`)
-  next()
-})
+  logger.info('Request received', {
+    method: req.method,
+    url: req.url,
+    ip: req.ip,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
 
-// Health Check bajo el prefijo API para consistencia
+// 3. Health Check
 app.get(`${API_PREFIX}/health`, (req, res) => {
-  console.log('Health check endpoint called')
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     version: process.env.npm_package_version || '1.0.0',
     uptime: process.uptime()
-  })
-})
-
-// API Routes con prefijo
-const apiRouter = express.Router()
-
-apiRouter.get('/', (req, res) => {
-  res.json({ 
-    message: 'SIPROD API',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV
-  })
-})
-
-// Aplicar el prefijo API a todas las rutas del apiRouter
-app.use(API_PREFIX, apiRouter)
-
-// 404 handler (debe ir después de todas las rutas pero antes del error handler)
-app.use((req: express.Request, res: express.Response) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.url} not found`
   });
 });
 
-// Error handling middleware (debe ir después de todas las rutas)
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(new Date().toISOString() + ':', err.message);
-  console.error('Stack:', err.stack);
-  
-  if (res.headersSent) {
-    return next(err);
-  }
-  
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+// 4. API Routes
+app.use(API_PREFIX, routes);
+
+// 5. 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: `Route ${req.url} not found`,
     timestamp: new Date().toISOString()
   });
 });
 
+// 6. Error handler (siempre al final)
+app.use(errorHandler);
+
+// Iniciar servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port} in ${process.env.NODE_ENV} mode`)
-  console.log(`Health check endpoint: http://0.0.0.0:${port}${API_PREFIX}/health`)
-  console.log(`API endpoint: http://0.0.0.0:${port}${API_PREFIX}`)
-})
+  logger.info('Server started', {
+    port,
+    mode: process.env.NODE_ENV || 'development',
+    healthCheck: `http://0.0.0.0:${port}${API_PREFIX}/health`,
+    apiEndpoint: `http://0.0.0.0:${port}${API_PREFIX}`
+  });
+});

@@ -1,80 +1,46 @@
 import helmet from 'helmet';
-import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import cors from 'cors';
-import { Express, Request, Response } from 'express';
-import logger from '../utils/logger';
+import express, { Express } from 'express';
+import { errorHandler } from './error';
+import { AppError } from '../utils/errors';
 
-// Configuración de Rate Limiting
-const limiter: RateLimitRequestHandler = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite de 100 peticiones por ventana
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req: Request, res: Response) => {
-    logger.warn('Rate limit exceeded', {
-      ip: req.ip,
-      path: req.path,
-    });
-    res.status(429).json({
-      error: 'Too many requests, please try again later.',
-    });
-  },
-});
+const configureSecurityMiddleware = (app: Express): void => {
+  // Configuración básica de seguridad con Helmet
+  app.use(helmet());
 
-// Configuración de CORS
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  credentials: true,
-  maxAge: 600, // 10 minutos
-};
+  // Configuración de CORS
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    credentials: true,
+    maxAge: 600
+  }));
 
-// Configuración de Helmet
-const helmetConfig = {
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  },
-  crossOriginEmbedderPolicy: true,
-  crossOriginOpenerPolicy: true,
-  crossOriginResourcePolicy: true,
-  dnsPrefetchControl: true,
-  frameguard: true,
-  hidePoweredBy: true,
-  hsts: true,
-  ieNoOpen: true,
-  noSniff: true,
-  originAgentCluster: true,
-  permittedCrossDomainPolicies: true,
-  referrerPolicy: true,
-  xssFilter: true,
-};
+  // Parsers
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-export const configureSecurityMiddleware = (app: Express): void => {
-  // Aplicar middlewares de seguridad
-  app.use(helmet(helmetConfig));
-  app.use(cors(corsOptions));
-  app.use(limiter);
+  // Rate Limiting
+  app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // límite de 100 peticiones por ventana
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res, next) => {
+      const error = AppError.tooManyRequests('Too many requests', 'RATE_LIMIT_EXCEEDED', {
+        resetTime: new Date(Date.now() + 15 * 60 * 1000),
+        limit: 100
+      });
+      errorHandler(error, req, res, next);
+    }
+  }));
 
-  // Log de configuración
-  logger.info('Security middleware configured', {
-    cors: corsOptions.origin,
-    rateLimit: {
-      windowMs: 15 * 60 * 1000, // 15 minutos
-      max: 100, // límite de 100 peticiones por ventana
-    },
-  });
+  // Otras medidas de seguridad
+  app.disable('x-powered-by');
+  app.set('trust proxy', 1);
 };
 
 export default configureSecurityMiddleware;
