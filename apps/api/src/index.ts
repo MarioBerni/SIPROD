@@ -46,23 +46,29 @@ apiRouter.get('/', (req, res) => {
 // Aplicar el prefijo API a todas las rutas del apiRouter
 app.use(API_PREFIX, apiRouter)
 
+// 404 handler (debe ir después de todas las rutas pero antes del error handler)
+app.use((req: express.Request, res: express.Response) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Route ${req.url} not found`
+  });
+});
+
 // Error handling middleware (debe ir después de todas las rutas)
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err.message)
-  console.error('Stack:', err.stack)
+  console.error(new Date().toISOString() + ':', err.message);
+  console.error('Stack:', err.stack);
+  
   if (res.headersSent) {
-    return next(err)
+    return next(err);
   }
+  
   res.status(500).json({ 
     error: 'Internal Server Error',
-    message: err.message 
-  })
-})
-
-// 404 handler (debe ir después del error handler)
-app.use((req: express.Request, res: express.Response) => {
-  res.status(404).json({ error: 'Not Found' })
-})
+    message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    timestamp: new Date().toISOString()
+  });
+});
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port} in ${process.env.NODE_ENV} mode`)
