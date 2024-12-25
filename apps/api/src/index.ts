@@ -48,8 +48,20 @@ app.use(API_PREFIX, apiRouter)
 
 // Error handling middleware (debe ir después de todas las rutas)
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack)
-  res.status(500).json({ error: 'Internal Server Error' })
+  console.error('Error:', err.message)
+  console.error('Stack:', err.stack)
+  if (res.headersSent) {
+    return next(err)
+  }
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: err.message 
+  })
+})
+
+// 404 handler (debe ir después del error handler)
+app.use((req: express.Request, res: express.Response) => {
+  res.status(404).json({ error: 'Not Found' })
 })
 
 app.listen(port, '0.0.0.0', () => {
