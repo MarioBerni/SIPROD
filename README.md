@@ -1,170 +1,159 @@
-# SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
+# SIPROD (Sistema de Gestión de Resultados Policiales y Recursos)
 
-> **Propósito**: Este documento es el punto de entrada principal al proyecto SIPROD. Proporciona una visión general del sistema y guía a los nuevos colaboradores hacia la documentación detallada.
-
-## ¿Qué es SIPROD?
-
-SIPROD es un sistema integral diseñado para la gestión eficiente de resultados policiales y recursos. El sistema permite:
-
-- Centralización de información policial
-- Análisis y reportes estadísticos
+## Descripción General
+SIPROD es un sistema integral diseñado para la gestión eficiente de información policial, facilitando:
+- Análisis estadístico de resultados operativos
 - Gestión de recursos humanos y materiales
-- Herramientas CRUD seguras
-- Escalabilidad y adaptabilidad
+- Toma de decisiones basada en datos
+- Seguimiento de indicadores clave
 
-## Documentación
+## Características Principales
+- Dashboard interactivo con métricas en tiempo real
+- Gestión de reportes personalizables
+- Sistema de autenticación y autorización robusto
+- API RESTful documentada
+- Interfaz responsive y moderna
 
-La documentación completa del proyecto se encuentra en la carpeta `docs/`:
-
-- [Proyecto](docs/PROYECTO.md): Documentación técnica detallada, arquitectura y estructura
-- [Desarrollo](docs/DESARROLLO.md): Estándares, mejores prácticas y guías de implementación
-- [Infraestructura](docs/INFRAESTRUCTURA.md): Configuración del servidor y detalles operativos
-- [Historial](docs/HISTORIAL.md): Registro de cambios y evolución del proyecto
-- [Tareas](docs/TAREAS.md): Backlog y seguimiento de actividades
-
-## Estado Actual
-
-### ✨ Últimas Mejoras (Diciembre 2024)
-- Migración completa a Next.js 14 con App Router
-- Implementación de Server Components para mejor rendimiento
-- Optimización de bundle size y tiempo de carga
-- Mejoras en la seguridad y autenticación
-- Integración de análisis en tiempo real
-
-### 📊 Métricas de Rendimiento
-- Build Time: <30s con SWC
-- Bundle Size: First Load JS optimizado a 75kB
-- Cache Hit Rate: 85% en Turbo
-- API Performance: <80ms latencia media
-- Lighthouse Score: >90 en todas las métricas
-
-## Tecnologías Core
+## Stack Tecnológico
 
 ### Frontend
-- Next.js 14 con App Router
-- React 18 con Server Components
-- TailwindCSS para estilos
-- SWC para compilación
-- TypeScript estricto
+- **Framework**: Next.js 14
+- **UI/Estilos**: TailwindCSS, Componentes personalizados
+- **Estado**: React Query, Zustand
+- **Lenguaje**: TypeScript
 
 ### Backend
-- Node.js 18+
-- Express optimizado
-- Prisma ORM
-- PostgreSQL
-- Redis para caché
+- **Runtime**: Node.js 18
+- **Framework**: Express
+- **ORM**: Prisma
+- **Base de Datos**: PostgreSQL
+- **Cache**: Redis (opcional)
 
 ### DevOps
-- PM2 para gestión de procesos
-- GitHub Actions para CI/CD
-- Nginx como proxy inverso
-- Monitoreo avanzado
+- **Gestión de Procesos**: PM2
+- **CI/CD**: GitHub Actions
+- **Monitoreo**: PM2 + Logs personalizados
 
-## Inicio Rápido
-
-### Requisitos Previos
+## Requisitos Previos
 - Node.js 18 o superior
-- pnpm 8 o superior
+- PNPM 8.6 o superior
 - PostgreSQL 15 o superior
-- Redis (opcional)
-- PM2 (global)
+- PM2 (instalación global)
+- Git
 
-### Configuración Local
+## Instalación y Configuración
 
-1. Clonar el repositorio:
+### 1. Preparación del Entorno
 ```bash
-git clone https://[repositorio]/siprod.git
-cd siprod
-```
-
-2. Instalar PM2 globalmente:
-```bash
+# Instalar PM2 globalmente
 npm install -g pm2
-```
 
-3. Instalar dependencias:
-```bash
+# Clonar el repositorio
+git clone [URL_REPOSITORIO]
+cd SIPROD
+
+# Instalar dependencias
 pnpm install
 ```
 
-4. Configurar variables de entorno:
+### 2. Configuración de Variables de Entorno
 ```bash
+# Copiar archivo de ejemplo
 cp .env.example .env
-# Editar .env con valores locales
+
+# Editar variables según el entorno
+nano .env
 ```
 
-5. Generar el cliente Prisma:
+### 3. Configuración de Base de Datos
 ```bash
-pnpm --filter @siprod/api prisma generate
+# Generar cliente Prisma
+pnpm --filter @siprod/api prisma:generate
+
+# Ejecutar migraciones
+pnpm --filter @siprod/api prisma:migrate
 ```
 
-## Desarrollo
+## Desarrollo Local
 
-Iniciar en modo desarrollo:
+### Iniciar Servicios
 ```bash
-pnpm dev
+# Iniciar todos los servicios
+pm2 start ecosystem.local.config.js
+
+# Ver logs
+pm2 logs
 ```
 
-La aplicación estará disponible en:
+### Endpoints Principales
 - Frontend: http://localhost:3000
-- API: http://localhost:4000/api
+- Backend API: http://localhost:4000/api
 - Health Check: http://localhost:4000/health
 
-## Producción
-
-1. Construir la aplicación:
+### Comandos Útiles
 ```bash
+# Construir proyecto
 pnpm build
+
+# Ejecutar tests
+pnpm test
+
+# Lint
+pnpm lint
+
+# Reiniciar servicios
+pm2 restart all
 ```
 
-2. Iniciar con PM2:
-```bash
-pm2 start ecosystem.config.js --env production
-```
+## Documentación Detallada
+Consulta la carpeta `docs/` para información específica:
 
-3. Monitorear:
-```bash
-pm2 monit
-```
+- [`PROYECTO.md`](docs/PROYECTO.md): Arquitectura y estructura
+- [`DESARROLLO.md`](docs/DESARROLLO.md): Guías y estándares de desarrollo
+- [`OPERACIONES.md`](docs/OPERACIONES.md): Despliegue y operaciones
+- [`MANTENIMIENTO.md`](docs/MANTENIMIENTO.md): Mantenimiento y actualizaciones
+- [`OPTIMIZACIONES.md`](docs/OPTIMIZACIONES.md): Guías de optimización
 
 ## Estructura del Proyecto
 ```
 SIPROD/
 ├── apps/
-│   ├── api/         # Backend en Express + Prisma
-│   └── web/         # Frontend en Next.js
+│   ├── api/         # Backend (Express + Prisma)
+│   └── web/         # Frontend (Next.js)
 ├── packages/
-│   ├── ui/          # Componentes UI compartidos
 │   ├── config/      # Configuraciones compartidas
+│   ├── tsconfig/    # Configuraciones de TypeScript
+│   ├── ui/          # Componentes de UI compartidos
 │   └── utils/       # Utilidades compartidas
-├── docs/            # Documentación
-└── scripts/         # Scripts de utilidad
+└── docs/           # Documentación detallada
 ```
 
-## Scripts Disponibles
+## Seguridad
+- Autenticación JWT
+- CORS configurado
+- Rate limiting
+- Validación de entrada
+- Sanitización de datos
 
-- `pnpm dev`: Iniciar en modo desarrollo
-- `pnpm build`: Construir para producción
-- `pnpm start`: Iniciar en producción
-- `pnpm lint`: Ejecutar linter
-- `pnpm test`: Ejecutar tests
-- `pnpm clean`: Limpiar builds
+## Contribución
+1. Fork el repositorio
+2. Crea una rama (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'feat: Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-## Documentación
-
-Para más información, consulta:
-- [Guía de Desarrollo](docs/DESARROLLO.md)
-- [Guía de Operaciones](docs/OPERACIONES.md)
-- [Guía de Mantenimiento](docs/MANTENIMIENTO.md)
+## Convenciones de Código
+- Conventional Commits
+- ESLint + Prettier
+- TypeScript strict mode
+- Tests unitarios requeridos
+- Documentación de código
 
 ## Soporte
+Para reportar problemas o sugerir mejoras:
+1. Revisa los issues existentes
+2. Crea un nuevo issue detallado
+3. Sigue la plantilla proporcionada
 
-Para reportar problemas o sugerir mejoras, por favor crear un issue en el repositorio.
-
-### Comandos Útiles de PM2
-
-- Ver logs: `pm2 logs`
-- Estado de servicios: `pm2 status`
-- Reiniciar servicios: `pm2 restart all`
-- Detener servicios: `pm2 stop all`
-- Eliminar servicios: `pm2 delete all`
+## Licencia
+Este proyecto está bajo la Licencia [TU_LICENCIA] - ver el archivo LICENSE.md para detalles.
