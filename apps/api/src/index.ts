@@ -47,13 +47,13 @@ apiRouter.get('/', (req, res) => {
 app.use(API_PREFIX, apiRouter)
 
 // Error handling middleware (debe ir después de todas las rutas)
-app.use((err: Error, req: express.Request, res: express.Response) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack)
   res.status(500).json({ error: 'Internal Server Error' })
 })
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port} in ${process.env.NODE_ENV} mode`)
-  console.log(`Health check endpoint: http://localhost:${port}${API_PREFIX}/health`)
-  console.log(`API endpoint: http://localhost:${port}${API_PREFIX}`)
+  console.log(`Health check endpoint: http://0.0.0.0:${port}${API_PREFIX}/health`)
+  console.log(`API endpoint: http://0.0.0.0:${port}${API_PREFIX}`)
 })
