@@ -37,7 +37,7 @@ app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
 app.use(API_PREFIX, routes);
 
 // 5. 404 handler
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   next(AppError.notFound(`Route ${req.url} not found`, 'ROUTE_NOT_FOUND'));
 });
 
@@ -46,9 +46,10 @@ app.use(errorHandler);
 
 // Iniciar servidor
 const server = app.listen(port, '0.0.0.0', () => {
+  const host = process.env.NODE_ENV === 'production' ? '179.27.203.219' : '127.0.0.1';
   logger.info(`Server running on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
-  logger.info(`Health check endpoint: http://0.0.0.0:${port}${API_PREFIX}/health`);
-  logger.info(`API endpoint: http://0.0.0.0:${port}${API_PREFIX}`);
+  logger.info(`Health check endpoint: http://${host}:${port}${API_PREFIX}/health`);
+  logger.info(`API endpoint: http://${host}:${port}${API_PREFIX}`);
 });
 
 // Manejo de errores no capturados
