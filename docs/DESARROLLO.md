@@ -45,10 +45,46 @@ pnpm install
    - Puerto: `5432`
 
 4. Configurar variables de entorno:
-```bash
-cp .env.example .env
-```
-Editar `.env` con las credenciales correctas.
+   ### Configuración de Variables de Entorno
+   El proyecto utiliza un enfoque centralizado para las variables de entorno:
+
+   1. **Archivos de Configuración**:
+      ```
+      /SIPROD
+      ├── .env                 # Variables de desarrollo (no versionado)
+      ├── .env.production      # Variables de producción
+      └── .env.example         # Plantilla de configuración
+      ```
+
+   2. **Configuración Inicial**:
+      ```bash
+      # Copiar plantilla de configuración
+      cp .env.example .env
+      
+      # Editar variables según el entorno
+      nano .env
+      ```
+
+   3. **Variables Principales**:
+      - `DATABASE_URL`: Conexión a PostgreSQL
+      - `POSTGRES_*`: Configuración de base de datos
+      - `JWT_SECRET`: Clave para tokens JWT
+      - `CORS_ORIGIN`: Origen permitido para CORS
+      - `NEXT_PUBLIC_API_URL`: URL del API para el frontend
+
+   4. **Herencia de Variables**:
+      - Todos los subproyectos heredan las variables del archivo raíz
+      - No se requieren archivos .env adicionales en los subproyectos
+
+   ### Base de Datos
+   1. **Configuración PostgreSQL**:
+      ```bash
+      # Crear base de datos
+      createdb siprod
+      
+      # Aplicar migraciones
+      pnpm prisma migrate deploy
+      ```
 
 5. Inicializar la base de datos:
 ```bash
