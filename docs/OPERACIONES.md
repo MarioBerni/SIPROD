@@ -144,43 +144,71 @@ pm2 status
 pm2 logs
 ```
 
-## Estado del Sistema
+## Configuración del Entorno
 
-### Endpoints Principales
-- Frontend: http://localhost:3000 (desarrollo) | http://179.27.203.219 (producción)
-- Backend API: http://localhost:4000/api (desarrollo) | http://179.27.203.219/api (producción)
-- Health Check: http://localhost:4000/api/health (desarrollo) | http://179.27.203.219/api/health (producción)
+### Variables de Entorno
+El proyecto utiliza un enfoque centralizado para las variables de entorno:
 
-### Verificación del Sistema
-Para verificar que el sistema está funcionando correctamente:
-
-1. **Health Check**
+1. **Archivos de Configuración en Producción**:
    ```
-   GET /api/health
-   ```
-   Respuesta esperada:
-   ```json
-   {
-     "status": "OK",
-     "timestamp": "2024-12-26T17:34:36.912Z",
-     "environment": "development",
-     "version": "0.0.0",
-     "uptime": 176.6739865
-   }
+   /var/www/siprod/
+   └── .env                 # Copiado desde .env.production
    ```
 
-2. **API Status**
+2. **Despliegue de Configuración**:
+   ```bash
+   cd /var/www/siprod
+   cp .env.production .env
    ```
-   GET /api
+
+3. **Variables Críticas**:
+   - Base de datos: `DATABASE_URL`, `POSTGRES_*`
+   - Seguridad: `JWT_SECRET`, `CORS_ORIGIN`
+   - API: `PORT`, `API_PREFIX`
+   - Frontend: `NEXT_PUBLIC_API_URL`
+
+4. **Verificación de Configuración**:
+   ```bash
+   # Verificar variables de entorno
+   grep -v '^#' .env
+   
+   # Verificar conexión a base de datos
+   pnpm prisma db seed
    ```
-   Respuesta esperada:
-   ```json
-   {
-     "message": "SIPROD API",
-     "version": "0.0.0",
-     "environment": "development",
-     "timestamp": "2024-12-26T17:32:09.130Z"
-   }
+
+### Endpoints del Sistema
+- Frontend: https://siprod.uy
+- Backend API: https://siprod.uy/api
+- Health Check: https://siprod.uy/api/health
+
+### Comandos de Mantenimiento
+1. **Reinicio de Servicios**:
+   ```bash
+   # Reiniciar todos los servicios
+   pm2 reload all
+   
+   # Reiniciar servicio específico
+   pm2 restart siprod-frontend
+   pm2 restart siprod-backend
+   ```
+
+2. **Logs del Sistema**:
+   ```bash
+   # Ver todos los logs
+   pm2 logs
+   
+   # Ver logs específicos
+   pm2 logs siprod-frontend
+   pm2 logs siprod-backend
+   ```
+
+3. **Estado del Sistema**:
+   ```bash
+   # Estado de los servicios
+   pm2 status
+   
+   # Estado de nginx
+   sudo systemctl status nginx
    ```
 
 ## Monitoreo
