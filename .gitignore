@@ -19,9 +19,6 @@ dist
 .vscode
 
 # debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
@@ -40,6 +37,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Archivos temporales
+cls
+npx
 
 # windsurf rules
 .windsurfrules

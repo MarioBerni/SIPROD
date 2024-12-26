@@ -144,6 +144,45 @@ pm2 status
 pm2 logs
 ```
 
+## Estado del Sistema
+
+### Endpoints Principales
+- Frontend: http://localhost:3000 (desarrollo) | http://179.27.203.219 (producción)
+- Backend API: http://localhost:4000/api (desarrollo) | http://179.27.203.219/api (producción)
+- Health Check: http://localhost:4000/api/health (desarrollo) | http://179.27.203.219/api/health (producción)
+
+### Verificación del Sistema
+Para verificar que el sistema está funcionando correctamente:
+
+1. **Health Check**
+   ```
+   GET /api/health
+   ```
+   Respuesta esperada:
+   ```json
+   {
+     "status": "OK",
+     "timestamp": "2024-12-26T17:34:36.912Z",
+     "environment": "development",
+     "version": "0.0.0",
+     "uptime": 176.6739865
+   }
+   ```
+
+2. **API Status**
+   ```
+   GET /api
+   ```
+   Respuesta esperada:
+   ```json
+   {
+     "message": "SIPROD API",
+     "version": "0.0.0",
+     "environment": "development",
+     "timestamp": "2024-12-26T17:32:09.130Z"
+   }
+   ```
+
 ## Monitoreo
 
 ### PM2 Monitoring
@@ -196,6 +235,21 @@ pm2 flush
 - Revisar certificados SSL
 - Análisis de seguridad
 - Optimización de base de datos
+
+### Base de Datos
+- Sistema: PostgreSQL 15+
+- Base de datos: siprod
+- Puerto: 5432
+- Backup diario recomendado
+
+### Monitoreo
+- Logs del sistema disponibles en la consola de desarrollo
+- Monitoreo de endpoints de salud cada 5 minutos
+- Alertas configuradas para:
+  - Tiempo de respuesta > 2000ms
+  - Error rate > 1%
+  - Uso de CPU > 80%
+  - Uso de memoria > 80%
 
 ## Backups
 

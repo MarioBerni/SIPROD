@@ -16,7 +16,6 @@
 - Node.js 18+ (recomendado 18.17.0+)
 - PNPM 8+ (recomendado 8.9.0+)
 - PostgreSQL 15+
-- PM2 (global)
 - Git 2.40+
 - VS Code (recomendado)
 
@@ -29,32 +28,45 @@
 - GitLens
 
 ### Configuración Inicial
-
-1. **Instalación de Herramientas Globales**
+1. Clonar el repositorio:
 ```bash
-# Instalar pnpm
-npm install -g pnpm
-
-# Instalar PM2
-npm install -g pm2
-```
-
-2. **Configuración del Proyecto**
-```bash
-# Clonar repositorio
 git clone [URL_REPOSITORIO]
 cd SIPROD
-
-# Instalar dependencias
-pnpm install
-
-# Configurar variables de entorno
-cp .env.example .env
-
-# Configurar base de datos
-pnpm --filter @siprod/api prisma:generate
-pnpm --filter @siprod/api prisma:migrate
 ```
+
+2. Instalar dependencias:
+```bash
+pnpm install
+```
+
+3. Configurar base de datos PostgreSQL:
+   - Crear base de datos: `siprod`
+   - Usuario: `postgres`
+   - Puerto: `5432`
+
+4. Configurar variables de entorno:
+```bash
+cp .env.example .env
+```
+Editar `.env` con las credenciales correctas.
+
+5. Inicializar la base de datos:
+```bash
+cd apps/api
+pnpm prisma generate
+pnpm prisma migrate dev --name init
+```
+
+### Iniciar Desarrollo
+```bash
+# En la raíz del proyecto
+pnpm dev
+```
+
+Esto iniciará:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:4000/api
+- Health Check: http://localhost:4000/api/health
 
 ## Estructura del Proyecto
 
