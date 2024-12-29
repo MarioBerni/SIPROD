@@ -1,18 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended';
 
-// Configuración global para Jest
-beforeAll(() => {
-  process.env.JWT_SECRET = 'test-secret';
-  process.env.NODE_ENV = 'test';
-});
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn(),
+}));
 
-// Limpiar todas las mocks después de cada prueba
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
-// Mock de Prisma
 export type Context = {
   prisma: PrismaClient;
 };
@@ -27,10 +19,8 @@ export const createMockContext = (): MockContext => {
   };
 };
 
-export let mockCtx: MockContext;
-export let ctx: Context;
+export const prismaMock = mockDeep<PrismaClient>();
 
 beforeEach(() => {
-  mockCtx = createMockContext();
-  ctx = mockCtx as unknown as Context;
+  mockReset(prismaMock);
 });

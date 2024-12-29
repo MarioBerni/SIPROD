@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -21,12 +21,16 @@
     "@siprod/ui": "workspace:*",
     "@siprod/utils": "workspace:*",
     "@types/axios": "^0.14.4",
+    "@types/js-cookie": "^3.0.6",
     "axios": "^1.7.9",
+    "jose": "^5.9.6",
+    "js-cookie": "^3.0.5",
     "next": "^14.0.4",
     "plaiceholder": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.32.6"
+    "sharp": "^0.32.6",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

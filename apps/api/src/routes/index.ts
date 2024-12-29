@@ -1,21 +1,22 @@
 import { Router } from 'express';
-import authRouter from './auth';
-import { asyncErrorHandler } from '../middleware/error';
+import authRoutes from './auth';
+import userRoutes from './user';
 
 const router = Router();
 
-// Ruta base
-router.get('/', asyncErrorHandler(async (req, res) => {
+// Ruta principal
+router.get('/', (_req, res) => {
   res.json({ 
-    message: 'SIPROD API',
-    version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
+    message: 'API SIPROD v1.0.0',
+    status: 'active',
     timestamp: new Date().toISOString()
   });
-}));
+});
 
 // Rutas de autenticación
-router.use('/auth', authRouter);
+router.use('/auth', authRoutes);
 
-// Exportar todas las rutas
+// Rutas de usuarios
+router.use('/users', userRoutes);
+
 export default router;

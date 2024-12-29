@@ -1,393 +1,318 @@
-# Guía de Operaciones
+# 🚀 Guía de Operaciones y Despliegue
 
-## Índice
-1. [Infraestructura](#infraestructura)
-2. [Despliegue](#despliegue)
-3. [Monitoreo](#monitoreo)
-4. [Mantenimiento](#mantenimiento)
-5. [Backups](#backups)
-6. [Seguridad](#seguridad)
-7. [Resolución de Problemas](#resolución-de-problemas)
+> Este documento detalla los procesos de infraestructura, despliegue, monitoreo y mantenimiento operativo del proyecto SIPROD.
 
 ## Infraestructura
 
 ### Arquitectura del Sistema
-```
-[Cliente] → [Nginx] → [PM2/Node.js] → [PostgreSQL/Redis]
-```
+                   [Nginx Reverse Proxy]
+                          |
+        +----------------+-----------------+
+        |                                 |
+[Next.js Frontend]               [Node.js Backend]
+        |                                 |
+[Redis Cache]                    [PostgreSQL DB]
 
-### Componentes Principales
-- **Frontend**: Next.js 14 (SSR)
-- **Backend**: Express/Node.js
-- **Base de Datos**: PostgreSQL 15
-- **Cache**: Redis (opcional)
-- **Process Manager**: PM2
-- **Reverse Proxy**: Nginx
-- **CI/CD**: GitHub Actions
+### Componentes
+1. **Frontend (Next.js)**
+   - SSR y Static Generation
+   - Caching con Redis
+   - CDN para assets estáticos
 
-### Requisitos de Sistema
-- CPU: 4 cores mínimo
-- RAM: 8GB mínimo
-- Almacenamiento: 50GB SSD
-- OS: Ubuntu 22.04 LTS
+2. **Backend (Node.js)**
+   - Express API
+   - Prisma ORM
+   - JWT Authentication
+
+3. **Base de Datos**
+   - PostgreSQL
+   - Backups automáticos
+   - Replicación para alta disponibilidad
+
+4. **Cache**
+   - Redis
+   - Session storage
+   - API caching
 
 ## Despliegue
 
-### Preparación del Servidor
-```bash
-# Actualizar sistema
-sudo apt update && sudo apt upgrade -y
-
-# Instalar dependencias
-sudo apt install -y curl git build-essential
-
-# Instalar Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Instalar PM2
-sudo npm install -g pm2
-
-# Instalar PNPM
-sudo npm install -g pnpm@8
-```
-
-### Configuración de Nginx
-```nginx
-server {
-    listen 80;
-    server_name siprod.example.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    location /api {
-        proxy_pass http://localhost:4000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-### Despliegue con PM2
-
-1. **Configuración de Producción**
-```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [
-    {
-      name: 'siprod-frontend',
-      script: 'apps/web/.next/standalone/server.js',
-      env_production: {
-        PORT: 3000,
-        NODE_ENV: 'production'
-      },
-      instances: 'max',
-      exec_mode: 'cluster'
-    },
-    {
-      name: 'siprod-backend',
-      script: 'apps/api/dist/index.js',
-      env_production: {
-        PORT: 4000,
-        NODE_ENV: 'production'
-      },
-      instances: 'max',
-      exec_mode: 'cluster'
-    }
-  ]
-};
-```
-
-2. **Script de Despliegue**
-```bash
-#!/bin/bash
-
-# Actualizar código
-git pull origin main
-
-# Instalar dependencias
-pnpm install
-
-# Construir aplicaciones
-pnpm build
-
-# Reiniciar servicios
-pm2 reload ecosystem.config.js --env production
-
-# Guardar configuración PM2
-pm2 save
-```
-
-3. **Comandos de Despliegue**
-```bash
-# Primer despliegue
-pm2 start ecosystem.config.js --env production
-
-# Actualizaciones posteriores
-pm2 reload ecosystem.config.js --env production
-
-# Ver estado
-pm2 status
-
-# Ver logs
-pm2 logs
-```
-
-## Configuración del Entorno
-
-### Variables de Entorno
-El proyecto utiliza un enfoque centralizado para las variables de entorno:
-
-1. **Archivos de Configuración en Producción**:
-   ```
-   /var/www/siprod/
-   └── .env                 # Copiado desde .env.production
-   ```
-
-2. **Despliegue de Configuración**:
+### Preparación
+1. Variables de Entorno
    ```bash
-   cd /var/www/siprod
-   cp .env.production .env
+   # Frontend (.env.production)
+   NEXT_PUBLIC_API_URL=https://api.siprod.uy
+   NEXT_PUBLIC_ENV=production
+
+   # Backend (.env.production)
+   DATABASE_URL=postgresql://user:pass@host:5432/db
+   REDIS_URL=redis://host:6379
+   JWT_SECRET=your-secret
    ```
 
-3. **Variables Críticas**:
-   - Base de datos: `DATABASE_URL`, `POSTGRES_*`
-   - Seguridad: `JWT_SECRET`, `CORS_ORIGIN`
-   - API: `PORT`, `API_PREFIX`
-   - Frontend: `NEXT_PUBLIC_API_URL`
-
-4. **Verificación de Configuración**:
+2. Build
    ```bash
-   # Verificar variables de entorno
-   grep -v '^#' .env
-   
-   # Verificar conexión a base de datos
-   pnpm prisma db seed
+   # Root del proyecto
+   pnpm build        # Construir todos los paquetes
+   pnpm test         # Verificar tests
    ```
 
-### Endpoints del Sistema
-- Frontend: https://siprod.uy
-- Backend API: https://siprod.uy/api
-- Health Check: https://siprod.uy/api/health
+### Proceso de Despliegue
 
-### Comandos de Mantenimiento
-1. **Reinicio de Servicios**:
+1. **Frontend**
    ```bash
-   # Reiniciar todos los servicios
-   pm2 reload all
-   
-   # Reiniciar servicio específico
-   pm2 restart siprod-frontend
-   pm2 restart siprod-backend
+   cd apps/web
+   pnpm build
+   pm2 start ecosystem.config.js --env production
    ```
 
-2. **Logs del Sistema**:
+2. **Backend**
    ```bash
-   # Ver todos los logs
+   cd apps/api
+   pnpm build
+   pnpm prisma migrate deploy
+   pm2 start ecosystem.config.js --env production
+   ```
+
+3. **Nginx**
+   ```nginx
+   # /etc/nginx/sites-available/siprod
+   server {
+     listen 80;
+     server_name siprod.uy;
+     
+     location / {
+       proxy_pass http://localhost:3000;
+     }
+     
+     location /api {
+       proxy_pass http://localhost:4000;
+     }
+   }
+   ```
+
+### Monitoreo
+
+1. **Logs**
+   ```bash
+   # Ver logs de PM2
    pm2 logs
-   
-   # Ver logs específicos
-   pm2 logs siprod-frontend
-   pm2 logs siprod-backend
+
+   # Ver logs de nginx
+   tail -f /var/log/nginx/access.log
    ```
 
-3. **Estado del Sistema**:
-   ```bash
-   # Estado de los servicios
-   pm2 status
-   
-   # Estado de nginx
-   sudo systemctl status nginx
-   ```
-
-## Monitoreo
-
-### PM2 Monitoring
-```bash
-# Ver dashboard
-pm2 monit
-
-# Ver métricas
-pm2 plus
-```
-
-### Logs
-```bash
-# Ver todos los logs
-pm2 logs
-
-# Ver logs específicos
-pm2 logs siprod-frontend
-pm2 logs siprod-backend
-
-# Ver logs con timestamp
-pm2 logs --timestamp
-
-# Limpiar logs
-pm2 flush
-```
-
-### Métricas de Sistema
-- CPU Usage
-- Memory Usage
-- Network I/O
-- Disk Usage
-- Response Times
-- Error Rates
+2. **Métricas**
+   - Dashboard de PM2
+   - Monitoreo de PostgreSQL
+   - Redis INFO
 
 ## Mantenimiento
 
-### Tareas Diarias
-- Verificar logs por errores
-- Monitorear uso de recursos
-- Revisar métricas de rendimiento
+### Backups
 
-### Tareas Semanales
-- Actualizar dependencias no críticas
-- Backup de base de datos
-- Limpieza de logs antiguos
+1. **Base de Datos**
+   ```bash
+   # Backup diario
+   pg_dump -U user dbname > backup-$(date +%Y%m%d).sql
 
-### Tareas Mensuales
-- Actualizar sistema operativo
-- Revisar certificados SSL
-- Análisis de seguridad
-- Optimización de base de datos
+   # Restaurar
+   psql -U user dbname < backup.sql
+   ```
 
-### Base de Datos
-- Sistema: PostgreSQL 15+
-- Base de datos: siprod
-- Puerto: 5432
-- Backup diario recomendado
+2. **Redis**
+   ```bash
+   # Backup de Redis
+   redis-cli SAVE
+   ```
 
-### Monitoreo
-- Logs del sistema disponibles en la consola de desarrollo
-- Monitoreo de endpoints de salud cada 5 minutos
-- Alertas configuradas para:
-  - Tiempo de respuesta > 2000ms
-  - Error rate > 1%
-  - Uso de CPU > 80%
-  - Uso de memoria > 80%
+### Actualizaciones
 
-## Backups
+1. **Sistema**
+   ```bash
+   # Actualizar dependencias
+   pnpm update
 
-### Base de Datos
-```bash
-# Backup manual
-pg_dump -U usuario -d siprod > backup.sql
+   # Actualizar DB
+   pnpm prisma migrate deploy
+   ```
 
-# Backup automático (cron)
-0 0 * * * pg_dump -U usuario -d siprod > /backups/siprod_$(date +\%Y\%m\%d).sql
-```
+2. **Zero Downtime**
+   ```bash
+   pm2 reload ecosystem.config.js
+   ```
 
-### Archivos
-```bash
-# Backup de archivos
-tar -czf /backups/siprod_files_$(date +%Y%m%d).tar.gz /path/to/siprod
-```
+### Troubleshooting
 
-### Restauración
-```bash
-# Restaurar base de datos
-psql -U usuario -d siprod < backup.sql
+1. **Verificar Servicios**
+   ```bash
+   # Estado de servicios
+   pm2 status
+   systemctl status nginx
+   systemctl status postgresql
+   systemctl status redis
+   ```
 
-# Restaurar archivos
-tar -xzf backup_files.tar.gz -C /path/to/restore
-```
+2. **Logs Comunes**
+   - `/var/log/nginx/error.log`
+   - `pm2 logs`
+   - Logs de aplicación en `apps/*/logs`
 
 ## Seguridad
 
-### Firewall (UFW)
-```bash
-# Habilitar UFW
-sudo ufw enable
-
-# Configurar reglas
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 22/tcp
-```
-
 ### SSL/TLS
 ```bash
-# Instalar Certbot
-sudo apt install certbot python3-certbot-nginx
-
-# Obtener certificado
-sudo certbot --nginx -d siprod.example.com
+# Instalar certificado
+certbot --nginx -d siprod.uy
 ```
 
-### Actualizaciones de Seguridad
+### Firewall
 ```bash
-# Actualizar sistema
-sudo apt update && sudo apt upgrade -y
-
-# Actualizar dependencias Node.js
-pnpm audit fix
+# Configurar ufw
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow 22/tcp
 ```
 
-## Resolución de Problemas
+### Backups
+- Backups diarios de DB
+- Retención de 30 días
+- Almacenamiento externo
 
-### Problemas Comunes
+## Escalabilidad
 
-1. **Servicio no Inicia**
+### Horizontal
+- Load balancer
+- Múltiples instancias
+- Sesiones en Redis
+
+### Vertical
+- Aumentar recursos
+- Optimizar queries
+- Caching agresivo
+
+## Monitoreo
+
+### Herramientas
+- PM2 Monitoring
+- PostgreSQL Metrics
+- Redis INFO
+- Nginx Logs
+
+### Alertas
+- CPU > 80%
+- Memoria > 90%
+- Disco > 85%
+- Latencia > 1s
+
+## Recuperación
+
+### Disaster Recovery
+1. Restaurar último backup
+2. Verificar integridad
+3. Actualizar DNS si necesario
+
+### Failover
+- Replicación de DB
+- Múltiples instancias
+- Load balancing
+
+## Operaciones de Autenticación
+
+### Configuración del Entorno
+
+#### Variables de Entorno
 ```bash
-# Verificar logs
-pm2 logs
+# Backend (.env)
+DATABASE_URL="postgresql://user:password@localhost:5432/siprod"
+JWT_SECRET="tu-secreto-seguro"
+COOKIE_SECRET="otro-secreto-seguro"
+NODE_ENV="production"
 
-# Verificar estado
-pm2 status
-
-# Reiniciar servicio
-pm2 restart service-name
+# Frontend (.env)
+NEXT_PUBLIC_API_URL="http://api.siprod.com"
 ```
 
-2. **Alto Uso de CPU/Memoria**
-```bash
-# Monitorear recursos
-pm2 monit
+### Seguridad y Sesiones
 
-# Reiniciar en caso necesario
-pm2 reload all
-```
+1. **Configuración de Cookies**
+   - Asegurar que el dominio está correctamente configurado
+   - Habilitar HTTPS en producción
+   - Configurar SameSite y HttpOnly
 
-3. **Errores de Base de Datos**
-```bash
-# Verificar conexión
-psql -U usuario -d siprod -c '\l'
+2. **Manejo de Sesiones**
+   - Monitorear tiempos de expiración de tokens
+   - Implementar renovación automática de sesiones
+   - Mantener registro de sesiones activas
 
-# Reiniciar PostgreSQL
-sudo systemctl restart postgresql
-```
+3. **Monitoreo de Seguridad**
+   - Registrar intentos fallidos de login
+   - Monitorear patrones de acceso sospechosos
+   - Mantener logs de actividad de usuarios
 
-### Comandos Útiles
-```bash
-# Reiniciar todos los servicios
-pm2 reload all
+### Despliegue
 
-# Limpiar cache de Node.js
-pm2 flush
-pm2 reset all
+1. **Preparación**
+   ```bash
+   # Construir aplicaciones
+   pnpm build
+   
+   # Verificar archivos estáticos
+   cd apps/web/.next
+   ```
 
-# Ver detalles de un proceso
-pm2 show service-name
+2. **Servidor Web (Nginx)**
+   ```nginx
+   server {
+     listen 443 ssl;
+     server_name siprod.com;
+     
+     # SSL
+     ssl_certificate /path/to/cert.pem;
+     ssl_certificate_key /path/to/key.pem;
+     
+     # Frontend
+     location / {
+       proxy_pass http://localhost:3000;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+     }
+     
+     # Backend
+     location /api {
+       proxy_pass http://localhost:4000;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+     }
+   }
+   ```
 
-# Rotar logs
-pm2 logrotate -u user
-```
+3. **Base de Datos**
+   ```bash
+   # Backup
+   pg_dump siprod > backup.sql
+   
+   # Restaurar
+   psql siprod < backup.sql
+   ```
 
-## Referencias
-- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
-- [Nginx Documentation](https://nginx.org/en/docs/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+4. **Monitoreo**
+   - Configurar alertas para errores de autenticación
+   - Monitorear uso de CPU y memoria
+   - Verificar logs de acceso y errores
+
+### Mantenimiento
+
+1. **Backups**
+   - Programar backups diarios de la base de datos
+   - Mantener historial de sesiones
+   - Rotar logs regularmente
+
+2. **Actualizaciones**
+   - Actualizar dependencias mensualmente
+   - Verificar parches de seguridad
+   - Mantener documentación actualizada
+
+3. **Escalabilidad**
+   - Monitorear tiempos de respuesta
+   - Ajustar recursos según demanda
+   - Planificar capacidad futura

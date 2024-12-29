@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -7,32 +7,32 @@ import { metricsMiddleware, setupMetrics } from './middleware/metrics';
 import { errorHandler } from './middleware/error';
 import router from './routes';
 
-const app: Express = express();
+const _app: Express = express();
 const API_PREFIX = process.env.API_PREFIX || '/api';
 
 // Middlewares básicos
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({
+_app.use(express.json());
+_app.use(express.urlencoded({ extended: true }));
+_app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(helmet());
-app.use(compression());
+_app.use(helmet());
+_app.use(compression());
 
 // Rate limiting
-app.use(rateLimit({
+_app.use(rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100 // límite de 100 solicitudes por ventana
 }));
 
 // Métricas
-app.use(metricsMiddleware);
-setupMetrics(app);
+_app.use(metricsMiddleware);
+setupMetrics(_app);
 
 // Health Check endpoint
-app.get(`${API_PREFIX}/health`, (req, res) => {
+_app.get(`${API_PREFIX}/health`, (_req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -43,7 +43,7 @@ app.get(`${API_PREFIX}/health`, (req, res) => {
 });
 
 // Root API endpoint
-app.get(API_PREFIX, (req, res) => {
+_app.get(API_PREFIX, (_req, res) => {
   res.json({ 
     message: 'SIPROD API',
     version: process.env.npm_package_version || '1.0.0',
@@ -52,9 +52,20 @@ app.get(API_PREFIX, (req, res) => {
 });
 
 // Rutas de la API
-app.use(API_PREFIX, router);
+_app.use(API_PREFIX, router);
+
+// Middleware para manejar errores 404
+_app.use((_req: Request, res: Response) => {
+  res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
+// Middleware para manejar errores generales
+_app.use((_req: Request, res: Response, _next: NextFunction) => {
+  res.status(500).json({ message: 'Error interno del servidor' });
+  _next();
+});
 
 // Manejador de errores
-app.use(errorHandler);
+_app.use(errorHandler);
 
-export default app;
+export default _app;

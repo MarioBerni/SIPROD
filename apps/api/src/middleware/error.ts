@@ -1,51 +1,47 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
-import { ErrorRequestHandler, AsyncRequestHandler } from '../types/error';
+import { logger } from '../utils/logger';
 
-// Manejador de errores centralizado
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  // Si ya se enviaron headers, delegamos al manejador por defecto de Express
-  if (res.headersSent) {
-    return next(err);
+export class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string,
+    public details?: Record<string, unknown>,
+    public isOperational = true,
+    stack = ''
+  ) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    if (stack) {
+      this.stack = stack;
+    } else {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+export const errorHandler = (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
+  const apiError = err instanceof ApiError ? err : new ApiError(500, err.message);
+  
+  logger.error('Error:', apiError);
+
+  const response: Record<string, unknown> = {
+    status: 'error',
+    message: apiError.message
+  };
+
+  if (apiError.details) {
+    response.details = apiError.details;
   }
 
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  const timestamp = new Date().toISOString();
+  if (process.env.NODE_ENV === 'development' && apiError.stack) {
+    response.stack = apiError.stack;
+  }
 
-  // Log del error
-  logger.error('Error:', {
-    statusCode,
-    message,
-    details: err.details,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-    timestamp,
-    ip: req.ip
-  });
-
-  // Respuesta al cliente
-  res.status(statusCode).json({
-    status: 'error',
-    message: process.env.NODE_ENV === 'production' && statusCode === 500 
-      ? 'Internal Server Error' 
-      : message,
-    timestamp,
-    ...(process.env.NODE_ENV === 'development' && { 
-      stack: err.stack,
-      details: err.details 
-    })
-  });
-};
-
-// Middleware para capturar errores asíncronos
-export const asyncErrorHandler = (fn: AsyncRequestHandler): AsyncRequestHandler => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await fn(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
+  res.status(apiError.statusCode).json(response);
 };

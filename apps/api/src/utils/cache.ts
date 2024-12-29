@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import NodeCache from 'node-cache';
-import logger from './logger';
+import { logger } from './logger';
 
 // Configuración del caché en memoria
 interface CacheConfig {
   stdTTL: number;
-  checkperiod: number;
-  useClones: boolean;
+  checkperiod?: number;
+  useClones?: boolean;
 }
 
 interface CacheItem<T> {
@@ -103,15 +103,15 @@ export const cache = new Cache();
 /**
  * Decorador para cachear resultados de métodos
  */
-export function Cached(options: CacheOptions = {}) {
+export function Cached(options: CacheOptions = {}): MethodDecorator {
   return function (
-    target: object,
+    _target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor
-  ) {
+  ): PropertyDescriptor {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: unknown[]) {
+    descriptor.value = async function (...args: unknown[]): Promise<unknown> {
       const cacheKey = options.key || `${String(propertyKey)}:${JSON.stringify(args)}`;
       const cachedResult = cache.get(cacheKey);
 
@@ -134,7 +134,7 @@ export function Cached(options: CacheOptions = {}) {
 /**
  * Middleware para cachear respuestas HTTP
  */
-export function cacheMiddleware(options: CacheOptions = {}) {
+export function cacheMiddleware(options: CacheOptions = {}): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
     const key = options.key || `${req.url}:${JSON.stringify(req.query)}`;
     const cachedResponse = cache.get(key);
@@ -147,7 +147,7 @@ export function cacheMiddleware(options: CacheOptions = {}) {
 
     // Interceptar el método json original
     const originalJson = res.json;
-    res.json = function(body: unknown) {
+    res.json = function(body: unknown): Response {
       cache.set(key, body, options.ttl || CacheType.MEDIUM);
       logger.debug('Cache miss - stored HTTP response', { key });
       return originalJson.call(this, body);

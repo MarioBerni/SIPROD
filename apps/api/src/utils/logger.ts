@@ -1,85 +1,90 @@
 import winston from 'winston';
 import { Request, Response, NextFunction } from 'express';
-import { TransformableInfo } from 'logform';
-import { config } from '../config';
+import path from 'path';
 
 const { combine, timestamp, printf, colorize } = winston.format;
 
-interface LogInfo extends TransformableInfo {
-  timestamp?: string;
-  [key: string]: unknown;
-}
-
-// Formato personalizado
-const logFormat = printf(({ level, message, timestamp = new Date().toISOString(), ...metadata }: LogInfo) => {
-  let msg = `${timestamp} [${level}] ${message}`;
+// Formato personalizado para los logs
+const myFormat = printf(({ level, message, timestamp, ...metadata }) => {
+  let msg = `${timestamp} [${level}]: ${message}`;
   
+  // Si hay metadata adicional, la agregamos como JSON
   if (Object.keys(metadata).length > 0) {
-    msg += ` ${JSON.stringify(metadata)}`;
+    msg += ` ${JSON.stringify(metadata, null, 2)}`;
   }
   
   return msg;
 });
 
-// Configuración del logger
-const logger = winston.createLogger({
-  level: config.logLevel || 'info',
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  debug: 4,
+};
+
+const level = (): string => {
+  const env = process.env.NODE_ENV || 'development';
+  const isDevelopment = env === 'development';
+  return isDevelopment ? 'debug' : process.env.LOG_LEVEL || 'info';
+};
+
+const colors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'green',
+  http: 'magenta',
+  debug: 'white',
+};
+
+winston.addColors(colors);
+
+// Crear el logger
+export const logger = winston.createLogger({
+  level: level(),
+  levels,
   format: combine(
-    timestamp(),
-    logFormat
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    colorize(),
+    myFormat
   ),
   transports: [
-    // Consola con colores en desarrollo
+    // Logs de consola con colores
     new winston.transports.Console({
       format: combine(
         colorize(),
-        timestamp(),
-        logFormat
+        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        myFormat
       ),
     }),
-    // Archivo para todos los logs
+    // Logs de errores en archivo
     new winston.transports.File({
-      filename: 'logs/combined.log',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // Archivo separado para errores
-    new winston.transports.File({
-      filename: 'logs/error.log',
+      filename: path.join(process.cwd(), 'logs', 'error.log'),
       level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
+    }),
+    // Todos los logs en archivo
+    new winston.transports.File({
+      filename: path.join(process.cwd(), 'logs', 'combined.log'),
     }),
   ],
 });
-
-// Métodos de logging tipados
-const log = {
-  error: (message: string, meta?: Record<string, unknown>) => logger.error(message, meta),
-  warn: (message: string, meta?: Record<string, unknown>) => logger.warn(message, meta),
-  info: (message: string, meta?: Record<string, unknown>) => logger.info(message, meta),
-  debug: (message: string, meta?: Record<string, unknown>) => logger.debug(message, meta),
-};
 
 // Middleware para logging de API
 export const apiLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
   
-  // Usar el evento 'finish' de la respuesta
   res.on('finish', () => {
     const duration = Date.now() - start;
-    
-    log.info('API Request', {
+    logger.info(`${req.method} ${req.path}`, {
       method: req.method,
-      url: req.originalUrl || req.url,
-      status: res.statusCode,
-      duration,
+      path: req.path,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
       ip: req.ip,
-      userAgent: req.headers['user-agent'],
+      userAgent: req.get('user-agent'),
     });
   });
   
   next();
 };
-
-export default log;

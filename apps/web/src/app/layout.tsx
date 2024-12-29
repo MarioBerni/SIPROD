@@ -1,17 +1,23 @@
-import { Metadata } from 'next'
-import ThemeRegistry from '@/components/providers/ThemeRegistry'
+'use client';
 
-export const metadata: Metadata = {
-  title: 'SIPROD',
-  description: 'Sistema de Gestión de Resultados Policiales y Recursos',
-}
+import { Inter } from 'next/font/google';
+import { AuthProvider } from '@/contexts/AuthContext';
+import './globals.css';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const inter = Inter({ subsets: ['latin'] });
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es">
-      <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+      <body className={inter.className}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
-  )
+  );
 }

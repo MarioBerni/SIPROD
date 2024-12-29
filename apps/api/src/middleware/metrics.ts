@@ -1,6 +1,6 @@
 import promClient from 'prom-client';
 import { Express, Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 
 // Crear registro de métricas
 const register = new promClient.Registry();
@@ -60,44 +60,51 @@ const cacheMisses = new promClient.Counter({
 });
 
 // Middleware para métricas de solicitudes
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
+export const metricsMiddleware = (_req: Request, res: Response, next: NextFunction): void => {
+  const start = process.hrtime();
   
   // Incrementar conexiones activas
   activeConnections.inc();
   
   // Cuando la respuesta termine
   res.on('finish', () => {
-    const duration = Date.now() - start;
-    const path = req.route ? req.route.path : req.path;
+    const duration = getDurationInMilliseconds(start);
+    const path = _req.route ? _req.route.path : _req.path;
     const labels = {
-      method: req.method,
+      method: _req.method,
       path,
-      status: res.statusCode,
+      status: res.statusCode.toString(),
     };
-
-    // Incrementar contador
-    httpRequestsTotal.inc(labels);
-
-    // Observar duración
-    httpRequestDurationSeconds.observe(labels, duration / 1000);
 
     // Decrementar conexiones activas
     activeConnections.dec();
-
-    // Log
-    logger.info('Request metrics', {
-      ...labels,
-      duration,
-    });
+    
+    // Registrar duración y contador de solicitudes
+    httpRequestDurationSeconds.observe(labels, duration / 1000);
+    httpRequestsTotal.inc(labels);
+    
+    // Log de métricas si es necesario
+    if (process.env.NODE_ENV !== 'production') {
+      logger.debug('Request metrics:', {
+        duration,
+        ...labels
+      });
+    }
   });
 
   next();
 };
 
+function getDurationInMilliseconds(start: [number, number]): number {
+  const NS_PER_SEC = 1e9;
+  const NS_TO_MS = 1e6;
+  const diff = process.hrtime(start);
+  return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS;
+}
+
 // Configuración de endpoint de métricas
-export const setupMetrics = (app: Express) => {
-  app.get('/metrics', async (req: Request, res: Response) => {
+export const setupMetrics = (app: Express): void => {
+  app.get('/metrics', async (_req: Request, res: Response): Promise<void> => {
     try {
       res.set('Content-Type', register.contentType);
       res.end(await register.metrics());
@@ -112,15 +119,15 @@ export const setupMetrics = (app: Express) => {
 
 // Exportar funciones de utilidad para métricas
 export const metrics = {
-  recordDbQuery: (operation: string, table: string, duration: number) => {
+  recordDbQuery: (operation: string, table: string, duration: number): void => {
     dbQueryDurationMs.observe({ operation, table }, duration);
   },
   
-  recordCacheHit: (cacheType: string) => {
+  recordCacheHit: (cacheType: string): void => {
     cacheHits.inc({ cache_type: cacheType });
   },
   
-  recordCacheMiss: (cacheType: string) => {
+  recordCacheMiss: (cacheType: string): void => {
     cacheMisses.inc({ cache_type: cacheType });
   },
 };

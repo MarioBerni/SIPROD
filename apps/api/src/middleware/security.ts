@@ -1,9 +1,8 @@
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import cors from 'cors';
-import express, { Express } from 'express';
-import { errorHandler } from './error';
-import { AppError } from '../utils/errors';
+import express, { Express, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import { logger } from '../utils/logger';
 
 const configureSecurityMiddleware = (app: Express): void => {
   // Configuración básica de seguridad con Helmet
@@ -11,36 +10,36 @@ const configureSecurityMiddleware = (app: Express): void => {
 
   // Configuración de CORS
   app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN || '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    credentials: true,
-    maxAge: 600
+    credentials: true
   }));
 
-  // Parsers
+  // Parseo de JSON y límites
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Rate Limiting
-  app.use(rateLimit({
+  const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100, // límite de 100 peticiones por ventana
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res, next) => {
-      const error = AppError.tooManyRequests('Too many requests', 'RATE_LIMIT_EXCEEDED', {
-        resetTime: new Date(Date.now() + 15 * 60 * 1000),
-        limit: 100
+    message: { 
+      error: 'Demasiadas solicitudes, por favor intente más tarde.' 
+    },
+    handler: (_req: Request, res: Response) => {
+      logger.warn('Rate limit excedido');
+      res.status(429).json({ 
+        error: 'Demasiadas solicitudes, por favor intente más tarde.' 
       });
-      errorHandler(error, req, res, next);
     }
-  }));
+  });
+  app.use(rateLimiter);
 
   // Otras medidas de seguridad
   app.disable('x-powered-by');
-  app.set('trust proxy', 1);
+  
+  logger.info('Security middleware configured');
 };
 
 export default configureSecurityMiddleware;

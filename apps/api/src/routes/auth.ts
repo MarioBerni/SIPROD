@@ -1,92 +1,56 @@
-import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
-import { asyncErrorHandler } from '../middleware/error';
-import { AppError } from '../utils/errors';
+import { Router, Response, NextFunction, Request } from 'express';
+import { body } from 'express-validator';
+import { AuthController } from '../controllers/auth.controller';
+import { validate } from '../middleware/validate.middleware';
+import { RequestHandler } from 'express';
 
-const router: Router = Router();
-const prisma = new PrismaClient();
+const router = Router();
+const authController = new AuthController();
 
-// Registro de usuario
-router.post('/register', asyncErrorHandler(async (req, res) => {
-  const { username, password, email, fullName } = req.body;
-  
-  if (!username || !password || !email || !fullName) {
-    throw AppError.badRequest('Todos los campos son requeridos', 'INVALID_INPUT');
+// Validación de login
+const loginValidation = [
+  body('username').notEmpty().withMessage('El nombre de usuario es requerido'),
+  body('password').notEmpty().withMessage('La contraseña es requerida'),
+  validate
+];
+
+// Middleware para manejar errores de async
+const asyncHandler = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>
+): RequestHandler => 
+  (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+
+// Rutas
+router.post('/login', loginValidation, asyncHandler(authController.login));
+
+router.post('/logout', async (_req: Request, res: Response) => {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production'
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error en logout:', error);
+    res.status(500).json({ success: false, message: 'Error al cerrar sesión' });
   }
+});
 
-  // Verificar si el usuario ya existe
-  const existingUser = await prisma.user.findUnique({
-    where: { username },
-  });
+router.post('/register', [
+  body('username').notEmpty().withMessage('El nombre de usuario es requerido'),
+  body('password').notEmpty().withMessage('La contraseña es requerida')
+    .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+  body('email').isEmail().withMessage('El email debe ser válido'),
+  body('fullName').notEmpty().withMessage('El nombre completo es requerido'),
+  validate
+], asyncHandler(authController.register));
 
-  if (existingUser) {
-    throw AppError.badRequest('El nombre de usuario ya está en uso', 'USER_EXISTS');
-  }
-
-  // Crear usuario
-  const hashedPassword = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: {
-      username,
-      password: hashedPassword,
-      email,
-      fullName,
-      role: 'USER',
-    },
-  });
-
-  // Generar token
-  const token = generateToken(user.id);
-
-  // Respuesta
-  res.status(201).json({
-    token,
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-    },
-  });
-}));
-
-// Login
-router.post('/login', asyncErrorHandler(async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    throw AppError.badRequest('Usuario y contraseña son requeridos', 'INVALID_INPUT');
-  }
-
-  // Buscar usuario
-  const user = await prisma.user.findUnique({
-    where: { username },
-  });
-
-  if (!user) {
-    throw AppError.unauthorized('Credenciales inválidas', 'INVALID_CREDENTIALS');
-  }
-
-  // Verificar contraseña
-  const isValidPassword = await verifyPassword(password, user.password);
-  if (!isValidPassword) {
-    throw AppError.unauthorized('Credenciales inválidas', 'INVALID_CREDENTIALS');
-  }
-
-  // Generar token
-  const token = generateToken(user.id);
-
-  // Respuesta exitosa
-  res.json({
-    token,
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-    },
-  });
+// Endpoint de validación de token
+router.get('/validate-token', asyncHandler(async (req: Request, res: Response) => {
+  await authController.validateToken(req, res);
+  return res.json({ success: true });
 }));
 
 export default router;

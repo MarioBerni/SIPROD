@@ -1,24 +1,31 @@
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
+import { logger } from './logger';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Usar la misma clave que el frontend
+const JWT_SECRET = new TextEncoder().encode('siprod_jwt_dev_secret_2025!');
 
-// Funciones de hash y verificación
-export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+export async function generateToken(user: { id: string; role?: string }): Promise<string> {
+  logger.info('Generando token para usuario:', { id: user.id, role: user.role || 'USER' });
+  const token = await new SignJWT({ 
+    userId: user.id,
+    role: user.role || 'USER'
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('24h')
+    .sign(JWT_SECRET);
+  
+  logger.info('Token generado exitosamente');
+  return token;
 }
 
-export function verifyPassword(storedPassword: string, suppliedPassword: string): boolean {
-  const [salt, hash] = storedPassword.split(':');
-  const suppliedHash = crypto.pbkdf2Sync(suppliedPassword, salt, 1000, 64, 'sha512').toString('hex');
-  return hash === suppliedHash;
-}
-
-// Funciones JWT
-export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, {
-    expiresIn: '24h',
-  });
+export async function verifyToken(token: string): Promise<{ userId: string; role: string }> {
+  try {
+    logger.info('Intentando verificar token');
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    logger.info('Token verificado exitosamente:', payload);
+    return payload as { userId: string; role: string };
+  } catch (error) {
+    logger.error('Error al verificar token:', error);
+    throw new Error('Token inválido');
+  }
 }
