@@ -85,7 +85,7 @@ testDatabaseConnection()
     });
 
     // Middleware de logging para debugging
-    _app.use((req: Request, res: Response, next: NextFunction) => {
+    _app.use((req: Request, _res: Response, next: NextFunction) => {
       logger.debug(`[${req.method}] ${req.path}`);
       next();
     });
