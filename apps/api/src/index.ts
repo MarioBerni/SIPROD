@@ -84,14 +84,15 @@ testDatabaseConnection()
       next();
     });
 
+    // Middleware de logging para debugging
+    _app.use((req: Request, res: Response, next: NextFunction) => {
+      logger.debug(`[${req.method}] ${req.path}`);
+      next();
+    });
+
     // 5. Health Check
     _app.get(`${_API_PREFIX}/health`, (_req: Request, res: Response) => {
-      logger.info('Health check endpoint called');
-      res.json({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        version: process.env.npm_package_version || '1.0.0'
-      });
+      return res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
     // 6. API Routes
@@ -107,12 +108,12 @@ testDatabaseConnection()
       details?: Record<string, unknown>;
     }
 
-    // 8. Error handling
+    // Error handling mejorado
     _app.use((err: ApiError, _req: Request, res: Response, _next: NextFunction) => {
       const statusCode = err.statusCode || 500;
       const message = err.message || 'Internal Server Error';
       const details = err.details || {};
-
+      
       logger.error('Error Handler:', {
         statusCode,
         message,
@@ -120,8 +121,9 @@ testDatabaseConnection()
         stack: err.stack
       });
 
-      res.status(statusCode).json({
-        success: false,
+      return res.status(statusCode).json({
+        status: 'error',
+        statusCode,
         message,
         details,
         timestamp: new Date().toISOString()

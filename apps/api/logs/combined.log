@@ -2003,3 +2003,46 @@
   "ip": "127.0.0.1",
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
 }
+2024-12-29 15:11:35 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-29 15:11:35 [[32minfo[39m]: DATABASE_URL:
+2024-12-29 15:11:35 [[32minfo[39m]: Ambiente:
+2024-12-29 15:11:35 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-29 15:11:35 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-29 15:11:35 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-29 15:11:35 [[32minfo[39m]: Security middleware configured
+2024-12-29 15:11:36 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-29 15:11:36 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-29 15:11:36 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-29 15:12:06 [[32minfo[39m]: 2024-12-29T18:12:06.941Z - POST /api/auth/login {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-29 15:12:06 [[32minfo[39m]: Datos recibidos: {
+  "username": "testuser"
+}
+2024-12-29 15:12:07 [[32minfo[39m]: Resultado de búsqueda: {
+  "found": true
+}
+2024-12-29 15:12:07 [[32minfo[39m]: Comparando contraseñas
+2024-12-29 15:12:07 [[32minfo[39m]: Resultado de comparación: {
+  "isValidPassword": true
+}
+2024-12-29 15:12:07 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1"
+}
+2024-12-29 15:12:07 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1",
+  "role": "USER"
+}
+2024-12-29 15:12:07 [[32minfo[39m]: Token generado exitosamente
+2024-12-29 15:12:11 [[32minfo[39m]: 2024-12-29T18:12:11.969Z - POST /api/auth/logout {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-29 15:19:46 [[32minfo[39m]: Process terminated

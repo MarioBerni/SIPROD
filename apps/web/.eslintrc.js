@@ -5,10 +5,9 @@ module.exports = {
     "next",
     "prettier",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react/recommended"
   ],
-  plugins: ["@typescript-eslint", "react", "react-hooks"],
+  plugins: ["@typescript-eslint", "react"],
   settings: {
     next: {
       rootDir: "."
