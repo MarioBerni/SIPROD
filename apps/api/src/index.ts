@@ -18,7 +18,7 @@ import morgan from 'morgan';
 import { logger } from './utils/logger';
 import { AppError } from './utils/errors';
 import routes from './routes';
-import configureSecurityMiddleware from './middleware/security';
+import { configureSecurityMiddleware } from './middleware/security';
 import { PrismaClient } from '@prisma/client';
 
 const _app = express();

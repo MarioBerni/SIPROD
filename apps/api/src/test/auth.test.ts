@@ -1,5 +1,11 @@
 import { createMockContext, MockContext } from './setup';
 
+// Define el enum localmente
+enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER'
+}
+
 let mockCtx: MockContext;
 
 beforeEach(() => {
@@ -15,7 +21,7 @@ describe('Auth', () => {
       password: 'hashedpassword',
       email: 'test@example.com',
       fullName: 'Test User',
-      role: 'user',
+      role: UserRole.USER,
       createdAt: new Date(),
       updatedAt: new Date()
     };
