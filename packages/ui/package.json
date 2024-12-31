@@ -13,7 +13,7 @@
     "build": "tsup src/index.tsx --format esm,cjs --dts --external react",
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react",
     "lint": "eslint \"src/**/*.ts*\"",
-    "clean": "rimraf .turbo node_modules dist"
+    "clean": "rimraf .turbo || true && rimraf node_modules || true && rimraf dist || true"
   },
   "devDependencies": {
     "@siprod/config": "workspace:*",

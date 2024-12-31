@@ -316,3 +316,168 @@ NEXT_PUBLIC_API_URL="http://api.siprod.com"
    - Monitorear tiempos de respuesta
    - Ajustar recursos según demanda
    - Planificar capacidad futura
+
+## Variables de Entorno en Producción
+
+1. **Requisitos de Seguridad**
+   ```bash
+   # Secretos (mínimo 32 caracteres)
+   JWT_SECRET=siprod_jwt_prod_secret_2025_secure_key_32!
+   NEXT_PUBLIC_JWT_SECRET=siprod_jwt_prod_secret_2025_secure_key_32!
+   SESSION_SECRET=siprod_session_prod_secret_2025_secure_32!
+   
+   # URLs y Endpoints
+   CORS_ORIGIN="https://siprod.uy"
+   NEXT_PUBLIC_API_URL="/api"
+   ```
+
+2. **Validación de Configuración**
+   ```bash
+   # Verificar configuración antes del despliegue
+   pnpm lint
+   pnpm build
+   
+   # Verificar variables de entorno
+   node scripts/verify-env.js
+   ```
+
+3. **Rotación de Secretos**
+   - Rotar secretos cada 90 días
+   - Mantener registro de cambios
+   - Coordinar rotación con ventanas de mantenimiento
+
+4. **Monitoreo de Seguridad**
+   ```bash
+   # Verificar logs de autenticación
+   tail -f /var/log/auth.log
+   
+   # Monitorear intentos fallidos de login
+   grep "Failed password" /var/log/auth.log
+   ```
+
+## Información del Servidor
+
+### Detalles del Servidor
+- **Hostname**: 179-27-203-219.cprapid.com
+- **IP**: 179.27.203.219
+- **Sistema Operativo**: CentOS
+- **Memoria**: 7.9GB RAM
+- **Usuario de Servicio**: d5baf91c
+
+### Rutas Importantes
+```bash
+# Aplicación
+/var/www/siprod/              # Directorio raíz de la aplicación
+/var/www/siprod/logs/         # Logs de la aplicación
+
+# Nginx
+/etc/nginx/conf.d/siprod.conf # Configuración del sitio
+/var/log/nginx/               # Logs de Nginx
+  ├── siprod.access.log       # Logs de acceso
+  └── siprod.error.log        # Logs de error
+
+# SSL/TLS
+/var/cpanel/ssl/apache_tls/siprod.uy/ # Certificados SSL
+```
+
+### Certificados SSL
+- **Dominio**: siprod.uy
+- **Proveedor**: Let's Encrypt
+- **Validez**: Dec 11 2024 - Mar 11 2025
+- **Tipo**: TLSv1.3
+- **Gestión**: cPanel
+
+## Servicios
+
+### Frontend (Next.js)
+- **Puerto**: 3000
+- **Proceso**: PM2 (siprod-frontend)
+- **Memoria**: ~102MB
+- **URL**: https://siprod.uy
+
+### Backend (Node.js)
+- **Puerto**: 4000
+- **Proceso**: PM2 (siprod-backend)
+- **Memoria**: ~92MB
+- **URL**: https://siprod.uy/api
+
+### Nginx
+- **Puertos**: 80 (redirect), 443 (SSL)
+- **Memoria**: ~5MB
+- **Workers**: 2
+
+## Monitoreo
+
+### Comandos de Monitoreo
+```bash
+# Estado de servicios
+pm2 status
+sudo systemctl status nginx
+
+# Logs en tiempo real
+tail -f /var/log/nginx/siprod.error.log
+tail -f /var/log/nginx/siprod.access.log
+pm2 logs
+
+# Recursos del sistema
+top
+htop (si está instalado)
+free -m
+```
+
+### Script de Monitoreo Rápido
+```bash
+#!/bin/bash
+echo "=== PM2 Status ==="
+pm2 status
+echo -e "\n=== Nginx Status ==="
+systemctl status nginx | grep "Active:"
+echo -e "\n=== Memory Usage ==="
+free -m
+echo -e "\n=== Disk Usage ==="
+df -h /var/www/siprod
+```
+
+## Seguridad
+
+### Headers HTTP
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "no-referrer-when-downgrade" always;
+add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+```
+
+### SSL/TLS
+- Protocolo: TLSv1.3
+- Ciphers: ECDHE-ECDSA-AES256-GCM-SHA384 y otros seguros
+- HSTS: Disponible para activación
+
+## Mantenimiento
+
+### Backups Diarios
+```bash
+# Backup de configuraciones
+sudo cp /etc/nginx/conf.d/siprod.conf /etc/nginx/conf.d/siprod.conf.backup-$(date +%Y%m%d)
+
+# Backup de logs
+sudo tar -czf /backup/nginx-logs-$(date +%Y%m%d).tar.gz /var/log/nginx/siprod.*
+```
+
+### Rotación de Logs
+- Nginx: Configurado con logrotate
+- PM2: Rotación automática
+
+### Actualizaciones
+```bash
+# Actualizar dependencias
+npm update
+
+# Actualizar PM2
+npm install pm2 -g
+
+# Reiniciar servicios
+pm2 reload all
+sudo systemctl restart nginx
+```

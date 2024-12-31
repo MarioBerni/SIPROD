@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "siprod-frontend",
       script: "node_modules/next/dist/bin/next",
-      args: "start",
+      args: "start -H 0.0.0.0",
       cwd: "/var/www/siprod/apps/web",
       instances: 1,
       exec_mode: "fork",
@@ -11,6 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        HOST: "0.0.0.0",
         NEXT_PUBLIC_API_URL: "/api",
         NEXT_TELEMETRY_DISABLED: 1
       },

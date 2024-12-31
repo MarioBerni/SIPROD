@@ -1,8 +1,15 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
 // Cargar variables de entorno antes que nada
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+const envPath = process.env.NODE_ENV === 'production' 
+  ? resolve(process.cwd(), '../../.env.production')
+  : resolve(process.cwd(), '../../.env');
+
+config({ path: envPath });
+
+// Importar el validador después de cargar las variables
+import { env } from './config/env.validator';
 
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -15,16 +22,16 @@ import configureSecurityMiddleware from './middleware/security';
 import { PrismaClient } from '@prisma/client';
 
 const _app = express();
-const _port = Number(process.env.PORT) || 4000;
-const _API_PREFIX = process.env.API_PREFIX || '/api';
+const _port = env.PORT;
+const _API_PREFIX = env.API_PREFIX || '/api';
 
 const prisma = new PrismaClient();
 
 async function testDatabaseConnection(): Promise<void> {
   try {
     logger.info('Verificando conexión a la base de datos...');
-    logger.info('DATABASE_URL:', process.env.DATABASE_URL);
-    logger.info('Ambiente:', process.env.NODE_ENV);
+    logger.info('DATABASE_URL:', env.DATABASE_URL);
+    logger.info('Ambiente:', env.NODE_ENV);
     
     await prisma.$connect();
     logger.info('Conexión a la base de datos exitosa');
@@ -64,7 +71,7 @@ testDatabaseConnection()
 
     // 2. CORS
     _app.use(cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+      origin: env.CORS_ORIGIN || 'http://localhost:3000',
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']
@@ -132,8 +139,8 @@ testDatabaseConnection()
 
     // Iniciar servidor
     const server = _app.listen(_port, '0.0.0.0', () => {
-      const host = process.env.NODE_ENV === 'production' ? '179.27.203.219' : '127.0.0.1';
-      logger.info(`Server running on port ${_port} in ${process.env.NODE_ENV || 'development'} mode`);
+      const host = env.NODE_ENV === 'production' ? '179.27.203.219' : '127.0.0.1';
+      logger.info(`Server running on port ${_port} in ${env.NODE_ENV || 'development'} mode`);
       logger.info(`Health check endpoint: http://${host}:${_port}${_API_PREFIX}/health`);
       logger.info(`API endpoint: http://${host}:${_port}${_API_PREFIX}`);
     });
@@ -178,7 +185,7 @@ testDatabaseConnection()
       shutdown();
     });
   })
-  .catch((error) => {
+  .catch((error: Error) => {
     logger.error('Failed to start server:', error);
     process.exit(1);
   });

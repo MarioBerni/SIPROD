@@ -47,7 +47,7 @@ export class ApiErrorClass extends Error {
 }
 
 // Configuración base de axios
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const baseURL = '/api';
 console.log('Frontend - API Base URL:', baseURL);
 
 // Cliente de API principal

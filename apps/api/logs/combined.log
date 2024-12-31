@@ -2046,3 +2046,208 @@
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
 }
 2024-12-29 15:19:46 [[32minfo[39m]: Process terminated
+2024-12-30 11:51:10 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 11:51:10 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 11:51:10 [[32minfo[39m]: Ambiente:
+2024-12-30 11:51:10 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 11:51:10 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 11:51:10 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 11:51:10 [[32minfo[39m]: Security middleware configured
+2024-12-30 11:51:10 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-30 11:51:10 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-30 11:51:10 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-30 11:52:17 [[32minfo[39m]: 2024-12-30T14:52:17.434Z - POST /api/auth/login {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 11:52:17 [[37mdebug[39m]: [POST] /api/auth/login
+2024-12-30 11:52:17 [[32minfo[39m]: Datos recibidos: {
+  "username": "testuser"
+}
+2024-12-30 11:52:17 [[32minfo[39m]: Resultado de búsqueda: {
+  "found": true
+}
+2024-12-30 11:52:17 [[32minfo[39m]: Comparando contraseñas
+2024-12-30 11:52:17 [[32minfo[39m]: Resultado de comparación: {
+  "isValidPassword": true
+}
+2024-12-30 11:52:17 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1"
+}
+2024-12-30 11:52:17 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1",
+  "role": "USER"
+}
+2024-12-30 11:52:17 [[32minfo[39m]: Token generado exitosamente
+2024-12-30 11:52:22 [[32minfo[39m]: 2024-12-30T14:52:22.003Z - POST /api/auth/logout {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 11:52:22 [[37mdebug[39m]: [POST] /api/auth/logout
+2024-12-30 11:52:27 [[32minfo[39m]: 2024-12-30T14:52:27.389Z - POST /api/auth/login {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 11:52:27 [[37mdebug[39m]: [POST] /api/auth/login
+2024-12-30 11:52:27 [[32minfo[39m]: Datos recibidos: {
+  "username": "testuser"
+}
+2024-12-30 11:52:27 [[32minfo[39m]: Resultado de búsqueda: {
+  "found": true
+}
+2024-12-30 11:52:27 [[32minfo[39m]: Comparando contraseñas
+2024-12-30 11:52:27 [[32minfo[39m]: Resultado de comparación: {
+  "isValidPassword": false
+}
+2024-12-30 11:52:27 [[33mwarn[39m]: Intento de login fallido para usuario: testuser
+2024-12-30 11:52:27 [[31merror[39m]: Error en login: Credenciales inválidas {
+  "statusCode": 401,
+  "isOperational": true,
+  "stack": "Error: Credenciales inválidas\n    at login (C:\\Proyectos\\2025\\SIPROD\\apps\\api\\src\\controllers\\auth.controller.ts:34:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+2024-12-30 14:26:01 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 14:26:01 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 14:26:01 [[32minfo[39m]: Ambiente:
+2024-12-30 14:26:02 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 14:26:02 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 14:26:02 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 14:26:02 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-30 14:26:02 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-30 14:26:02 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-30 14:26:54 [[32minfo[39m]: 2024-12-30T17:26:54.897Z - GET /api {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 17:11:25 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:11:25 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:11:25 [[32minfo[39m]: Ambiente:
+2024-12-30 17:11:25 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:11:25 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:11:25 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:11:25 [[32minfo[39m]: Security middleware configured
+2024-12-30 17:11:25 [[32minfo[39m]: Server running on port 4000 in production mode
+2024-12-30 17:11:25 [[32minfo[39m]: Health check endpoint: http://179.27.203.219:4000/api/health
+2024-12-30 17:11:25 [[32minfo[39m]: API endpoint: http://179.27.203.219:4000/api
+2024-12-30 17:14:19 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:14:19 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:14:19 [[32minfo[39m]: Ambiente:
+2024-12-30 17:14:20 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:14:20 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:14:20 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:14:20 [[32minfo[39m]: Security middleware configured
+2024-12-30 17:14:20 [[32minfo[39m]: Server running on port 4000 in production mode
+2024-12-30 17:14:20 [[32minfo[39m]: Health check endpoint: http://179.27.203.219:4000/api/health
+2024-12-30 17:14:20 [[32minfo[39m]: API endpoint: http://179.27.203.219:4000/api
+2024-12-30 17:14:43 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:14:43 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:14:43 [[32minfo[39m]: Ambiente:
+2024-12-30 17:14:43 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:14:43 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:14:43 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:17:05 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:17:05 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:17:05 [[32minfo[39m]: Ambiente:
+2024-12-30 17:17:05 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:17:05 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:17:05 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:17:05 [[32minfo[39m]: Security middleware configured
+2024-12-30 17:17:05 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-30 17:17:05 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-30 17:17:05 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-30 17:38:50 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:38:50 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:38:50 [[32minfo[39m]: Ambiente:
+2024-12-30 17:38:50 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:38:50 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:38:50 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:38:50 [[32minfo[39m]: Security middleware configured
+2024-12-30 17:38:50 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-30 17:38:50 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-30 17:38:50 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-30 17:39:39 [[32minfo[39m]: Verificando conexión a la base de datos...
+2024-12-30 17:39:39 [[32minfo[39m]: DATABASE_URL:
+2024-12-30 17:39:39 [[32minfo[39m]: Ambiente:
+2024-12-30 17:39:40 [[32minfo[39m]: Conexión a la base de datos exitosa
+2024-12-30 17:39:40 [[32minfo[39m]: Número de usuarios en la base de datos: 1
+2024-12-30 17:39:40 [[32minfo[39m]: Usuarios encontrados: {
+  "0": {
+    "id": "1",
+    "username": "testuser",
+    "email": "mario.berni@siprod.uy"
+  }
+}
+2024-12-30 17:39:40 [[32minfo[39m]: Security middleware configured
+2024-12-30 17:39:40 [[32minfo[39m]: Server running on port 4000 in development mode
+2024-12-30 17:39:40 [[32minfo[39m]: Health check endpoint: http://127.0.0.1:4000/api/health
+2024-12-30 17:39:40 [[32minfo[39m]: API endpoint: http://127.0.0.1:4000/api
+2024-12-30 17:40:07 [[32minfo[39m]: 2024-12-30T20:40:07.198Z - POST /api/auth/login {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 17:40:07 [[37mdebug[39m]: [POST] /api/auth/login
+2024-12-30 17:40:07 [[32minfo[39m]: Datos recibidos: {
+  "username": "testuser"
+}
+2024-12-30 17:40:07 [[32minfo[39m]: Resultado de búsqueda: {
+  "found": true
+}
+2024-12-30 17:40:07 [[32minfo[39m]: Comparando contraseñas
+2024-12-30 17:40:07 [[32minfo[39m]: Resultado de comparación: {
+  "isValidPassword": true
+}
+2024-12-30 17:40:07 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1"
+}
+2024-12-30 17:40:07 [[32minfo[39m]: Generando token para usuario: {
+  "id": "1",
+  "role": "USER"
+}
+2024-12-30 17:40:07 [[32minfo[39m]: Token generado exitosamente
+2024-12-30 17:40:10 [[32minfo[39m]: 2024-12-30T20:40:10.982Z - POST /api/auth/logout {
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+}
+2024-12-30 17:40:10 [[37mdebug[39m]: [POST] /api/auth/logout
+2024-12-30 17:40:17 [[32minfo[39m]: Process terminated

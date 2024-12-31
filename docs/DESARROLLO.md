@@ -458,28 +458,28 @@ const token = request.cookies.get('token')?.value
 
 4. **Contexto de Autenticación**
    ```typescript
-   const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-   export function AuthProvider({ children }: { children: React.ReactNode }) {
-     const [user, setUser] = useState<User | null>(null);
-     
-     const login = async (username: string, password: string) => {
-       const response = await authApi.login({ username, password });
-       setUser(response.user);
-     };
-     
-     const logout = async () => {
-       await authApi.logout();
-       setUser(null);
-     };
-     
-     return (
-       <AuthContext.Provider value={{ user, login, logout }}>
-         {children}
-       </AuthContext.Provider>
-     );
-   }
-   ```
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  
+  const login = async (username: string, password: string) => {
+    const response = await authApi.login({ username, password });
+    setUser(response.user);
+  };
+  
+  const logout = async () => {
+    await authApi.logout();
+    setUser(null);
+  };
+  
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+```
 
 5. **Mejores Prácticas de Seguridad**
    - Usar cookies HTTP-Only para tokens
@@ -487,6 +487,77 @@ const token = request.cookies.get('token')?.value
    - Validar tokens en cada petición
    - Manejar errores de autenticación
    - Limpiar estado al cerrar sesión
+
+## Variables de Entorno
+#### Requisitos de Seguridad
+Todas las variables relacionadas con seguridad deben cumplir estos requisitos:
+
+1. **Longitud Mínima**
+   - Todas las claves secretas deben tener al menos 32 caracteres
+   - No usar valores predeterminados en producción
+   - No compartir valores entre entornos (desarrollo/producción)
+
+2. **Formato de Variables Críticas**
+   ```bash
+   # Secretos (mínimo 32 caracteres)
+   JWT_SECRET=siprod_jwt_[env]_secret_2025_secure_key_32!
+   NEXT_PUBLIC_JWT_SECRET=siprod_jwt_[env]_secret_2025_secure_key_32!
+   SESSION_SECRET=siprod_session_[env]_secret_2025_secure_32!
+
+   # URLs (formato válido)
+   CORS_ORIGIN="http://localhost:3000"  # Desarrollo
+   CORS_ORIGIN="https://siprod.uy"      # Producción
+   ```
+
+3. **Validación de Variables**
+   - El sistema valida automáticamente la longitud y formato de las variables
+   - Ejecutar `pnpm lint` y `pnpm build` antes de commits para verificar
+   - Los errores de validación bloquearán el inicio de la aplicación
+
+#### Estructura Completa del archivo .env
+```bash
+# =================================================================
+# SIPROD - Sistema de Gestión de Resultados Policiales y Recursos
+# =================================================================
+
+# Base de Datos
+DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/siprod"
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="your_password"
+POSTGRES_DB="siprod"
+POSTGRES_PORT=5432
+
+# Backend
+PORT=4000
+API_PREFIX="/api"
+NODE_ENV="development"
+JWT_SECRET=siprod_jwt_dev_secret_2025_secure_key_32!
+NEXT_PUBLIC_JWT_SECRET=siprod_jwt_dev_secret_2025_secure_key_32!
+SESSION_SECRET=siprod_session_dev_secret_2025_secure_32!
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX=100
+CORS_ORIGIN="http://localhost:3000"
+
+# Redis
+REDIS_URL="redis://localhost:6379"
+REDIS_PORT=6379
+
+# Frontend
+NEXT_PUBLIC_API_URL="/api"
+NEXT_TELEMETRY_DISABLED=1
+
+# Logging
+LOG_LEVEL="debug"
+LOG_FORMAT="simple"
+
+# Seguridad
+SSL_ENABLED=false
+JWT_EXPIRATION=24
+MAX_LOGIN_ATTEMPTS=5
+SECURE_COOKIES=false
+ENABLE_RATE_LIMIT=false
+ENABLE_HELMET=true
+```
 
 ## Estructura de Directorios
 
@@ -508,17 +579,6 @@ src/
 ├── routes/       # Definición de rutas
 ├── services/     # Lógica de negocio
 └── utils/        # Utilidades
-```
-
-## Variables de Entorno
-```bash
-# Backend (.env)
-DATABASE_URL=postgresql://user:pass@localhost:5432/siprod
-JWT_SECRET=your_jwt_secret
-NODE_ENV=development
-
-# Frontend (.env)
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ```
 
 ## Comandos de Desarrollo

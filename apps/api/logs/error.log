@@ -188,3 +188,12 @@
   "isOperational": true,
   "stack": "Error: Token no proporcionado\n    at AuthController.validateToken (C:\\Proyectos\\2025\\SIPROD\\apps\\api\\src\\controllers\\auth.controller.ts:82:15)\n    at C:\\Proyectos\\2025\\SIPROD\\apps\\api\\src\\routes\\auth.ts:45:24\n    at C:\\Proyectos\\2025\\SIPROD\\apps\\api\\src\\routes\\auth.ts:22:21\n    at Layer.handle [as handle_request] (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (C:\\Proyectos\\2025\\SIPROD\\node_modules\\.pnpm\\express@4.21.2\\node_modules\\express\\lib\\router\\index.js:280:10)"
 }
+2024-12-30 11:52:27 [[31merror[39m]: Error en login: Credenciales inválidas {
+  "statusCode": 401,
+  "isOperational": true,
+  "stack": "Error: Credenciales inválidas\n    at login (C:\\Proyectos\\2025\\SIPROD\\apps\\api\\src\\controllers\\auth.controller.ts:34:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+2024-12-30 17:14:43 [[31merror[39m]: Uncaught Exception: listen EADDRINUSE: address already in use 0.0.0.0:4000 {
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:4000\n    at Server.setupListenHandle [as _listen2] (node:net:1912:16)\n    at listenInCluster (node:net:1969:12)\n    at node:net:2178:7\n    at processTicksAndRejections (node:internal/process/task_queues:90:21)",
+  "name": "Error"
+}

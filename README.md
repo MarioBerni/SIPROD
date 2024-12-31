@@ -90,6 +90,34 @@ cp apps/web/.env.example apps/web/.env
 pnpm dev
 ```
 
+## 🔐 Variables de Entorno
+### Requisitos de Seguridad
+Las siguientes variables requieren configuración especial por motivos de seguridad:
+
+- `JWT_SECRET`: Mínimo 32 caracteres para firma de tokens JWT
+- `NEXT_PUBLIC_JWT_SECRET`: Mínimo 32 caracteres para validación en frontend
+- `SESSION_SECRET`: Mínimo 32 caracteres para sesiones
+
+### Troubleshooting Común
+1. **Error: String must contain at least 32 character(s)**
+   - Causa: Las variables de seguridad requieren mínimo 32 caracteres
+   - Solución: Actualizar los valores en los archivos .env siguiendo el formato:
+     ```
+     JWT_SECRET=siprod_jwt_[env]_secret_2025_secure_key_32!
+     NEXT_PUBLIC_JWT_SECRET=siprod_jwt_[env]_secret_2025_secure_key_32!
+     SESSION_SECRET=siprod_session_[env]_secret_2025_secure_32!
+     ```
+
+2. **Error: Invalid URL format**
+   - Causa: CORS_ORIGIN debe ser una URL válida
+   - Solución: Usar formato correcto
+     ```
+     # Desarrollo
+     CORS_ORIGIN="http://localhost:3000"
+     # Producción
+     CORS_ORIGIN="https://siprod.uy"
+     ```
+
 ## 📚 Documentación
 Para más detalles, consulta los siguientes documentos en la carpeta `docs/`:
 
@@ -98,6 +126,62 @@ Para más detalles, consulta los siguientes documentos en la carpeta `docs/`:
 - [OPERACIONES.md](docs/OPERACIONES.md) - Guía de operaciones y despliegue
 - [MANTENIMIENTO.md](docs/MANTENIMIENTO.md) - Mantenimiento y optimizaciones
 - [OPTIMIZACIONES.md](docs/OPTIMIZACIONES.md) - Guías de optimización
+
+## 🚀 Despliegue
+
+### Estado del Proyecto
+
+**Servicios Activos**
+- Frontend: https://siprod.uy
+- API: https://siprod.uy/api
+- Documentación: https://siprod.uy/docs
+
+### Configuración del Entorno
+
+#### Prerequisitos
+- Node.js 18+
+- PostgreSQL
+- Nginx
+- PM2
+
+#### Estructura de Puertos
+- Frontend (Next.js): 3000
+- Backend (API): 4000
+- Nginx: 80, 443
+
+### Verificación de Servicios
+```bash
+# Estado de Nginx
+sudo systemctl status nginx
+
+# Logs de Nginx
+sudo tail -f /var/log/nginx/siprod.error.log
+sudo tail -f /var/log/nginx/siprod.access.log
+
+# Estado de PM2
+pm2 status
+pm2 logs
+
+# Verificar puertos
+sudo netstat -tulpn | grep -E ':80|:443|:3000|:4000'
+```
+
+### Monitoreo
+- Logs de Frontend: `pm2 logs next-server`
+- Logs de Backend: `pm2 logs api-server`
+- Logs de Nginx: `/var/log/nginx/siprod.{access,error}.log`
+
+## 📚 Documentación
+- `/docs/DEPLOYMENT_LOG.md`: Registro de despliegues
+- `/docs/PROYECTO.md`: Estructura del proyecto
+- `/docs/DESARROLLO.md`: Guías de desarrollo
+- `/nginx/README.md`: Configuración de Nginx
+
+## 🔐 Seguridad
+- SSL/TLS configurado
+- Redirección HTTP a HTTPS
+- Headers de seguridad implementados
+- Certificados gestionados por cPanel
 
 ## 🤝 Contribución
 Por favor, lee [DESARROLLO.md](docs/DESARROLLO.md) para detalles sobre nuestro código de conducta y el proceso para enviar pull requests.
