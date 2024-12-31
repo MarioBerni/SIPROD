@@ -580,3 +580,89 @@ autocannon -c 100 -d 30 http://localhost:4000/api/endpoint
 -- pgbench para PostgreSQL
 pgbench -i -s 50 siprod
 pgbench -c 10 -j 2 -T 60 siprod
+```
+
+## 🚀 Guía de Optimizaciones
+
+## 🎯 Frontend
+
+### Next.js
+- Server Components por defecto
+- Client Components solo cuando sea necesario
+- Lazy loading para componentes pesados
+- Optimización automática de imágenes
+
+### Bundle Size
+```typescript
+// Lazy loading de componentes
+const Chart = dynamic(() => import('@/components/Chart'), {
+  loading: () => <Skeleton />,
+  ssr: false
+});
+
+// Import específicos
+import { Button } from '@mui/material/Button';
+import { format } from 'date-fns/format';
+```
+
+### Caching
+- ISR para páginas semi-estáticas
+- Revalidación bajo demanda
+- Redis para datos frecuentes
+- Service Worker para offline
+
+## ⚡ Backend
+
+### Base de Datos
+- Índices optimizados
+- Queries eficientes
+- Connection pooling
+- Caché de consultas
+
+### API
+- Rate limiting
+- Compression
+- ETags
+- Response caching
+
+## 📊 Monitoreo
+
+### Métricas
+- Lighthouse scores
+- Core Web Vitals
+- API response times
+- Error rates
+
+### Performance Budget
+- JS: < 300KB
+- CSS: < 100KB
+- Imágenes: < 500KB
+- TTI: < 3.5s
+
+## 🔧 DevOps
+
+### Build
+- Minificación
+- Tree shaking
+- Code splitting
+- Asset optimization
+
+### CI/CD
+- Cache de dependencias
+- Build incrementales
+- Tests paralelos
+- Deploy atómicos
+
+## 📱 Mobile
+
+### Responsive
+- Mobile-first design
+- Adaptive loading
+- Optimización de imágenes
+- Touch targets óptimos
+
+### PWA
+- Service Workers
+- App Shell
+- Offline first
+- Push notifications

@@ -481,3 +481,78 @@ npm install pm2 -g
 pm2 reload all
 sudo systemctl restart nginx
 ```
+
+## 🛠️ Guía de Operaciones
+
+## 📋 Infraestructura
+
+### Producción
+- **Servidor**: cPanel VPS
+- **Dominio**: siprod.uy
+- **SSL**: Let's Encrypt
+- **Base de Datos**: PostgreSQL 15
+- **Cache**: Redis 7
+- **Process Manager**: PM2
+
+### Staging
+- **Servidor**: Desarrollo local
+- **URL**: localhost:3000
+- **SSL**: No requerido
+- **Base de Datos**: PostgreSQL 15 local
+- **Cache**: Redis local
+
+## 🚀 Despliegue
+
+### Preparación
+1. Verificar variables de entorno
+2. Validar conexiones de base de datos
+3. Comprobar espacio en disco
+4. Backup de datos críticos
+
+### Proceso de Despliegue
+```bash
+# 1. Detener servicios
+pm2 stop all
+
+# 2. Pull cambios
+git pull origin main
+
+# 3. Instalar dependencias
+pnpm install
+
+# 4. Build
+pnpm build
+
+# 5. Migraciones BD
+pnpm prisma migrate deploy
+
+# 6. Reiniciar servicios
+pm2 start
+```
+
+### Verificación Post-Despliegue
+1. Verificar logs de PM2
+2. Comprobar endpoints de salud
+3. Validar funcionalidades críticas
+4. Monitorear métricas
+
+## 🔒 Seguridad
+
+### Firewall (CSF)
+```bash
+# Puertos permitidos
+- 80/443 (HTTP/HTTPS)
+- 22 (SSH)
+- 5432 (PostgreSQL)
+- 6379 (Redis)
+```
+
+### SSL/TLS
+- Certificados Let's Encrypt
+- Renovación automática
+- Configuración A+ en SSL Labs
+
+### Backups
+- Base de datos: Diario
+- Archivos: Semanal
+- Retención: 30 días
