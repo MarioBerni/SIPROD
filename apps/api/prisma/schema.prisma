@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -10,13 +10,18 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
-  email     String   @unique
   username  String   @unique
   password  String
-  fullName  String   @map("full_name")
-  role      String   @default("USER")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  email     String   @unique
+  fullName  String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 
   @@map("User")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
