@@ -74,7 +74,27 @@ git clone [URL_DEL_REPOSITORIO]
 cd SIPROD
 ```
 
-2. Instalar dependencias:
+2. Instalar dependencias:Password for 'https://Mario Berni@github.com':
+remote: Enumerating objects: 64, done.
+remote: Counting objects: 100% (64/64), done.
+remote: Compressing objects: 100% (13/13), done.
+remote: Total 36 (delta 23), reused 36 (delta 23), pack-reused 0 (from 0)
+Unpacking objects: 100% (36/36), 20.12 KiB | 321.00 KiB/s, done.
+From https://github.com/MarioBerni/SIPROD
+ * branch            main       -> FETCH_HEAD
+   5c09c3b..83d82c1  main       -> origin/main
+Updating 5c09c3b..83d82c1
+error: Your local changes to the following files would be overwritten by merge:
+        apps/api/logs/combined.log
+        apps/api/src/index.ts
+        ecosystem.config.js
+        nginx/siprod.conf
+        pnpm-lock.yaml
+Please commit your changes or stash them before you merge.
+Aborting
+[d5baf91c@179-27-203-219 siprod]$
+
+EX
 ```bash
 pnpm install
 ```
