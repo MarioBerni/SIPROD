@@ -3,6 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Box,
+  Container,
+} from '@mui/material';
 
 interface LoginFormData {
   username: string;
@@ -48,62 +58,76 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            SIPROD
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sistema de Gestión de Resultados Policiales y Recursos
-          </p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Usuario
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+    <Container component="main" maxWidth={false} disableGutters sx={{ 
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      bgcolor: 'grey.100'
+    }}>
+      <Card sx={{ width: 350, p: 2 }}>
+        <CardContent>
+          <Box sx={{ mb: 3, textAlign: 'center' }}>
+            <Typography variant="h5" component="h1" gutterBottom>
+              SIPROD
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Sistema de Gestión de Resultados Policiales y Recursos
+            </Typography>
+          </Box>
+          
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                id="username"
+                name="username"
+                label="Usuario"
+                variant="outlined"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                size="small"
+              />
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                id="password"
+                name="password"
+                label="Contraseña"
+                type="password"
+                variant="outlined"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                size="small"
+              />
+            </Box>
+
+            {error && (
+              <Box sx={{ mb: 2 }}>
+                <Alert severity="error">
+                  {error}
+                </Alert>
+              </Box>
+            )}
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
               disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm">{error}</div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-          >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </button>
-        </form>
-      </div>
-    </div>
+              sx={{ mt: 2 }}
+            >
+              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </Container>
   );
 }

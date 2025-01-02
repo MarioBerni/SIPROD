@@ -3,8 +3,10 @@ import { jwtVerify, SignJWT } from 'jose';
 
 // Función para obtener la clave JWT de manera consistente
 const getJwtSecret = () => {
-  // En el cliente, usamos una clave hardcodeada que debe coincidir con el backend
-  return new TextEncoder().encode('siprod_jwt_dev_secret_2025!');
+  if (!process.env.NEXT_PUBLIC_JWT_SECRET) {
+    throw new Error('NEXT_PUBLIC_JWT_SECRET must be defined in environment variables');
+  }
+  return new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 };
 
 export async function signToken(payload: { id: string; role: string }) {

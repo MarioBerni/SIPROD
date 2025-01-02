@@ -79,26 +79,87 @@ app.post('/api/users', validateBody(userSchema), createUser);
 
 ## 🧪 Testing
 
-### Jest + React Testing Library
+### Configuración con Turborepo
+El proyecto utiliza Turborepo para gestionar los tests en todo el monorepo, permitiendo una ejecución eficiente y paralela de los tests en todos los paquetes.
+
+#### Ejecutar Tests
+Para ejecutar todos los tests del monorepo:
+```bash
+pnpm test
+```
+
+Este comando utilizará Turborepo para:
+- Ejecutar tests en paralelo
+- Cachear resultados para ejecuciones más rápidas
+- Manejar dependencias entre paquetes
+
+#### Estructura de Tests
+
+##### Frontend (@siprod/web)
+- Framework: Jest + React Testing Library
+- Configuración: `apps/web/jest.config.js`
+- Setup: `apps/web/jest.setup.js`
+- Ubicación: `apps/web/src/tests`
+
+Ejemplo de test de componente:
 ```typescript
-describe('UserComponent', () => {
-  it('renders user information', () => {
-    render(<UserComponent user={mockUser} />);
-    expect(screen.getByText(mockUser.name)).toBeInTheDocument();
+import { render, screen } from '@testing-library/react';
+import Header from '@/components/Header';
+
+describe('Header Component', () => {
+  it('renders header with title', () => {
+    render(<Header />);
+    const titleElement = screen.getByText(/SIPROD/i);
+    expect(titleElement).toBeInTheDocument();
   });
 });
 ```
 
-### E2E con Playwright
-```typescript
-test('user login flow', async ({ page }) => {
-  await page.goto('/login');
-  await page.fill('[name=email]', 'user@example.com');
-  await page.fill('[name=password]', 'password123');
-  await page.click('button[type=submit]');
-  await expect(page).toHaveURL('/dashboard');
-});
+##### Backend (@siprod/api)
+- Framework: Jest
+- Configuración: `apps/api/jest.config.js`
+- Ubicación: `apps/api/src/tests`
+
+##### Paquetes Compartidos
+- @siprod/ui: Tests de componentes UI compartidos
+- @siprod/utils: Tests de utilidades compartidas
+
+#### Scripts Disponibles
+```bash
+# Test todos los paquetes
+pnpm test
+
+# Test con watch mode (específico por paquete)
+cd apps/web
+pnpm test:watch
+
+# Test con cobertura
+pnpm test:coverage
+
+# Test paquete específico
+cd apps/api
+pnpm test
 ```
+
+#### Mejores Prácticas
+1. **Organización de Tests**
+   - Mantener los tests junto al código (`__tests__` o `*.test.ts`)
+   - Usar nombres descriptivos para los test suites
+
+2. **Testing de Componentes**
+   - Probar comportamiento, no implementación
+   - Usar queries accesibles de Testing Library
+   - Simular interacciones de usuario realistas
+
+3. **Testing de API**
+   - Probar endpoints principales
+   - Validar respuestas y códigos de estado
+   - Usar mocks para servicios externos
+
+4. **Mantenimiento**
+   - Mantener tests actualizados con cambios de código
+   - Revisar y actualizar snapshots cuando sea necesario
+   - Mantener la cobertura de código por encima del 80%
 
 ## 🔄 Control de Versiones
 

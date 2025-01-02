@@ -3,7 +3,7 @@ import axios, {
   AxiosInstance, 
   InternalAxiosRequestConfig,
 } from 'axios';
-import { removeCookie } from './utils/cookies';
+import { getCookie, removeCookie } from './utils/cookies';
 
 // Tipos
 export interface LoginData {
@@ -63,7 +63,14 @@ export const api: AxiosInstance = axios.create({
 // Interceptores
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    console.log(`Frontend - Enviando petición a: ${config.url}`);
+    const token = getCookie('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log(`Frontend - Enviando petición a: ${config.url}`, {
+      headers: config.headers,
+      withCredentials: config.withCredentials
+    });
     return config;
   },
   (error) => {
@@ -73,7 +80,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     console.error('Frontend - Error detallado:', {
       error,
       status: error.response?.status,
@@ -81,8 +88,15 @@ api.interceptors.response.use(
     });
     
     if (error.response?.status === 401) {
-      // Limpiar cookie y estado de autenticación
-      removeCookie('token');
+      // Solo limpiar cookie y redirigir si no estamos en una ruta de autenticación
+      const isAuthRoute = window.location.pathname.includes('/login') || 
+                         window.location.pathname === '/' ||
+                         error.config?.url?.includes('/auth/');
+                         
+      if (!isAuthRoute) {
+        removeCookie('token');
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

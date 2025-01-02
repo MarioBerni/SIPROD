@@ -45,8 +45,9 @@ export class AuthController {
       res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
+        domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : undefined,
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
 
@@ -76,7 +77,8 @@ export class AuthController {
 
   async validateToken(req: Request, res: Response): Promise<void> {
     try {
-      const token = req.cookies.token;
+      // Intentar obtener el token de la cookie o del header
+      const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
       
       if (!token) {
         throw new ApiError(401, 'Token no proporcionado');
@@ -97,26 +99,27 @@ export class AuthController {
         throw new ApiError(401, 'Usuario no encontrado');
       }
 
+      // Si llegamos aquí, el token es válido
       res.json({
         valid: true,
         user: {
           id: user.id,
           username: user.username,
           email: user.email,
-          role: user.role || 'USER'
+          role: user.role
         }
       });
     } catch (error) {
-      logger.error('Error en validación de token:', error);
+      logger.error('Error en validateToken:', error);
       if (error instanceof ApiError) {
-        res.status(error.statusCode).json({
+        res.status(error.statusCode).json({ 
           valid: false,
-          message: error.message
+          message: error.message 
         });
       } else {
-        res.status(500).json({
+        res.status(401).json({ 
           valid: false,
-          message: 'Error interno del servidor'
+          message: 'Token inválido o expirado' 
         });
       }
     }

@@ -2,6 +2,11 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFiles: ['./jest.setup.js'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1'
+  },
+  testMatch: ['**/*.test.ts'],
   coverageThreshold: {
     global: {
       branches: 0,
@@ -12,7 +17,7 @@ module.exports = {
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.json'
+      tsconfig: './tsconfig.json'
     }]
   }
 };

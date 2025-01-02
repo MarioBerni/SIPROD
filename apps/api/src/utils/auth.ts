@@ -1,8 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { logger } from './logger';
 
-// Usar la misma clave que el frontend
-const JWT_SECRET = new TextEncoder().encode('siprod_jwt_dev_secret_2025!');
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be defined in environment variables');
+}
+
+// Usar la clave JWT desde las variables de entorno
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function generateToken(user: { id: string; role?: string }): Promise<string> {
   logger.info('Generando token para usuario:', { id: user.id, role: user.role || 'USER' });

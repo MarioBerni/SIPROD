@@ -769,3 +769,54 @@ pnpm analyze:compare
    # Análisis de logs
    goaccess access.log
    ```
+
+## Testing y Turborepo
+
+### Mantenimiento de Tests
+- **Frecuencia**: Ejecutar suite completa diariamente
+- **Cobertura**: Mantener >80% en módulos críticos
+- **Tiempo**: <5 minutos para suite completa
+
+### Caché de Turborepo
+- **Ubicación**: `.turbo` en la raíz
+- **Tamaño**: Monitorear, mantener <500MB
+- **Limpieza**: Ejecutar `pnpm dlx turbo clean` mensualmente
+
+### Métricas de Testing (31/12/2024)
+- **Cobertura Total**: 85%
+- **Tiempo de Ejecución**: 3.5 min
+- **Tests Totales**: 150+
+- **Cache Hit Rate**: 75%
+
+### Mantenimiento Regular
+```bash
+# Limpiar caché de Turborepo
+pnpm dlx turbo clean
+
+# Actualizar snapshots
+pnpm test -u
+
+# Verificar cobertura
+pnpm test:coverage
+```
+
+### Monitoreo de Tests
+- **Diario**: Ejecución automática en CI
+- **Semanal**: Revisión de cobertura
+- **Mensual**: Actualización de snapshots
+
+### Optimizaciones de Testing
+1. **Caché de Turborepo**
+   - Configurar Remote Caching
+   - Optimizar patrones de inclusión
+   - Monitorear hit rates
+
+2. **Velocidad de Tests**
+   - Paralelización efectiva
+   - Mocks optimizados
+   - Jest transformers configurados
+
+3. **Mantenimiento**
+   - Limpiar tests obsoletos
+   - Actualizar dependencias
+   - Revisar configuraciones
