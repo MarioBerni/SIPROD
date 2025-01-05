@@ -33,7 +33,7 @@ SIPROD/
 ## 🛠️ Tecnologías Principales
 ### Frontend
 - Next.js 14 (Framework React)
-- TailwindCSS (Estilos)
+- Emotion-styled (Estilos)
 - TypeScript (Lenguaje)
 - Material-UI (Componentes)
 
@@ -213,4 +213,4 @@ Este proyecto está bajo licencia privada - ver el archivo [LICENSE](LICENSE) pa
 - [Documentación de Next.js](https://nextjs.org/docs)
 - [Documentación de Express](https://expressjs.com/)
 - [Documentación de Prisma](https://www.prisma.io/docs)
-- [Guía de TailwindCSS](https://tailwindcss.com/docs)
+- [Guía de MaterialMUI](https://mui.com/material-ui/)

@@ -13,7 +13,8 @@ SIPROD (Sistema de Gestión de Resultados Policiales y Recursos) es una platafor
 
 ### Frontend
 - Next.js 14
-- TailwindCSS
+- MaterialUI
+- Emotion-styled
 - TypeScript
 - React Query
 - Zustand
@@ -29,7 +30,30 @@ SIPROD (Sistema de Gestión de Resultados Policiales y Recursos) es una platafor
 - GitHub Actions
 - Nginx
 - PM2
-- Docker (desarrollo)
+
+## 🎨 Frontend
+
+### Estructura de Componentes
+```
+src/
+├── components/        # Componentes reutilizables
+│   ├── common/       # Componentes comunes (botones, inputs, etc.)
+│   ├── dashboard/    # Componentes específicos del dashboard
+│   └── layout/       # Componentes de estructura (header, sidebar, etc.)
+├── theme/            # Configuración del tema MaterialUI
+├── hooks/            # Custom hooks
+└── utils/            # Utilidades y helpers
+```
+
+### Estilos y Tema
+- MaterialUI para componentes base
+- Emotion-styled para estilos personalizados
+- Tema personalizado con colores institucionales
+
+### Gestión de Estado
+- React Context para estado global
+- Custom hooks para lógica reutilizable
+- Estado local con useState donde sea apropiado
 
 ## 📁 Estructura del Proyecto
 

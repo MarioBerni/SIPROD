@@ -1,22 +1,24 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { FormLabel } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(
-      "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-      className
-    )}
-    {...props}
-  />
-))
-Label.displayName = LabelPrimitive.Root.displayName
+const StyledLabel = styled(FormLabel)(({ theme }) => ({
+  fontSize: theme.typography.body2.fontSize,
+  fontWeight: theme.typography.fontWeightMedium,
+  color: theme.palette.text.primary,
+  '&.Mui-disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.7,
+  }
+}));
 
-export { Label }
+const Label = React.forwardRef<HTMLLabelElement, React.ComponentProps<typeof FormLabel>>(
+  (props, ref) => (
+    <StyledLabel ref={ref} {...props} />
+  )
+);
+Label.displayName = 'Label';
+
+export { Label };

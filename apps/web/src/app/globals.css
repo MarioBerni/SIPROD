@@ -1,13 +1,54 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+/* Variables globales */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+  --primary-main: #1a3b6e;
+  --primary-light: #234c8d;
+  --primary-dark: #112845;
+  --secondary-main: #2c3e50;
+  --background: #f8fafc;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+/* Estilos de scroll personalizados */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-main);
+}
+
+/* Utilidades globales */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

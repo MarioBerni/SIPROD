@@ -23,6 +23,93 @@ cp .env.example .env
 pnpm dev
 ```
 
+## 🎨 Guía de Diseño y Estilos
+
+### Sistema de Diseño
+SIPROD utiliza MaterialUI con emotion-styled, diseñado específicamente para entornos policiales y ministeriales.
+
+### Paleta de Colores
+```typescript
+// Tema MaterialUI
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1a3b6e', // Azul institucional
+      light: '#234c8d',
+      dark: '#112845',
+    },
+    secondary: {
+      main: '#2c3e50', // Gris azulado profesional
+      light: '#34495e',
+      dark: '#243342',
+    },
+    success: {
+      main: '#2d5a27', // Verde institucional
+      light: '#367d30',
+      dark: '#1e3d1a',
+    },
+    warning: {
+      main: '#8b4513', // Marrón alerta
+      light: '#a0522d',
+      dark: '#723a0f',
+    },
+    error: {
+      main: '#7b1818', // Rojo institucional
+      light: '#8f1d1d',
+      dark: '#671313',
+    }
+  }
+});
+```
+
+### Tipografía
+- Fuente principal: Roboto (integrada con MaterialUI)
+- Tamaños predefinidos a través del tema de MaterialUI
+
+### Componentes UI
+
+#### Botones
+```tsx
+// Variantes disponibles de MaterialUI
+<Button variant="contained" color="primary">Acción Principal</Button>
+<Button variant="outlined" color="warning">Revisar</Button>
+```
+
+#### Tarjetas
+```tsx
+// Ejemplo de uso de Card de MaterialUI
+<Card>
+  <CardHeader
+    title="Título"
+    subheader="Descripción"
+  />
+  <CardContent>Contenido</CardContent>
+  <CardActions>Acciones</CardActions>
+</Card>
+```
+
+### Mejores Prácticas de UI/UX
+
+1. **Jerarquía Visual**
+   - Usar variantes contained para acciones principales
+   - Reservar colores de warning y error para alertas importantes
+   - Mantener consistencia en el espaciado usando theme.spacing
+
+2. **Responsividad**
+   - Usar el sistema de Grid de MaterialUI
+   - Implementar breakpoints de MaterialUI
+   - Utilizar hooks como useMediaQuery para lógica responsive
+
+3. **Accesibilidad**
+   - Usar componentes semánticos de MaterialUI
+   - Mantener contraste adecuado siguiendo el tema
+   - Asegurar navegación por teclado
+
+4. **Consistencia**
+   - Usar componentes de MaterialUI
+   - Mantener espaciado consistente con theme.spacing
+   - Seguir la paleta de colores del tema
+
 ## 📝 Estándares de Código
 
 ### TypeScript
@@ -229,3 +316,4 @@ useEffect(() => {
 - [Prisma Docs](https://www.prisma.io/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs)
 - [Testing Library](https://testing-library.com/docs)
+- [Documentación de MaterialUI](https://mui.com/material-ui/getting-started/overview/)
