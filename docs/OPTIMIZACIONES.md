@@ -1,668 +1,279 @@
-# ⚡ Guía de Optimización y Rendimiento
+# Optimizaciones - SIPROD
 
-> Este documento proporciona guías detalladas para la optimización del rendimiento, mejoras de velocidad y eficiencia del proyecto SIPROD.
+## Objetivo
+Ofrecer un recetario de técnicas y consejos para mejorar el rendimiento y la escalabilidad de SIPROD en todos sus frentes (frontend, backend, base de datos e infraestructura).
 
-# Guía de Optimizaciones SIPROD
+## Función
+- Enumerar optimizaciones de Next.js (code splitting, lazy loading, RSC, caching).
+- Indicar mejoras de Express (gzip, rate limiting avanzado, logging de rendimiento).
+- Describir patrones de caché y monitoreo (Redis, PM2, Prometheus/Grafana).
 
-## Configuración del Bundle Analyzer
+## 🌐 Frontend
 
-Para analizar el tamaño del bundle:
-
-```bash
-# Generar reporte
-ANALYZE=true pnpm build
-
-# Ver reporte
-open apps/web/.next/analyze/client.html
-```
-
-## Lazy Loading de Componentes
-
-### Configuración Básica
+### Next.js
 ```typescript
-// optimization.ts
-import { lazy } from 'react';
+// Code Splitting
+const DynamicComponent = dynamic(() => import('./Heavy'), {
+  loading: () => <Loading />,
+  ssr: false
+});
 
-const DashboardLayout = lazy(() => import('@siprod/ui').then(mod => ({ 
-  default: mod.DashboardLayout 
-})));
+// Image Optimization
+<Image
+  src="/large.jpg"
+  width={800}
+  height={600}
+  placeholder="blur"
+  priority={true}
+/>
+
+// React Server Components
+async function ServerComponent() {
+  const data = await getData();
+  return <div>{data}</div>;
+}
 ```
 
-### Preload de Componentes
+### React Query
 ```typescript
-// optimization.ts
-export const preloadComponents = (components: string[]) => {
-  components.forEach((component) => {
-    const importFn = dynamicImports[component];
-    importFn.preload?.();
-  });
-};
+// Optimized Data Fetching
+const { data } = useQuery({
+  queryKey: ['user', id],
+  queryFn: () => getUser(id),
+  staleTime: 5 * 60 * 1000,
+  cacheTime: 30 * 60 * 1000
+});
+
+// Prefetching
+await queryClient.prefetchQuery({
+  queryKey: ['user', id],
+  queryFn: () => getUser(id)
+});
 ```
 
-## Optimización de Webpack
-
-### Split Chunks
+### Bundle Size
 ```javascript
-// next.config.js
+// Next.js Config
 module.exports = {
   webpack: (config) => {
-    config.optimization.splitChunks = {
-      chunks: 'all',
-      minSize: 20000,
-      maxSize: 70000,
-      minChunks: 1,
-      maxAsyncRequests: 30,
-      maxInitialRequests: 30,
-      cacheGroups: {
-        common: {
-          name: 'common',
-          minChunks: 2,
-          priority: 10,
-          reuseExistingChunk: true,
-          enforce: true
-        },
-        components: {
-          name: 'components',
-          test: /[\\/]components[\\/]/,
-          minChunks: 1,
-          priority: 20,
-        },
-        vendor: {
-          name: 'vendor',
-          test: /[\\/]node_modules[\\/]/,
-          priority: 30,
-          reuseExistingChunk: true
-        }
-      }
-    };
+    config.optimization.splitChunks.chunks = 'all';
     return config;
-  }
-};
-```
-
-## Tipado Estricto
-
-### Analytics Provider
-```typescript
-type GTagEvent = {
-  event_category?: string;
-  event_label?: string;
-  value?: number;
-  [key: string]: unknown;
-};
-
-interface AnalyticsContextType {
-  trackEvent: (eventName: string, properties?: GTagEvent) => void;
-  trackPageView: (path: string) => void;
-}
-```
-
-## Caché y Headers
-
-### Recursos Estáticos
-```javascript
-// next.config.js
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/:all*(svg|jpg|png)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      }
-    ];
-  }
-};
-```
-
-## Mejores Prácticas
-
-1. **Code Splitting**
-   - Usar dynamic imports para rutas
-   - Implementar lazy loading para componentes grandes
-   - Configurar preload para componentes críticos
-
-2. **Optimización de Bundle**
-   - Monitorear tamaño del bundle con analyzer
-   - Mantener chunks pequeños (< 70KB)
-   - Separar código común en chunks reutilizables
-
-3. **Tipado**
-   - Evitar `any` types
-   - Usar interfaces específicas
-   - Implementar type guards cuando sea necesario
-
-4. **Caché**
-   - Configurar caché para recursos estáticos
-   - Implementar estrategias de revalidación
-   - Usar stale-while-revalidate cuando sea apropiado
-
-## Métricas y Monitoreo
-
-### Métricas Clave
-- First Contentful Paint (FCP)
-- Largest Contentful Paint (LCP)
-- Time to Interactive (TTI)
-- First Input Delay (FID)
-
-### Herramientas
-- Lighthouse
-- Web Vitals
-- Bundle Analyzer
-- Chrome DevTools Performance
-
-## Próximos Pasos
-
-1. Implementar React Server Components
-2. Optimizar rutas dinámicas
-3. Mejorar estrategias de caché
-4. Implementar remote caching para CI/CD
-5. Analizar y optimizar dependencias
-
-## Índice
-1. [Frontend](#frontend)
-2. [Backend](#backend)
-3. [Base de Datos](#base-de-datos)
-4. [Infraestructura](#infraestructura)
-5. [Monitoreo](#monitoreo)
-
-## Frontend
-
-### Next.js Optimizaciones
-
-#### 1. Server Components
-```typescript
-// Usar Server Components por defecto
-// pages/dashboard.tsx
-export default async function Dashboard() {
-  const data = await fetchData() // Directamente en el componente
-  return <DashboardLayout data={data} />
-}
-```
-
-#### 2. Bundle Size
-```javascript
-// next.config.js
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true'
-})
-
-module.exports = withBundleAnalyzer({
-  swcMinify: true,
+  },
   experimental: {
     optimizeCss: true,
-    optimizeImages: true,
-    optimizeFonts: true
+    optimizeImages: true
   }
-})
+};
 ```
 
-#### 3. Image Optimization
+## 🔧 Backend
+
+### Express
 ```typescript
-import Image from 'next/image'
-
-export default function OptimizedImage() {
-  return (
-    <Image
-      src="/large-image.jpg"
-      alt="Optimized"
-      width={800}
-      height={600}
-      placeholder="blur"
-      priority={true}
-    />
-  )
-}
-```
-
-#### 4. Code Splitting
-```typescript
-// Lazy loading de componentes pesados
-const HeavyComponent = dynamic(() => import('../components/Heavy'), {
-  loading: () => <LoadingSpinner />,
-  ssr: false
-})
-```
-
-### React Optimizaciones
-
-#### 1. Memo y Callbacks
-```typescript
-import { memo, useCallback } from 'react'
-
-const ExpensiveComponent = memo(({ onAction }) => {
-  return <button onClick={onAction}>Action</button>
-})
-
-const Parent = () => {
-  const handleAction = useCallback(() => {
-    // Lógica
-  }, [])
-
-  return <ExpensiveComponent onAction={handleAction} />
-}
-```
-
-#### 2. Virtual Scrolling
-```typescript
-import { VirtualList } from '@tanstack/virtual-core'
-
-function VirtualizedList({ items }) {
-  return (
-    <VirtualList
-      height={400}
-      itemCount={items.length}
-      itemSize={50}
-      width={600}
-    >
-      {({ index, style }) => (
-        <div style={style}>{items[index]}</div>
-      )}
-    </VirtualList>
-  )
-}
-```
-
-## Backend
-
-### Express Optimizaciones
-
-#### 1. Compression
-```typescript
-import compression from 'compression'
-
+// Compression
 app.use(compression({
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) return false
-    return compression.filter(req, res)
-  },
-  level: 6
-}))
-```
+  level: 6,
+  threshold: 100 * 1000
+}));
 
-#### 2. Caching
-```typescript
-import { createClient } from 'redis'
-
-const redis = createClient()
-
-async function cacheMiddleware(req, res, next) {
-  const key = req.originalUrl
-  const cached = await redis.get(key)
-  
-  if (cached) {
-    return res.json(JSON.parse(cached))
-  }
-  
-  res.sendResponse = res.json
-  res.json = (body) => {
-    redis.setEx(key, 3600, JSON.stringify(body))
-    res.sendResponse(body)
-  }
-  
-  next()
-}
-```
-
-#### 3. Rate Limiting
-```typescript
-import rateLimit from 'express-rate-limit'
-
+// Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite por IP
-  message: 'Too many requests'
-})
-
-app.use('/api/', limiter)
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
 ```
 
-### Node.js Optimizaciones
-
-#### 1. Cluster Mode
+### Caching
 ```typescript
-import cluster from 'cluster'
-import os from 'os'
-
-if (cluster.isPrimary) {
-  const numCPUs = os.cpus().length
+// Redis Cache
+const getUser = async (id: string) => {
+  const cacheKey = `user:${id}`;
+  const cached = await redis.get(cacheKey);
   
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork()
-  }
+  if (cached) return JSON.parse(cached);
   
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} died`)
-    cluster.fork()
-  })
-} else {
-  // Aplicación
-}
+  const user = await prisma.user.findUnique({ where: { id } });
+  await redis.set(cacheKey, JSON.stringify(user), 'EX', 3600);
+  
+  return user;
+};
 ```
 
-#### 2. Memory Management
+### Logging
 ```typescript
-// Configuración de PM2
-module.exports = {
-  apps: [{
-    name: 'api',
-    script: 'dist/index.js',
-    instances: 'max',
-    exec_mode: 'cluster',
-    max_memory_restart: '1G',
-    node_args: '--max-old-space-size=2048'
-  }]
-}
+// Winston Configuration
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ 
+      filename: 'error.log',
+      level: 'error',
+      maxsize: 5242880
+    })
+  ]
+});
 ```
 
-## Base de Datos
+## 📊 Base de Datos
 
-### PostgreSQL Optimizaciones
-
-#### 1. Índices
-```sql
--- Índices para búsquedas frecuentes
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_reports_date ON reports(created_at);
-
--- Índices parciales
-CREATE INDEX idx_active_users 
-ON users(id) 
-WHERE active = true;
-
--- Índices compuestos
-CREATE INDEX idx_reports_user_date 
-ON reports(user_id, created_at);
-```
-
-#### 2. Particionamiento
-```sql
--- Particionar por fecha
-CREATE TABLE reports (
-    id SERIAL,
-    created_at TIMESTAMP,
-    data JSONB
-) PARTITION BY RANGE (created_at);
-
--- Crear particiones
-CREATE TABLE reports_2024_q1 PARTITION OF reports
-FOR VALUES FROM ('2024-01-01') TO ('2024-04-01');
-```
-
-#### 3. Query Optimization
-```sql
--- Analizar queries lentas
-SELECT 
-    (total_time / 1000 / 60) as total_minutes,
-    (total_time/calls) as avg_time,
-    calls,
-    query
-FROM pg_stat_statements
-ORDER BY avg_time DESC
-LIMIT 10;
-
--- Vacuum regular
-VACUUM ANALYZE;
-```
-
-### Prisma Optimizaciones
-
-#### 1. Batch Operations
+### Prisma
 ```typescript
-// Usar createMany en lugar de múltiples create
-await prisma.user.createMany({
-  data: users,
-  skipDuplicates: true
-})
-
-// Transacciones para operaciones múltiples
-await prisma.$transaction([
-  prisma.user.create({ data: userData }),
-  prisma.profile.create({ data: profileData })
-])
-```
-
-#### 2. Query Optimization
-```typescript
-// Seleccionar solo campos necesarios
-const users = await prisma.user.findMany({
+// Optimized Queries
+const user = await prisma.user.findUnique({
+  where: { id },
   select: {
     id: true,
     name: true,
     email: true
   }
-})
+});
 
-// Usar includes con cuidado
-const user = await prisma.user.findUnique({
-  where: { id },
-  include: {
-    posts: {
-      take: 5,
-      orderBy: { createdAt: 'desc' }
-    }
-  }
-})
+// Batch Operations
+const users = await prisma.user.createMany({
+  data: newUsers,
+  skipDuplicates: true
+});
 ```
 
-## Infraestructura
+### Índices
+```sql
+-- Índices Compuestos
+CREATE INDEX idx_user_email_role 
+ON users(email, role);
 
-### Nginx Optimizaciones
+-- Índices Parciales
+CREATE INDEX idx_active_users 
+ON users(email) 
+WHERE active = true;
+```
 
-#### 1. Caching
-```nginx
-# /etc/nginx/nginx.conf
-http {
-    proxy_cache_path /path/to/cache levels=1:2 keys_zone=my_cache:10m max_size=10g inactive=60m use_temp_path=off;
-    
-    server {
-        location / {
-            proxy_cache my_cache;
-            proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
-            proxy_cache_valid 200 60m;
-        }
+### Optimización
+```sql
+-- Vacuum y Analyze
+VACUUM ANALYZE users;
+
+-- Reindex
+REINDEX TABLE users;
+
+-- Monitoreo de Queries
+SELECT * FROM pg_stat_statements 
+ORDER BY total_exec_time DESC 
+LIMIT 10;
+```
+
+## 📈 Monitoreo
+
+### Prometheus
+```typescript
+// Métricas Personalizadas
+const requestDuration = new prometheus.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code']
+});
+
+// Middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    requestDuration.observe({
+      method: req.method,
+      route: req.route?.path,
+      status_code: res.statusCode
+    }, duration / 1000);
+  });
+  next();
+});
+```
+
+### Grafana
+```yaml
+# Dashboard Config
+panels:
+  - title: API Response Time
+    type: graph
+    datasource: Prometheus
+    targets:
+      - expr: rate(http_request_duration_seconds_sum[5m])
+  
+  - title: Error Rate
+    type: gauge
+    datasource: Prometheus
+    targets:
+      - expr: sum(rate(http_requests_total{status=~"5.."}[5m]))
+```
+
+## 🔄 CI/CD
+
+### GitHub Actions
+```yaml
+# Build Optimization
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Build
+        run: pnpm build
+```
+
+### Turborepo
+```json
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
+  }
 }
 ```
 
-#### 2. Gzip Compression
-```nginx
-gzip on;
-gzip_comp_level 5;
-gzip_min_length 256;
-gzip_proxied any;
-gzip_vary on;
-gzip_types
-  application/javascript
-  application/json
-  application/x-javascript
-  text/css
-  text/javascript
-  text/plain;
-```
-
-### Redis Optimizaciones
-
-#### 1. Configuración
-```bash
-# redis.conf
-maxmemory 2gb
-maxmemory-policy allkeys-lru
-appendonly yes
-appendfsync everysec
-```
-
-#### 2. Patrones de Uso
-```typescript
-// Cachear resultados con TTL
-await redis.setEx('key', 3600, JSON.stringify(data))
-
-// Pipeline para múltiples operaciones
-const pipeline = redis.pipeline()
-keys.forEach(key => pipeline.get(key))
-const results = await pipeline.exec()
-```
-
-## Monitoreo
-
-### Métricas Clave
-
-#### 1. Frontend
-- Time to First Byte (TTFB)
-- First Contentful Paint (FCP)
-- Largest Contentful Paint (LCP)
-- Cumulative Layout Shift (CLS)
-- First Input Delay (FID)
-
-#### 2. Backend
-- Response Time
-- Error Rate
-- Request Rate
-- CPU Usage
-- Memory Usage
-
-#### 3. Base de Datos
-- Query Performance
-- Connection Pool Usage
-- Cache Hit Ratio
-- Index Usage
-- Table Size
-
-### Herramientas de Monitoreo
-
-#### 1. PM2
-```bash
-# Monitoreo en tiempo real
-pm2 monit
-
-# Métricas detalladas
-pm2 plus
-```
-
-#### 2. Prometheus + Grafana
-```yaml
-# prometheus.yml
-scrape_configs:
-  - job_name: 'node'
-    static_configs:
-      - targets: ['localhost:9100']
-  - job_name: 'api'
-    static_configs:
-      - targets: ['localhost:9090']
-```
-
-## Benchmarking
-
-### Frontend
-```bash
-# Lighthouse CLI
-lighthouse https://siprod.example.com --output json --output-path ./report.json
-
-# WebPageTest
-npx webpagetest test https://siprod.example.com
-```
-
-### Backend
-```bash
-# Artillery para pruebas de carga
-artillery run load-test.yml
-
-# AutoCannon para benchmarks HTTP
-autocannon -c 100 -d 30 http://localhost:4000/api/endpoint
-```
-
-### Base de Datos
-```sql
--- pgbench para PostgreSQL
-pgbench -i -s 50 siprod
-pgbench -c 10 -j 2 -T 60 siprod
-```
-
-## 🚀 Guía de Optimizaciones
-
-## 🎯 Frontend
-
-### Next.js
-- Server Components por defecto
-- Client Components solo cuando sea necesario
-- Lazy loading para componentes pesados
-- Optimización automática de imágenes
-
-### Bundle Size
-```typescript
-// Lazy loading de componentes
-const Chart = dynamic(() => import('@/components/Chart'), {
-  loading: () => <Skeleton />,
-  ssr: false
-});
-
-// Import específicos
-import { Button } from '@mui/material/Button';
-import { format } from 'date-fns/format';
-```
-
-### Caching
-- ISR para páginas semi-estáticas
-- Revalidación bajo demanda
-- Redis para datos frecuentes
-- Service Worker para offline
-
-## ⚡ Backend
-
-### Base de Datos
-- Índices optimizados
-- Queries eficientes
-- Connection pooling
-- Caché de consultas
-
-### API
-- Rate limiting
-- Compression
-- ETags
-- Response caching
-
-## 📊 Monitoreo
-
-### Métricas
-- Lighthouse scores
-- Core Web Vitals
-- API response times
-- Error rates
-
-### Performance Budget
-- JS: < 300KB
-- CSS: < 100KB
-- Imágenes: < 500KB
-- TTI: < 3.5s
-
-## 🔧 DevOps
-
-### Build
-- Minificación
-- Tree shaking
-- Code splitting
-- Asset optimization
-
-### CI/CD
-- Cache de dependencias
-- Build incrementales
-- Tests paralelos
-- Deploy atómicos
-
 ## 📱 Mobile
 
-### Responsive
-- Mobile-first design
-- Adaptive loading
-- Optimización de imágenes
-- Touch targets óptimos
+### Responsive Design
+```typescript
+// Custom Hook
+const useResponsive = () => {
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isTablet = useMediaQuery('(min-width: 768px)');
+  return { isDesktop, isTablet };
+};
+
+// Component
+const Layout = () => {
+  const { isDesktop } = useResponsive();
+  return (
+    <div className={isDesktop ? 'desktop' : 'mobile'}>
+      {/* Content */}
+    </div>
+  );
+};
+```
 
 ### PWA
-- Service Workers
-- App Shell
-- Offline first
-- Push notifications
+```javascript
+// next.config.js
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
+});
+
+module.exports = withPWA({
+  // Next.js config
+});
+```

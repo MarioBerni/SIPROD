@@ -20,8 +20,8 @@ import { AppError } from './utils/errors';
 import routes from './routes';
 import { configureSecurityMiddleware } from './middleware/security';
 import { PrismaClient } from '@prisma/client';
+import { app as _app } from './app';
 
-const _app = express();
 const _port = env.PORT;
 const _API_PREFIX = env.API_PREFIX || '/api';
 

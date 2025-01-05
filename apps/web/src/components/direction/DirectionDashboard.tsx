@@ -24,7 +24,8 @@ const weeklyData = [
   { day: 'Dom', percentage: 95 },
 ];
 
-export default function DashboardPage() {
+
+export function DirectionDashboard() {
   const theme = useTheme();
 
   const stats = [
@@ -84,6 +85,7 @@ export default function DashboardPage() {
 
   return (
     <Container maxWidth={false} sx={{ py: 3 }}>
+      
       <Grid container spacing={3}>
         {/* Estadísticas principales */}
         {stats.map((stat, index) => (

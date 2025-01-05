@@ -15,13 +15,22 @@ interface AppError extends Error {
   status?: string;
 }
 
-const _app: Express = express();
+// Crear y configurar la instancia de Express
+const app: Express = express();
 const API_PREFIX = process.env.API_PREFIX || '/api';
 
+// Configuración de trust proxy específica para Nginx
+app.set('trust proxy', '127.0.0.1');
+console.log('TRUST PROXY CONFIG:', {
+  enabled: app.get('trust proxy'),
+  env: process.env.NODE_ENV,
+  file: __filename
+});
+
 // Middlewares básicos
-_app.use(express.json());
-_app.use(express.urlencoded({ extended: true }));
-_app.use(cookieParser()); // Agregar cookie-parser antes de CORS
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Agregar cookie-parser antes de CORS
 
 // Configuración de CORS
 const corsOptions = {
@@ -32,10 +41,10 @@ const corsOptions = {
   exposedHeaders: ['Set-Cookie']
 };
 
-_app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Configurar headers de seguridad
-_app.use((_req, res, next) => {
+app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:3000');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
@@ -43,25 +52,41 @@ _app.use((_req, res, next) => {
   next();
 });
 
-_app.use(helmet({
+app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
-_app.use(compression());
+app.use(compression());
 
-// Rate limiting
-_app.use(rateLimit({
+// Rate limiting con configuración personalizada
+app.use(rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // límite de 100 solicitudes por ventana
+  max: 100, // límite de 100 solicitudes por ventana
+  keyGenerator: (req) => {
+    // Usar la IP que Express ha resuelto basándose en nuestra configuración de trust proxy
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    console.log('Rate Limit - IP:', {
+      ip,
+      forwarded: req.headers['x-forwarded-for'],
+      real: req.connection.remoteAddress
+    });
+    return ip;
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      message: 'Demasiadas solicitudes, por favor intente más tarde',
+      nextValidRequest: new Date(Date.now() + 15 * 60 * 1000)
+    });
+  }
 }));
 
 // Métricas
-_app.use(metricsMiddleware);
-setupMetrics(_app);
+app.use(metricsMiddleware);
+setupMetrics(app);
 
 // Health Check endpoint
-_app.get(`${API_PREFIX}/health`, (_req, res) => {
+app.get(`${API_PREFIX}/health`, (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -72,7 +97,7 @@ _app.get(`${API_PREFIX}/health`, (_req, res) => {
 });
 
 // Root API endpoint
-_app.get(API_PREFIX, (_req, res) => {
+app.get(API_PREFIX, (_req, res) => {
   res.json({ 
     message: 'SIPROD API',
     version: process.env.npm_package_version || '1.0.0',
@@ -81,17 +106,17 @@ _app.get(API_PREFIX, (_req, res) => {
 });
 
 // Rutas de la API
-_app.use(API_PREFIX, router);
-_app.use(`${API_PREFIX}/auth`, authRoutes);
-_app.use(`${API_PREFIX}/users`, userRoutes);
+app.use(API_PREFIX, router);
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/users`, userRoutes);
 
 // Middleware para manejar errores 404
-_app.use((_req: Request, res: Response) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 // Middleware para manejar errores generales
-_app.use((error: AppError, _req: Request, res: Response, _next: NextFunction) => {
+app.use((error: AppError, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error no manejado:', error);
   res.status(error.statusCode || 500).json({ 
     message: 'Error interno del servidor',
@@ -100,7 +125,7 @@ _app.use((error: AppError, _req: Request, res: Response, _next: NextFunction) =>
 });
 
 // Manejador de errores
-_app.use(errorHandler);
+app.use(errorHandler);
 
-export { _app };
-export default _app;
+export { app };
+export default app;

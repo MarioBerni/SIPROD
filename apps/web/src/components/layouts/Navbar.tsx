@@ -2,10 +2,49 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { styled } from '@mui/material/styles';
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  Box,
+  useTheme
+} from '@mui/material';
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
+  boxShadow: theme.shadows[3],
+}));
+
+const StyledToolbar = styled(Toolbar)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+const LogoContainer = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const LogoutButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.common.white,
+  '&:hover': {
+    backgroundColor: theme.palette.error.dark,
+  },
+  '&:disabled': {
+    backgroundColor: theme.palette.action.disabledBackground,
+    color: theme.palette.action.disabled,
+  },
+}));
 
 export function Navbar() {
   const { logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const theme = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -19,25 +58,27 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-gray-800">SIPROD</span>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="ml-4 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-            >
-              {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar Sesión'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <StyledAppBar 
+      position="fixed" 
+      sx={{ 
+        zIndex: theme.zIndex.drawer + 1,
+        width: '100%',
+      }}
+    >
+      <StyledToolbar>
+        <LogoContainer>
+          <Typography variant="h6" component="div">
+            SIPROD
+          </Typography>
+        </LogoContainer>
+        <LogoutButton
+          variant="contained"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+        >
+          {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar Sesión'}
+        </LogoutButton>
+      </StyledToolbar>
+    </StyledAppBar>
   );
 }
