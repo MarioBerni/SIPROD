@@ -1,4 +1,5 @@
 import { PrismaClient, Rol, Grado } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient({
   datasources: {
@@ -10,11 +11,13 @@ const prisma = new PrismaClient({
 
 async function main() {
   try {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    
     // Crear usuario administrador
     const admin = await prisma.user.create({
       data: {
         correo: 'admin@siprod.gob.ar',
-        contrasenaActual: 'admin123',
+        contrasenaActual: hashedPassword,
         grado: Grado.CTE_GENERAL,
         nombre: 'Administrador del Sistema',
         rol: Rol.ADMINISTRADOR,

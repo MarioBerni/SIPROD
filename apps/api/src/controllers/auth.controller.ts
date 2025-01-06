@@ -71,10 +71,10 @@ export class AuthController {
       // Establecer cookie y enviar token en la respuesta
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const,
+        secure: true, // Siempre usar HTTPS
+        sameSite: 'strict' as const,
         path: '/',
-        domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : undefined,
+        domain: process.env.NODE_ENV === 'production' ? '.siprod.uy' : undefined,
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       };
       

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { getCookie, removeCookie, setCookie } from './cookies';
+import { getCookie, removeCookie } from './cookies';
 
 // Tipos
 export interface LoginData {
@@ -135,14 +135,9 @@ export const authApi = {
         headers: response.headers,
         data: { ...response.data, token: response.data.token ? 'HIDDEN' : undefined }
       });
-      
-      if (response.data.token) {
-        console.log('API Login - Token recibido, guardando en cookies');
-        setCookie('token', response.data.token);
-        console.log('API Login - Token guardado en cookies');
-      } else {
-        console.warn('API Login - No se recibió token en la respuesta');
-      }
+
+      // La cookie httpOnly será manejada automáticamente por el navegador
+      // No necesitamos establecerla manualmente
       
       return response.data;
     } catch (error) {

@@ -53,30 +53,19 @@ export function middleware(request: NextRequest) {
   // Si es una ruta protegida y no hay token, redirigir al login
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     if (!token) {
-      const url = new URL('/', request.url);
-      url.searchParams.set('from', pathname);
-      const response = NextResponse.redirect(url);
-      response.cookies.delete('token');
-      return response;
+      console.log('Middleware - No token found, redirecting to login');
+      return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
-  // Para rutas de API protegidas que no están en la lista explícita
-  if (pathname.startsWith('/api/') && !PUBLIC_API_ROUTES.includes(pathname)) {
-    if (!token) {
-      return new NextResponse(
-        JSON.stringify({ message: 'No autorizado' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
+  // Si hay token en la cookie, permitir acceso
+  if (token) {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  // Por defecto, redirigir al login
+  console.log('Middleware - No token found, redirecting to login');
+  return NextResponse.redirect(new URL('/', request.url));
 }
 
 // Configurar el matcher para las rutas que queremos proteger

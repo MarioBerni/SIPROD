@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi, User } from '@/lib/api';
-import { getCookie } from '@/lib/utils/cookies';
+import Cookies from 'js-cookie';
 
 interface AuthContextType {
   user: User | null;
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = async () => {
     try {
       // Verificar si hay un token antes de hacer la petición
-      const token = getCookie('token');
+      const token = Cookies.get('token');
       console.log('checkAuth - Token:', token); // Debug log
       
       if (!token) {
@@ -63,15 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (response.success) {
         setUser(response.user);
-        
-        // Verificar que el token se haya establecido correctamente
-        const token = getCookie('token');
-        console.log('login - Token after login:', token ? 'PRESENT' : 'NOT FOUND');
-        
-        if (!token) {
-          throw new Error('No se pudo establecer el token de autenticación');
-        }
-        
+        Cookies.set('token', response.token);
         router.push('/dashboard');
       } else {
         throw new Error(response.message || 'Error al iniciar sesión');
@@ -88,11 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       await authApi.logout();
+      Cookies.remove('token');
       setUser(null);
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
       // Incluso si hay error, forzamos el logout
+      Cookies.remove('token');
       setUser(null);
       router.push('/');
     } finally {
@@ -114,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider');
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
 }
