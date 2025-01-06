@@ -107,7 +107,7 @@ app.get(API_PREFIX, (_req, res) => {
 // Rutas de la API
 app.use(API_PREFIX, router);
 app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/users`, userRoutes);
+app.use(`${API_PREFIX}/user`, userRoutes);
 
 // Middleware para manejar errores 404
 app.use((_req: Request, res: Response) => {

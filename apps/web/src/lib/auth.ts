@@ -46,3 +46,15 @@ export async function getSession() {
     return null;
   }
 }
+
+// Función para verificar si el usuario está autenticado en el cliente
+export function isAuthenticated() {
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+  return !!token;
+}
+
+// Función para obtener el token del cliente
+export function getClientToken() {
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+  return token ? token.split('=')[1] : null;
+}

@@ -3,21 +3,29 @@ import { logger } from '../utils/logger';
 import { generateToken, verifyToken } from '../utils/auth';
 import { ApiError } from '../middleware/error';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 export class AuthController {
   async login(req: Request, res: Response): Promise<void> {
     try {
+      console.log('=== Inicio de proceso de login ===');
+      console.log('Headers recibidos:', req.headers);
+      console.log('Body recibido:', req.body);
+      
       const { correo, password } = req.body;
       logger.info('Datos recibidos en login:', { correo, bodyContent: req.body });
 
       // Buscar usuario usando Prisma
       logger.info('Buscando usuario en la base de datos...');
+      console.log('Buscando usuario con correo:', correo);
+      
       const user = await prisma.user.findUnique({
         where: { correo }
       });
 
+      console.log('Usuario encontrado:', user ? 'Sí' : 'No');
       logger.info('Resultado de búsqueda:', { 
         found: !!user,
         userId: user?.id,
@@ -30,9 +38,11 @@ export class AuthController {
         throw new ApiError(401, 'Credenciales inválidas');
       }
 
-      // Verificar contraseña
+      // Verificar contraseña usando bcrypt
       logger.info('Comparando contraseñas');
-      const isValidPassword = password === user.contrasenaActual;
+      console.log('Verificando contraseña para usuario:', user.correo);
+      const isValidPassword = await bcrypt.compare(password, user.contrasenaActual);
+      console.log('Contraseña válida:', isValidPassword);
       logger.info('Resultado de comparación:', { isValidPassword });
 
       if (!isValidPassword) {
@@ -49,27 +59,34 @@ export class AuthController {
 
       // Generar token
       logger.info('Generando token para usuario:', { id: user.id });
+      console.log('Generando token para usuario ID:', user.id);
       const token = await generateToken({ 
         id: user.id.toString(), 
         role: user.rol
       });
 
+      console.log('Token generado exitosamente');
       logger.info('Token generado exitosamente');
 
       // Establecer cookie y enviar token en la respuesta
-      res.cookie('token', token, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const,
         path: '/',
         domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : undefined,
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
-      });
+      };
+      
+      console.log('Configuración de cookie:', cookieOptions);
+      res.cookie('token', token, cookieOptions);
+      console.log('Cookie establecida');
 
       logger.info('Cookie establecida exitosamente');
 
-      res.json({
+      const response = {
         success: true,
+        token,
         user: {
           id: user.id,
           correo: user.correo,
@@ -78,13 +95,23 @@ export class AuthController {
           nombre: user.nombre,
           cargo: user.cargo
         }
-      });
+      };
+      
+      console.log('Enviando respuesta:', { ...response, token: 'HIDDEN' });
+      res.json(response);
     } catch (error) {
+      console.error('=== Error en proceso de login ===');
+      console.error('Error completo:', error);
       logger.error('Error en login:', error);
+      
       if (error instanceof ApiError) {
         logger.error('ApiError:', { 
           statusCode: error.statusCode, 
           message: error.message 
+        });
+        console.error('Error de API:', {
+          statusCode: error.statusCode,
+          message: error.message
         });
         res.status(error.statusCode).json({ 
           success: false, 
@@ -92,6 +119,7 @@ export class AuthController {
         });
       } else {
         logger.error('Error interno:', error);
+        console.error('Error interno del servidor:', error);
         res.status(500).json({ 
           success: false, 
           message: 'Error interno del servidor' 

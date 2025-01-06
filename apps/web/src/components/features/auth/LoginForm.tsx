@@ -8,7 +8,8 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -16,27 +17,24 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const formData = new FormData(event.currentTarget);
-      const correo = formData.get('username') as string;
-      const password = formData.get('password') as string;
-
-      if (!correo || !password) {
-        throw new Error('Por favor complete todos los campos');
-      }
-
-      // Intentar login
-      const response = await authApi.login({ correo, password });
-
+      console.log('Login Form - Enviando datos:', { correo: email, password: '***' });
+      const response = await authApi.login(email, password);
+      console.log('Login Form - Respuesta:', response);
+      
       if (response.success) {
-        // Esperar un momento para que la cookie se establezca
-        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('Login Form - Redirigiendo a dashboard');
         router.push('/dashboard');
       } else {
         setError(response.message || 'Error al iniciar sesión');
       }
-    } catch (err) {
-      setError('Error al conectar con el servidor');
-      console.error(err);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Login Form - Error:', error);
+        setError(error.message);
+      } else {
+        console.error('Login Form - Error:', error);
+        setError('Error al iniciar sesión');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +64,8 @@ export function LoginForm() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -80,6 +80,8 @@ export function LoginForm() {
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
               />
             </div>

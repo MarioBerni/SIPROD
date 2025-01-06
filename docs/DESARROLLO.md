@@ -76,6 +76,26 @@ const theme = {
 };
 ```
 
+### Componentes Material-UI
+```typescript
+// Contenedores estilizados
+const PageContainer = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  maxWidth: 1200,
+  margin: '0 auto',
+}));
+
+// Chips de estado
+const StatusChip = styled(Box)<{ status: 'active' | 'inactive' }>(({ theme, status }) => ({
+  padding: '4px 12px',
+  borderRadius: '16px',
+  backgroundColor: status === 'active' ? theme.palette.success.light : theme.palette.error.light,
+  color: status === 'active' ? theme.palette.success.dark : theme.palette.error.dark,
+  display: 'inline-block',
+  fontSize: '0.875rem',
+}));
+```
+
 ### Tipografía
 ```css
 font-family: 'Roboto', sans-serif;
@@ -83,6 +103,33 @@ font-family: 'Roboto', sans-serif;
 h1: 2rem
 h2: 1.5rem
 body: 1rem
+```
+
+### Manejo de Cookies
+```typescript
+// Configuración de cookies seguras
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' as const : 'lax' as const,
+  path: '/',
+  domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : undefined,
+  maxAge: 24 * 60 * 60 * 1000 // 24 horas
+};
+```
+
+### Manejo de Errores
+```typescript
+// Utilidad para manejo tipado de errores
+const handleError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Error desconocido';
+};
 ```
 
 ## 🧪 Testing

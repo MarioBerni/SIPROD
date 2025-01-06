@@ -28,19 +28,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Verificar si hay un token antes de hacer la petición
       const token = getCookie('token');
+      console.log('checkAuth - Token:', token); // Debug log
+      
       if (!token) {
+        console.log('checkAuth - No token found'); // Debug log
         setUser(null);
         setIsLoading(false);
         return;
       }
 
       const { valid, user } = await authApi.validateToken();
+      console.log('checkAuth - Token validation:', { valid, user }); // Debug log
+      
       if (valid && user) {
         setUser(user);
       } else {
         setUser(null);
       }
     } catch (error) {
+      console.error('checkAuth - Error:', error); // Debug log
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -50,13 +56,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (correo: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await authApi.login({ correo, password });
+      console.log('login - Attempting login for:', correo);
+      
+      const response = await authApi.login(correo, password);
+      console.log('login - Response:', { ...response, token: 'HIDDEN' });
       
       if (response.success) {
         setUser(response.user);
         
-        // Esperar un momento para asegurar que el estado se actualice
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Verificar que el token se haya establecido correctamente
+        const token = getCookie('token');
+        console.log('login - Token after login:', token ? 'PRESENT' : 'NOT FOUND');
+        
+        if (!token) {
+          throw new Error('No se pudo establecer el token de autenticación');
+        }
         
         router.push('/dashboard');
       } else {

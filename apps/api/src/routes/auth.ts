@@ -49,8 +49,7 @@ router.post('/register', [
 
 // Endpoint de validación de token
 router.get('/validate-token', asyncHandler(async (req: Request, res: Response) => {
-  await authController.validateToken(req, res);
-  return res.json({ success: true });
+  return await authController.validateToken(req, res);
 }));
 
 export default router;
