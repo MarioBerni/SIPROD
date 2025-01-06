@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { Rol } from '@prisma/client';
 
 interface TokenPayload {
   userId: string;
-  role: string;
+  rol: Rol;
 }
 
 type JwtPayload = {
   userId: string;
-  role: string;
+  rol: Rol;
   iat: number;
   exp: number;
 };
@@ -30,12 +31,12 @@ export const verifyToken = async (token: string): Promise<TokenPayload> => {
         try {
           // Verificar que el payload tenga la estructura correcta
           const payload = decoded as JwtPayload;
-          if (!payload.userId || !payload.role) {
+          if (!payload.userId || !payload.rol) {
             reject(new Error('Invalid token payload structure'));
           } else {
             resolve({
               userId: payload.userId,
-              role: payload.role
+              rol: payload.rol
             });
           }
         } catch {

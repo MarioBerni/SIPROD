@@ -1,13 +1,7 @@
 # SIPROD - Documentación Principal
 
 ## 📋 Visión General
-SIPROD (Sistema de Gestión de Resultados Policiales y Recursos) es una plataforma integral diseñada para centralizar y gestionar información policial crítica.
-
-### Objetivos Principales
-- Facilitar la toma de decisiones operativas
-- Proporcionar análisis estadístico en tiempo real
-- Gestionar eficientemente recursos humanos y materiales
-- Mejorar la coordinación entre departamentos
+SIPROD (Sistema de Gestión de Resultados Policiales y Recursos) es un monorepo que utiliza Turborepo para gestionar múltiples paquetes y aplicaciones. El proyecto está diseñado para centralizar y gestionar información policial crítica, facilitando la toma de decisiones y el análisis estadístico.
 
 ## 🏗️ Arquitectura y Estructura - SIPROD
 
@@ -22,42 +16,77 @@ Profundizar en la arquitectura y la estructura general del proyecto SIPROD. Mues
 ## 📁 Estructura del Monorepo
 
 ```
-siprod/
-├── apps/
-│   ├── api/              # Backend Express
+SIPROD/
+├── apps/                      # Aplicaciones principales
+│   ├── api/                   # Backend API
+│   │   ├── prisma/           # Esquemas y migraciones de base de datos
 │   │   ├── src/
-│   │   ├── prisma/
-│   │   └── tests/
-│   └── web/              # Frontend Next.js
-│       ├── app/
-│       ├── components/
-│       └── lib/
-├── packages/
-│   ├── ui/               # Componentes compartidos
-│   ├── utils/            # Utilidades comunes
-│   └── config/           # Configuraciones
-└── docs/                # Documentación
+│   │   │   ├── controllers/  # Controladores de la API
+│   │   │   ├── middleware/   # Middleware de autenticación y validación
+│   │   │   ├── routes/       # Definición de rutas
+│   │   │   └── test/        # Tests unitarios y de integración
+│   │   └── package.json
+│   └── web/                   # Frontend Next.js
+│       ├── src/
+│       │   ├── app/          # Páginas y rutas de Next.js
+│       │   ├── components/   # Componentes React reutilizables
+│       │   ├── services/     # Servicios de API
+│       │   └── types/        # Definiciones de tipos TypeScript
+│       └── package.json
+├── packages/                  # Paquetes compartidos
+│   ├── config/               # Configuraciones compartidas
+│   ├── tsconfig/             # Configuraciones TypeScript
+│   ├── ui/                   # Biblioteca de componentes UI
+│   └── utils/                # Utilidades compartidas
+└── docs/                     # Documentación del proyecto
 ```
 
-## 🏗 Arquitectura
+## 🏗 Componentes Principales
 
-### Frontend (Next.js 14)
-- App Router para routing y SSR
-- Material UI para componentes base
-- React Query para gestión de datos
-- Zustand para estado global
+### Backend (apps/api)
+- **controllers/**: Lógica de negocio y manejo de requests
+  - `auth.controller.ts`: Autenticación y gestión de sesiones
+  - `user.controller.ts`: Gestión de usuarios y perfiles
+  
+- **middleware/**: Funciones de middleware
+  - `auth.middleware.ts`: Validación de tokens y permisos
+  - `validation.middleware.ts`: Validación de datos de entrada
 
-### Backend (Express)
-- Arquitectura modular por dominio
-- Prisma ORM para base de datos
-- Redis para caché y sesiones
-- JWT para autenticación
+- **routes/**: Endpoints de la API
+  - `auth.ts`: Rutas de autenticación
+  - `user.ts`: Rutas de gestión de usuarios
 
-### DevOps
-- Turborepo para gestión del monorepo
-- GitHub Actions para CI/CD
-- PM2 para gestión de procesos
-- Nginx como reverse proxy
+- **prisma/**: Capa de datos
+  - `schema.prisma`: Definición del modelo de datos
+  - `migrations/`: Historial de cambios en la base de datos
+  - `seed.ts`: Datos iniciales para desarrollo
+
+### Frontend (apps/web)
+- **app/**: Páginas y rutas de Next.js
+  - `dashboard/`: Panel de control principal
+  - `profile/`: Gestión de perfil de usuario
+  - `login/`: Autenticación de usuarios
+
+- **components/**: Componentes React
+  - `features/`: Componentes específicos de funcionalidad
+  - `shared/`: Componentes reutilizables
+  - `layout/`: Componentes de estructura
+
+- **services/**: Integración con API
+  - `auth.ts`: Servicios de autenticación
+  - `user.ts`: Servicios de gestión de usuarios
+
+- **types/**: Definiciones de tipos
+  - `index.ts`: Tipos principales del sistema
+
+### Paquetes Compartidos (packages)
+- **ui/**: Componentes UI reutilizables
+  - Botones, formularios, tablas, etc.
+
+- **utils/**: Funciones utilitarias
+  - Formateo de datos
+  - Validaciones comunes
+  - Helpers de fecha/hora
 
 ## 📊 Modelos Principales
 

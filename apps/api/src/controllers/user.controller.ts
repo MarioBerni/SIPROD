@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Rol, Grado } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -11,11 +11,13 @@ export const userController = {
       const users = await prisma.user.findMany({
         select: {
           id: true,
-          username: true,
-          email: true,
-          fullName: true,
-          role: true,
-          createdAt: true,
+          correo: true,
+          nombre: true,
+          rol: true,
+          grado: true,
+          cargo: true,
+          activo: true,
+          fechaCreacion: true,
           updatedAt: true,
         },
       });
@@ -34,11 +36,13 @@ export const userController = {
         where: { id },
         select: {
           id: true,
-          username: true,
-          email: true,
-          fullName: true,
-          role: true,
-          createdAt: true,
+          correo: true,
+          nombre: true,
+          rol: true,
+          grado: true,
+          cargo: true,
+          activo: true,
+          fechaCreacion: true,
           updatedAt: true,
         },
       });
@@ -57,43 +61,43 @@ export const userController = {
   // Crear un nuevo usuario
   createUser: async (req: Request, res: Response) => {
     try {
-      const { username, email, password, fullName, role } = req.body;
+      const { correo, contrasenaActual, nombre, rol, grado, cargo } = req.body;
 
       // Verificar si el usuario ya existe
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { username },
-            { email },
-          ],
-        },
+            { correo }
+          ]
+        }
       });
 
       if (existingUser) {
-        return res.status(400).json({
-          message: 'El usuario o email ya está registrado',
-        });
+        return res.status(400).json({ message: 'El usuario ya existe' });
       }
 
-      // Hash de la contraseña
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(contrasenaActual, 10);
 
       const user = await prisma.user.create({
         data: {
-          username,
-          email,
-          password: hashedPassword,
-          fullName,
-          role,
-          updatedAt: new Date(),
+          correo,
+          contrasenaActual: hashedPassword,
+          nombre,
+          rol: rol as Rol,
+          grado: grado as Grado,
+          cargo,
+          terminosCondiciones: true,
+          activo: true
         },
         select: {
           id: true,
-          username: true,
-          email: true,
-          fullName: true,
-          role: true,
-          createdAt: true,
+          correo: true,
+          nombre: true,
+          rol: true,
+          grado: true,
+          cargo: true,
+          activo: true,
+          fechaCreacion: true,
           updatedAt: true,
         },
       });
@@ -109,63 +113,60 @@ export const userController = {
   updateUser: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { email, password, fullName, role } = req.body;
+      const { correo, contrasenaActual, nombre, rol, grado, cargo, activo } = req.body;
 
-      // Verificar si el usuario existe
-      const userExists = await prisma.user.findUnique({
-        where: { id },
-      });
-
-      if (!userExists) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-
-      // Verificar si el email ya está en uso por otro usuario
-      if (email) {
+      // Verificar si el correo ya está en uso por otro usuario
+      if (correo) {
         const existingUser = await prisma.user.findFirst({
           where: {
             AND: [
-              { email },
-              { NOT: { id } },
-            ],
-          },
+              { correo },
+              { NOT: { id } }
+            ]
+          }
         });
 
         if (existingUser) {
-          return res.status(400).json({
-            message: 'El email ya está en uso por otro usuario',
-          });
+          return res.status(400).json({ message: 'El correo ya está en uso' });
         }
       }
 
-      // Preparar los datos para actualizar
-      const updateData: Record<string, unknown> = {
-        email,
-        fullName,
-        role,
-        updatedAt: new Date(),
+      type UpdateData = {
+        correo?: string;
+        nombre?: string;
+        rol?: Rol;
+        grado?: Grado;
+        cargo?: string;
+        activo?: boolean;
+        contrasenaActual?: string;
       };
 
-      // Si se proporciona una nueva contraseña, hashearla
-      if (password) {
-        updateData.password = await bcrypt.hash(password, 10);
-      }
+      const updateData: UpdateData = {
+        ...(correo && { correo }),
+        ...(nombre && { nombre }),
+        ...(rol && { rol: rol as Rol }),
+        ...(grado && { grado: grado as Grado }),
+        ...(cargo && { cargo }),
+        ...(typeof activo === 'boolean' && { activo })
+      };
 
-      // Eliminar campos undefined
-      Object.keys(updateData).forEach(
-        key => updateData[key] === undefined && delete updateData[key]
-      );
+      if (contrasenaActual) {
+        const hashedPassword = await bcrypt.hash(contrasenaActual, 10);
+        updateData.contrasenaActual = hashedPassword;
+      }
 
       const user = await prisma.user.update({
         where: { id },
         data: updateData,
         select: {
           id: true,
-          username: true,
-          email: true,
-          fullName: true,
-          role: true,
-          createdAt: true,
+          correo: true,
+          nombre: true,
+          rol: true,
+          grado: true,
+          cargo: true,
+          activo: true,
+          fechaCreacion: true,
           updatedAt: true,
         },
       });
@@ -181,12 +182,8 @@ export const userController = {
   deleteUser: async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      
-      await prisma.user.delete({
-        where: { id },
-      });
-
-      return res.status(204).send();
+      await prisma.user.delete({ where: { id } });
+      return res.json({ message: 'Usuario eliminado correctamente' });
     } catch (error) {
       console.error('Error deleting user:', error);
       return res.status(500).json({ message: 'Error al eliminar usuario' });

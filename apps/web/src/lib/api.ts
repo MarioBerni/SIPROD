@@ -7,16 +7,18 @@ import { getCookie, removeCookie } from './utils/cookies';
 
 // Tipos
 export interface LoginData {
-  username: string;
+  correo: string;
   password: string;
 }
 
 export interface User {
   id: string;
-  username: string;
-  email: string;
-  fullName: string;
-  role?: string;
+  correo: string;
+  rol: 'ADMINISTRADOR' | 'OFICIAL' | 'COMANDO_DIRECCION_I' | 'COMANDO_DIRECCION_II' | 'COMANDO_GEO' | 'COMANDO_DNGR' | 'JEFEDIA_DIRECCION_I' | 'JEFEDIA_DIRECCION_II_Y_GEO';
+  grado: 'CTE_GENERAL' | 'CTE_MAYOR' | 'CAPITAN' | 'TENIENTE_PRIMERO' | 'TENIENTE' | 'ALFEREZ' | 'SUB_OFICIAL' | 'SARGENTO' | 'CABO' | 'GUARDIA';
+  nombre: string;
+  cargo: string;
+  activo?: boolean;
 }
 
 export interface LoginResponse {
@@ -113,7 +115,7 @@ export const authApi = {
       console.error('Frontend - Error en login:', error);
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) {
-          throw new ApiErrorClass(401, 'Usuario o contraseña incorrectos');
+          throw new ApiErrorClass(401, 'Correo o contraseña incorrectos');
         }
         if (error.response?.status === 429) {
           throw new ApiErrorClass(429, 'Demasiados intentos. Por favor espere unos minutos.');

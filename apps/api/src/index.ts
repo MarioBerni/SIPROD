@@ -44,8 +44,10 @@ async function testDatabaseConnection(): Promise<void> {
       const users = await prisma.user.findMany({
         select: {
           id: true,
-          username: true,
-          email: true
+          correo: true,
+          rol: true,
+          nombre: true,
+          cargo: true
         }
       });
       logger.info('Usuarios encontrados:', users);

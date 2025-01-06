@@ -8,20 +8,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  email     String   @unique
-  fullName  String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-
-  @@map("User")
+enum Grado {
+  CTE_GENERAL
+  CTE_MAYOR
+  CAPITAN
+  TENIENTE_PRIMERO
+  TENIENTE
+  ALFEREZ
+  SUB_OFICIAL
+  SARGENTO
+  CABO
+  GUARDIA
 }
 
-enum Role {
-  USER
-  ADMIN
+enum Rol {
+  ADMINISTRADOR
+  OFICIAL
+  COMANDO_DIRECCION_I
+  COMANDO_DIRECCION_II
+  COMANDO_GEO
+  COMANDO_DNGR
+  JEFEDIA_DIRECCION_I
+  JEFEDIA_DIRECCION_II_Y_GEO
+}
+
+model User {
+  id                    String          @id @default(dbgenerated("concat('USR', to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS'))"))
+  fechaCreacion         DateTime        @default(now())
+  ultimaFechaAcceso     DateTime?
+  contrasenaActual      String
+  nuevaContrasena       String?
+  grado                 Grado
+  nombre                String
+  rol                   Rol
+  cargo                 String
+  correo                String          @unique
+  terminosCondiciones   Boolean         @default(false)
+  actualizacionesLeidas Actualizacion[] @relation("UserActualizaciones")
+  desplieguesCargados   Int            @default(0)
+  activo                Boolean         @default(true)
+  updatedAt             DateTime        @updatedAt
+
+  @@map("users")
+}
+
+model Actualizacion {
+  id          String   @id @default(uuid())
+  titulo      String
+  contenido   String
+  fecha       DateTime @default(now())
+  usuarios    User[]   @relation("UserActualizaciones")
+  
+  @@map("actualizaciones")
 }

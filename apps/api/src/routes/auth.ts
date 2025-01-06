@@ -9,7 +9,7 @@ const authController = new AuthController();
 
 // Validación de login
 const loginValidation = [
-  body('username').notEmpty().withMessage('El nombre de usuario es requerido'),
+  body('correo').isEmail().withMessage('El correo electrónico es requerido y debe ser válido'),
   body('password').notEmpty().withMessage('La contraseña es requerida'),
   validate
 ];

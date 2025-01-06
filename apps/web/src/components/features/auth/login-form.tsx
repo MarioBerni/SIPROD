@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 
 interface LoginFormData {
-  username: string;
+  correo: string;
   password: string;
 }
 
@@ -23,7 +23,7 @@ export function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
-    username: '',
+    correo: '',
     password: '',
   });
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      await login(formData.username, formData.password);
+      await login(formData.correo, formData.password);
       console.log('Login - Redirigiendo a dashboard');
       router.push('/dashboard');
     } catch (error) {
@@ -80,15 +80,17 @@ export function LoginForm() {
             <Box sx={{ mb: 2 }}>
               <TextField
                 fullWidth
-                id="username"
-                name="username"
-                label="Usuario"
+                id="correo"
+                name="correo"
+                label="Correo electrónico"
                 variant="outlined"
-                value={formData.username}
+                value={formData.correo}
                 onChange={handleChange}
                 required
                 disabled={loading}
                 size="small"
+                type="email"
+                autoComplete="email"
               />
             </Box>
 

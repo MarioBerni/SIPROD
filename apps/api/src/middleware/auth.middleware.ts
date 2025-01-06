@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt.utils';
 import { logger } from '../utils/logger';
+import { Rol } from '@prisma/client';
 
 export interface AuthRequest extends Request {
   user?: {
     userId: string;
-    role: string;
+    rol: Rol;
   };
 }
 
@@ -31,21 +32,21 @@ export const authMiddleware = async (
       if (typeof decoded === 'object' && decoded !== null) {
         req.user = {
           userId: decoded.userId,
-          role: decoded.role
+          rol: decoded.rol as Rol
         };
         next();
       } else {
         throw new Error('Invalid token payload');
       }
     } catch (error) {
-      logger.error('Error al verificar token:', error); // Use logger
+      logger.error('Error al verificar token:', error);
       return res.status(401).json({
         success: false,
         message: 'Token inválido o expirado'
       });
     }
   } catch (error) {
-    logger.error('Auth Middleware Error:', error); // Use logger
+    logger.error('Auth Middleware Error:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error'

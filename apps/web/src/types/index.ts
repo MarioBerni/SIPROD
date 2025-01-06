@@ -1,24 +1,34 @@
 // Tipos de autenticación
 export interface User {
   id: string;
-  email: string;
-  username: string;
-  fullName: string;
+  correo: string;
+  nombre: string;
+  rol: string;
+  grado: string;
+  cargo: string;
+  activo: boolean;
+  fechaCreacion: string;
+  ultimaFechaAcceso?: string;
 }
 
 export interface LoginCredentials {
-  email: string;
+  correo: string;
   password: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  success: boolean;
+  message?: string;
+  data?: {
+    user: User;
+    token: string;
+  };
 }
 
 // Tipos de respuesta API
 export interface ApiResponse<T> {
-  data: T;
+  success: boolean;
+  data?: T;
   message?: string;
 }
 

@@ -2,44 +2,59 @@ import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
 import { generateToken, verifyToken } from '../utils/auth';
 import { ApiError } from '../middleware/error';
-import pool from '../db';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class AuthController {
   async login(req: Request, res: Response): Promise<void> {
     try {
-      const { username, password } = req.body;
-      logger.info('Datos recibidos:', { username });
+      const { correo, password } = req.body;
+      logger.info('Datos recibidos en login:', { correo, bodyContent: req.body });
 
-      // Buscar usuario
-      const result = await pool.query(
-        'SELECT * FROM "User" WHERE username = $1',
-        [username]
-      );
+      // Buscar usuario usando Prisma
+      logger.info('Buscando usuario en la base de datos...');
+      const user = await prisma.user.findUnique({
+        where: { correo }
+      });
 
-      const user = result.rows[0];
-      logger.info('Resultado de búsqueda:', { found: !!user });
+      logger.info('Resultado de búsqueda:', { 
+        found: !!user,
+        userId: user?.id,
+        userEmail: user?.correo,
+        userRole: user?.rol 
+      });
 
       if (!user) {
-        logger.warn(`Usuario no encontrado: ${username}`);
+        logger.warn(`Usuario no encontrado: ${correo}`);
         throw new ApiError(401, 'Credenciales inválidas');
       }
 
       // Verificar contraseña
       logger.info('Comparando contraseñas');
-      const isValidPassword = password === user.password;
+      const isValidPassword = password === user.contrasenaActual;
       logger.info('Resultado de comparación:', { isValidPassword });
 
       if (!isValidPassword) {
-        logger.warn(`Intento de login fallido para usuario: ${username}`);
+        logger.warn(`Intento de login fallido para usuario: ${correo}`);
         throw new ApiError(401, 'Credenciales inválidas');
       }
+
+      // Actualizar última fecha de acceso
+      logger.info('Actualizando última fecha de acceso...');
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { ultimaFechaAcceso: new Date() }
+      });
 
       // Generar token
       logger.info('Generando token para usuario:', { id: user.id });
       const token = await generateToken({ 
         id: user.id.toString(), 
-        role: user.role || 'USER' 
+        role: user.rol
       });
+
+      logger.info('Token generado exitosamente');
 
       // Establecer cookie y enviar token en la respuesta
       res.cookie('token', token, {
@@ -51,22 +66,32 @@ export class AuthController {
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
 
+      logger.info('Cookie establecida exitosamente');
+
       res.json({
         success: true,
         user: {
           id: user.id,
-          username: user.username,
-          role: user.role || 'USER'
+          correo: user.correo,
+          rol: user.rol,
+          grado: user.grado,
+          nombre: user.nombre,
+          cargo: user.cargo
         }
       });
     } catch (error) {
       logger.error('Error en login:', error);
       if (error instanceof ApiError) {
+        logger.error('ApiError:', { 
+          statusCode: error.statusCode, 
+          message: error.message 
+        });
         res.status(error.statusCode).json({ 
           success: false, 
           message: error.message 
         });
       } else {
+        logger.error('Error interno:', error);
         res.status(500).json({ 
           success: false, 
           message: 'Error interno del servidor' 
@@ -87,13 +112,10 @@ export class AuthController {
       // Verificar token
       const decoded = await verifyToken(token);
       
-      // Buscar usuario
-      const result = await pool.query(
-        'SELECT id, username, email, role FROM "User" WHERE id = $1',
-        [decoded.userId] 
-      );
-
-      const user = result.rows[0];
+      // Buscar usuario usando Prisma
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId }
+      });
       
       if (!user) {
         throw new ApiError(401, 'Usuario no encontrado');
@@ -104,9 +126,11 @@ export class AuthController {
         valid: true,
         user: {
           id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role
+          correo: user.correo,
+          rol: user.rol,
+          grado: user.grado,
+          nombre: user.nombre,
+          cargo: user.cargo
         }
       });
     } catch (error) {
@@ -127,32 +151,40 @@ export class AuthController {
 
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password } = req.body;
+      const { correo, contrasenaActual, grado, nombre, rol, cargo } = req.body;
 
-      // Verificar si el usuario ya existe
-      const existingUser = await pool.query(
-        'SELECT * FROM "User" WHERE username = $1 OR email = $2',
-        [username, email]
-      );
+      // Verificar si el usuario ya existe usando Prisma
+      const existingUser = await prisma.user.findUnique({
+        where: { correo }
+      });
 
-      if (existingUser.rows.length > 0) {
-        throw new ApiError(400, 'Usuario o email ya existe');
+      if (existingUser) {
+        throw new ApiError(400, 'El correo ya está registrado');
       }
 
-      // Crear nuevo usuario
-      const result = await pool.query(
-        'INSERT INTO "User" (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
-        [username, email, password]
-      );
-
-      const newUser = result.rows[0];
+      // Crear nuevo usuario usando Prisma
+      const newUser = await prisma.user.create({
+        data: {
+          correo,
+          contrasenaActual,
+          grado,
+          nombre,
+          rol,
+          cargo,
+          terminosCondiciones: false,
+          activo: true
+        }
+      });
 
       res.status(201).json({
         success: true,
         user: {
           id: newUser.id,
-          username: newUser.username,
-          email: newUser.email
+          correo: newUser.correo,
+          rol: newUser.rol,
+          grado: newUser.grado,
+          nombre: newUser.nombre,
+          cargo: newUser.cargo
         }
       });
     } catch (error) {

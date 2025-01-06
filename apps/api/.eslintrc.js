@@ -7,7 +7,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   parserOptions: {
-    project: './tsconfig.json',
+    project: ['./tsconfig.json', './prisma/tsconfig.json'],
     tsconfigRootDir: __dirname,
   },
   env: {
@@ -27,6 +27,7 @@ module.exports = {
     '.eslintrc.js',
     'jest.config.ts',
     '*.js',
-    '!scripts/**/*'
+    '!scripts/**/*',
+    '!prisma/**/*'
   ]
 };

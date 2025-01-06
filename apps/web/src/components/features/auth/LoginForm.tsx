@@ -8,41 +8,39 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [] = useState('');
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError('');
     setIsLoading(true);
-    setError(null);
 
     try {
       const formData = new FormData(event.currentTarget);
-      const username = formData.get('username') as string;
+      const correo = formData.get('username') as string;
       const password = formData.get('password') as string;
 
-      if (!username || !password) {
+      if (!correo || !password) {
         throw new Error('Por favor complete todos los campos');
       }
 
       // Intentar login
-      const response = await authApi.login({ username, password });
-      
+      const response = await authApi.login({ correo, password });
+
       if (response.success) {
         // Esperar un momento para que la cookie se establezca
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Redirigir al dashboard
+        await new Promise(resolve => setTimeout(resolve, 500));
         router.push('/dashboard');
-        router.refresh(); // Forzar la actualización de la navegación
       } else {
         setError(response.message || 'Error al iniciar sesión');
       }
-
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al iniciar sesión');
+    } catch (err) {
+      setError('Error al conectar con el servidor');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -59,15 +57,15 @@ export function LoginForm() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
-                Usuario
+                Correo
               </label>
               <input
                 id="username"
                 name="username"
-                type="text"
+                type="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Usuario"
+                placeholder="Correo"
                 disabled={isLoading}
               />
             </div>
