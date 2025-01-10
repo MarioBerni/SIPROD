@@ -1,3 +1,6 @@
+// -----------------------------------------------
+// Configuración del Generador y Base de Datos
+// -----------------------------------------------
 generator client {
   provider   = "prisma-client-js"
   engineType = "library"
@@ -8,6 +11,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// -----------------------------------------------
+// Enums del Sistema
+// -----------------------------------------------
+
+// Enums de Usuario y Autenticación
 enum Grado {
   CTE_GENERAL
   CTE_MAYOR
@@ -32,6 +40,76 @@ enum Rol {
   JEFEDIA_DIRECCION_II_Y_GEO
 }
 
+// Enums de Tabla Principal
+enum Departamento {
+  ARTIGAS
+  CANELONES
+  CERRO_LARGO
+  COLONIA
+  DURAZNO
+  FLORES
+  FLORIDA
+  LAVALLEJA
+  MALDONADO
+  MONTEVIDEO
+  PAYSANDU
+  RIO_NEGRO
+  RIVERA
+  ROCHA
+  SALTO
+  SAN_JOSE
+  SORIANO
+  TACUAREMBO
+  TREINTA_Y_TRES
+}
+
+enum Unidad {
+  DIRECCION_I
+  DIRECCION_II
+  GEO
+  REGIONAL_ESTE
+  REGIONAL_NORTE
+}
+
+enum TipoOrden {
+  O_OP
+  CIR
+  COM
+  ORD
+  SERV
+  REG
+}
+
+enum TipoOperativo {
+  OPERATIVO
+  PATRULLAJE
+  APOYO
+  GRUPO_CHOQUE_APOSTADO
+  GRUPO_CHOQUE_ALERTA
+  EQUIPO_CHOQUE_APOSTADO
+  EQUIPO_CHOQUE_ALERTA
+  GAT
+  GRUPO_GEO_APOSTADO
+  GRUPO_GEO_ALERTA
+  EQUIPO_GEO_APOSTADO
+  EQUIPO_GEO_ALERTA
+  PERIMETRAL_ALLANAMIENTO
+  INCURSION_ALLANAMIENTO
+  AUF
+  FUBB
+  ESPECTACULOS_VARIOS
+  OTROS
+}
+
+enum TiempoOperativo {
+  PATRULLAJE
+  PERM_ESTATICO
+  TRANSITORIO
+}
+
+// -----------------------------------------------
+// Modelos de Usuario y Autenticación
+// -----------------------------------------------
 model User {
   id                    String          @id @default(dbgenerated("concat('USR', to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS'))"))
   fechaCreacion         DateTime        @default(now())
@@ -48,16 +126,61 @@ model User {
   desplieguesCargados   Int            @default(0)
   activo                Boolean         @default(true)
   updatedAt             DateTime        @updatedAt
+  registrosCreados      TablaPrincipal[] @relation("CreadorRegistro")
 
   @@map("users")
 }
 
 model Actualizacion {
-  id          String   @id @default(uuid())
-  titulo      String
-  contenido   String
+  id          Int      @id @default(autoincrement())
   fecha       DateTime @default(now())
+  titulo      String
+  descripcion String
   usuarios    User[]   @relation("UserActualizaciones")
   
   @@map("actualizaciones")
+}
+
+// -----------------------------------------------
+// Modelos Operativos
+// -----------------------------------------------
+model TablaPrincipal {
+  id                    String          @id @default(dbgenerated("concat('REG', to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS'))"))
+  departamento          Departamento
+  unidad               Unidad
+  tipoOrden            TipoOrden
+  nroOrden             String
+  tipoOperativo        TipoOperativo
+  tiempoOperativo      TiempoOperativo
+  nombreOperativo      String
+  fechaInicio          DateTime?
+  horaInicio           DateTime?
+  horaFin              DateTime?
+  fechaFin             DateTime?
+  observacionesOrden   String?
+  seccional            Int[]
+  barrios              String[]
+  moviles              Int
+  ppssEnMovil          Int
+  ssoo                 Int
+  motos                Int
+  motosBitripuladas    Int
+  hipos                Int
+  canes                Int
+  pieTierra            Int
+  drones               Int
+  antidisturbioApostado Int
+  antidisturbioAlerta   Int
+  geoApostado          Int
+  geoAlerta            Int
+  totalPpss            Int
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  createdBy            User            @relation("CreadorRegistro", fields: [createdById], references: [id])
+  createdById          String
+
+  @@index([departamento])
+  @@index([unidad])
+  @@index([tipoOperativo])
+  @@map("tabla_principal")
 }

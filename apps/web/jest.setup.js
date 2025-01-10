@@ -1,32 +1,32 @@
-import '@testing-library/jest-dom'
+// Learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
 
-// Mock Next.js router
+// Mock para mapbox-gl ya que no es compatible con Jest
+jest.mock('mapbox-gl', () => ({
+  Map: jest.fn(() => ({
+    on: jest.fn(),
+    remove: jest.fn(),
+    addSource: jest.fn(),
+    addLayer: jest.fn(),
+    getLayer: jest.fn(),
+    setLayoutProperty: jest.fn(),
+  })),
+  accessToken: '',
+}));
+
+// Mock para next/navigation
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
+  useRouter: jest.fn(() => ({
     push: jest.fn(),
     replace: jest.fn(),
     prefetch: jest.fn(),
-    back: jest.fn(),
-  }),
-  usePathname: () => '',
-  useSearchParams: () => new URLSearchParams(),
-}))
-
-// Mock next/headers
-jest.mock('next/headers', () => ({
-  cookies: () => ({
+  })),
+  useSearchParams: jest.fn(() => ({
     get: jest.fn(),
-    set: jest.fn(),
-    delete: jest.fn(),
-  }),
-  headers: () => ({
-    get: jest.fn(),
-    set: jest.fn(),
-    delete: jest.fn(),
-  }),
-}))
+  })),
+}));
 
-// Mock window.matchMedia
+// Mock para window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
@@ -39,13 +39,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-})
-
-// Suppress console errors during tests
-const originalError = console.error
-console.error = (...args) => {
-  if (/Warning.*not wrapped in act/.test(args[0])) {
-    return
-  }
-  originalError.call(console, ...args)
-}
+});

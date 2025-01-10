@@ -11,14 +11,16 @@ export const userController = {
       const users = await prisma.user.findMany({
         select: {
           id: true,
-          correo: true,
           nombre: true,
+          correo: true,
           rol: true,
           grado: true,
           cargo: true,
           activo: true,
           fechaCreacion: true,
+          ultimaFechaAcceso: true,
           updatedAt: true,
+          desplieguesCargados: true
         },
       });
       return res.json(users);
@@ -36,14 +38,16 @@ export const userController = {
         where: { id },
         select: {
           id: true,
-          correo: true,
           nombre: true,
+          correo: true,
           rol: true,
           grado: true,
           cargo: true,
           activo: true,
           fechaCreacion: true,
+          ultimaFechaAcceso: true,
           updatedAt: true,
+          desplieguesCargados: true
         },
       });
 
@@ -91,14 +95,16 @@ export const userController = {
         },
         select: {
           id: true,
-          correo: true,
           nombre: true,
+          correo: true,
           rol: true,
           grado: true,
           cargo: true,
           activo: true,
           fechaCreacion: true,
+          ultimaFechaAcceso: true,
           updatedAt: true,
+          desplieguesCargados: true
         },
       });
 
@@ -160,14 +166,16 @@ export const userController = {
         data: updateData,
         select: {
           id: true,
-          correo: true,
           nombre: true,
+          correo: true,
           rol: true,
           grado: true,
           cargo: true,
           activo: true,
           fechaCreacion: true,
+          ultimaFechaAcceso: true,
           updatedAt: true,
+          desplieguesCargados: true
         },
       });
 

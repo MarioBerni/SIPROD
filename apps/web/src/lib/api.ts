@@ -17,6 +17,42 @@ export interface User {
   activo?: boolean;
 }
 
+// Interfaz para Registros
+export interface Registro {
+  id: string;
+  fecha: Date;
+  tipo: string;
+  descripcion: string;
+  estado: string;
+  ubicacion?: string;
+  asignado_a?: string;
+  creado_por: string;
+  actualizado_en: Date;
+}
+
+export interface CreateRegistroData {
+  tipo: string;
+  descripcion: string;
+  estado: string;
+  ubicacion?: string;
+  asignado_a?: string;
+}
+
+export interface UpdateRegistroData extends Partial<CreateRegistroData> {
+  id: string;
+}
+
+// Tipos de filtros para registros
+export interface RegistroFilters {
+  tipo?: string;
+  estado?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  asignado_a?: string;
+  creado_por?: string;
+  [key: string]: string | undefined;
+}
+
 // Configuración base de la API
 const baseURL = '/api';
 console.log('Frontend - API Base URL:', baseURL);
@@ -36,6 +72,17 @@ export const API_ROUTES = {
     UPDATE: (id: string) => `/user/${id}`,
     DELETE: (id: string) => `/user/${id}`,
   },
+  REGISTROS: {
+    BASE: '/registros',
+    GET_ALL: '/registros',
+    GET_BY_ID: (id: string) => `/registros/${id}`,
+    CREATE: '/registros',
+    UPDATE: (id: string) => `/registros/${id}`,
+    DELETE: (id: string) => `/registros/${id}`,
+    SEARCH: '/registros/search',
+    FILTER: '/registros/filter',
+    EXPORT: '/registros/export',
+  }
 };
 
 // Cliente de API principal
@@ -56,7 +103,6 @@ api.interceptors.request.use(
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      config.headers['x-access-token'] = token;
     }
     
     console.log('API Request - Headers:', config.headers);
@@ -162,4 +208,86 @@ export const authApi = {
       handleApiError(error);
     }
   },
+};
+
+// API de registros
+export const registrosApi = {
+  instance: api,
+
+  async getAll(params?: { page?: number; limit?: number; sort?: string; filter?: string }) {
+    try {
+      const response = await this.instance.get(API_ROUTES.REGISTROS.GET_ALL, { params });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async getById(id: string) {
+    try {
+      const response = await this.instance.get(API_ROUTES.REGISTROS.GET_BY_ID(id));
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async create(data: CreateRegistroData) {
+    try {
+      const response = await this.instance.post(API_ROUTES.REGISTROS.CREATE, data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async update(id: string, data: UpdateRegistroData) {
+    try {
+      const response = await this.instance.put(API_ROUTES.REGISTROS.UPDATE(id), data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async delete(id: string) {
+    try {
+      const response = await this.instance.delete(API_ROUTES.REGISTROS.DELETE(id));
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async search(query: string) {
+    try {
+      const response = await this.instance.get(API_ROUTES.REGISTROS.SEARCH, {
+        params: { q: query }
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async filter(filters: RegistroFilters) {
+    try {
+      const response = await this.instance.post(API_ROUTES.REGISTROS.FILTER, filters);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  async export(format: 'csv' | 'excel' = 'excel') {
+    try {
+      const response = await this.instance.get(API_ROUTES.REGISTROS.EXPORT, {
+        params: { format },
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  }
 };

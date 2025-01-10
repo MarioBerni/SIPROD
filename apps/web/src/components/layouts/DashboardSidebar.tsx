@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { styled, alpha } from '@mui/material/styles';
 import {
@@ -103,6 +103,22 @@ export function DashboardSidebar({
   const theme = useTheme();
   const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>({});
 
+  // Efecto para abrir automáticamente el submenú de la ruta actual
+  useEffect(() => {
+    if (pathname) {
+      const currentNavItem = navigationConfig.find(item => 
+        item.subItems?.some(subItem => subItem.href === pathname)
+      );
+      
+      if (currentNavItem) {
+        setOpenSubMenus(prev => ({
+          ...prev,
+          [currentNavItem.title]: true
+        }));
+      }
+    }
+  }, [pathname]);
+
   // Manejador para la navegación
   const handleNavigation = () => {
     if (variant === 'temporary') {
@@ -112,6 +128,7 @@ export function DashboardSidebar({
 
   const handleSubMenu = (title: string, event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
     setOpenSubMenus(prev => ({
       ...prev,
       [title]: !prev[title]

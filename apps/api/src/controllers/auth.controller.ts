@@ -68,25 +68,17 @@ export class AuthController {
       console.log('Token generado exitosamente');
       logger.info('Token generado exitosamente');
 
-      // Establecer cookie y enviar token en la respuesta
-      const cookieOptions = {
+      // Configurar la cookie
+      res.cookie('token', token, {
         httpOnly: true,
-        secure: true, // Siempre usar HTTPS
-        sameSite: 'strict' as const,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         path: '/',
-        domain: process.env.NODE_ENV === 'production' ? '.siprod.uy' : undefined,
-        maxAge: 24 * 60 * 60 * 1000 // 24 horas
-      };
-      
-      console.log('Configuración de cookie:', cookieOptions);
-      res.cookie('token', token, cookieOptions);
-      console.log('Cookie establecida');
-
-      logger.info('Cookie establecida exitosamente');
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+      });
 
       const response = {
         success: true,
-        token,
         user: {
           id: user.id,
           correo: user.correo,
@@ -94,10 +86,16 @@ export class AuthController {
           grado: user.grado,
           nombre: user.nombre,
           cargo: user.cargo
-        }
+        },
+        token // Incluir el token en la respuesta para el cliente
       };
       
-      console.log('Enviando respuesta:', { ...response, token: 'HIDDEN' });
+      console.log('Enviando respuesta de login:', { 
+        ...response, 
+        token: '[HIDDEN]',
+        user: response.user 
+      });
+      
       res.json(response);
     } catch (error) {
       console.error('=== Error en proceso de login ===');

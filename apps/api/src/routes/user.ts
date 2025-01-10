@@ -21,14 +21,16 @@ router.get('/', authMiddleware, async (_req: Request, res: Response) => {
     const users = await prisma.user.findMany({
       select: {
         id: true,
-        correo: true,
         nombre: true,
+        correo: true,
         rol: true,
         grado: true,
         cargo: true,
         activo: true,
         fechaCreacion: true,
-        updatedAt: true
+        ultimaFechaAcceso: true,
+        updatedAt: true,
+        desplieguesCargados: true
       }
     });
     return res.json(users);
@@ -56,14 +58,16 @@ router.get('/profile', authMiddleware, async (req: AuthRequest, res: Response) =
       where: { id: userId },
       select: {
         id: true,
-        correo: true,
         nombre: true,
+        correo: true,
         rol: true,
         grado: true,
         cargo: true,
         activo: true,
         fechaCreacion: true,
-        updatedAt: true
+        ultimaFechaAcceso: true,
+        updatedAt: true,
+        desplieguesCargados: true
       }
     });
 
@@ -125,14 +129,16 @@ router.post('/register', [
       },
       select: {
         id: true,
-        correo: true,
         nombre: true,
+        correo: true,
         rol: true,
         grado: true,
         cargo: true,
         activo: true,
         fechaCreacion: true,
-        updatedAt: true
+        ultimaFechaAcceso: true,
+        updatedAt: true,
+        desplieguesCargados: true
       }
     });
 
@@ -174,14 +180,16 @@ router.put('/profile', [
       },
       select: {
         id: true,
-        correo: true,
         nombre: true,
+        correo: true,
         rol: true,
         grado: true,
         cargo: true,
         activo: true,
         fechaCreacion: true,
-        updatedAt: true
+        ultimaFechaAcceso: true,
+        updatedAt: true,
+        desplieguesCargados: true
       }
     });
 

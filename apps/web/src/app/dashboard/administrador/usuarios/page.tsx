@@ -105,7 +105,7 @@ enum Rol {
 
 interface User {
   id: string;
-  fechaCreacion: string;
+  createdAt: string;
   ultimaFechaAcceso: string | null;
   contrasenaActual: string;
   nuevaContrasena?: string;

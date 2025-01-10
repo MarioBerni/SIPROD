@@ -6,7 +6,8 @@ Proveer una guía paso a paso de cómo iniciar y mantener el proceso de desarrol
 ## Función
 - Explicar requisitos previos, pasos de configuración inicial y best practices de codificación.
 - Unificar criterios de diseño (Material UI, paleta de colores, tipografía) y de estructura en la UI.
-- Indicar lineamientos de testing, control de versiones y flujos de trabajo (branching).
+- Indicar lineamientos de testing, control de versiones y flujos de trabajo.
+- Mantener documentación clara con comentarios descriptivos en el código para facilitar el mantenimiento.
 
 ## 🚀 Inicio Rápido
 
@@ -62,7 +63,202 @@ const MiComponente: React.FC<Props> = ({ prop }) => {
 const useRecursos = (id: string) => {
   return useQuery(['recursos', id], () => getRecurso(id));
 };
+
+### DataTable Component
+```typescript
+// Componente de tabla de datos con Material-UI
+const DataTable: React.FC<DataTableProps> = ({ rows, loading }) => {
+  // Configuración de localización en español
+  const localeText = {
+    // Paginación
+    labelRowsPerPage: 'Filas por página:',
+    MuiTablePagination: {
+      labelRowsPerPage: 'Filas por página:',
+    },
+    
+    // Filtros y búsqueda
+    toolbarFilters: 'Filtros',
+    toolbarQuickFilterPlaceholder: 'Buscar...',
+    
+    // Columnas
+    columnMenuLabel: 'Menú',
+    columnMenuShowColumns: 'Mostrar columnas',
+  };
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      localeText={localeText}
+      slots={{
+        toolbar: GridToolbar,
+      }}
+      slotProps={{
+        toolbar: {
+          showQuickFilter: true,
+        },
+        pagination: {
+          labelRowsPerPage: 'Filas por página:',
+        },
+      }}
+    />
+  );
+};
+
+### Hooks Personalizados para DataTable
+```typescript
+// Hook para manejar columnas
+const useTableColumns = () => {
+  return useMemo(() => [
+    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'nombre', headerName: 'Nombre', flex: 1 },
+    // ... más columnas
+  ], []);
+};
+
+// Hook para manejar paginación
+const usePagination = () => {
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  
+  return { paginationModel, setPaginationModel };
+};
 ```
+
+## 🗺️ Módulo de Mapas
+
+### Componentes Principales
+
+#### useMapDrawing Hook
+```typescript
+// Hook personalizado para dibujo de polígonos en mapas
+const useMapDrawing = ({ map, isDrawingMode }: UseMapDrawingProps) => {
+  // Gestiona el estado del dibujo de polígonos
+  return {
+    clearCurrentDrawing,  // Limpia el dibujo actual
+    renderContextMenu     // Renderiza menú contextual para vértices
+  };
+};
+```
+
+#### Estructura de Componentes
+```
+src/
+  ├── hooks/
+  │   └── useMapDrawing.tsx      // Hook principal para dibujo en mapas
+  ├── components/
+  │   └── maps/
+  │       └── VertexContextMenu.tsx  // Menú contextual para vértices
+  └── app/
+      └── dashboard/
+          └── administrador/
+              └── mapas/
+                  └── page.tsx    // Página principal de administración de mapas
+```
+
+### Funcionalidades Principales
+
+#### 1. Dibujo de Polígonos
+- Click en el mapa para añadir vértices
+- Arrastrar vértices para ajustar forma
+- Menú contextual para eliminar vértices
+- Puntos medios para añadir nuevos vértices
+
+#### 2. Gestión de Marcadores
+```typescript
+// Tipos de marcadores
+interface VertexMarker {
+  marker: mapboxgl.Marker;
+  index: number;
+}
+
+// Gestión de estado
+const vertices = useRef<[number, number][]>([]);
+const vertexMarkers = useRef<VertexMarker[]>([]);
+const midpointMarkers = useRef<mapboxgl.Marker[]>([]);
+```
+
+#### 3. Menú Contextual
+- Aparece al hacer click derecho sobre un vértice
+- Permite eliminar vértices individuales
+- Se cierra al hacer click fuera del menú
+
+### Implementación
+
+#### 1. Configuración del Mapa
+```typescript
+// En page.tsx
+const MapComponent: React.FC = () => {
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+
+  const { clearCurrentDrawing, renderContextMenu } = useMapDrawing({
+    map: mapRef,
+    isDrawingMode
+  });
+
+  return (
+    <>
+      <div ref={mapContainer} className="map-container" />
+      {renderContextMenu()}
+    </>
+  );
+};
+```
+
+#### 2. Manejo de Eventos
+```typescript
+// Eventos principales
+marker.on('drag', () => {
+  const pos = marker.getLngLat();
+  vertices.current[index] = [pos.lng, pos.lat];
+  updateVerticesAndLine(mapInstance);
+});
+
+marker.on('dragend', onMidpointUpdate);
+```
+
+#### 3. Actualización de Polígonos
+```typescript
+const updatePolyline = (mapInstance: mapboxgl.Map) => {
+  // Actualiza la fuente GeoJSON del polígono
+  const source = mapInstance.getSource(polylineSource.current);
+  if (source) {
+    (source as mapboxgl.GeoJSONSource).setData({
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: vertices.current
+      }
+    });
+  }
+};
+```
+
+### Mejores Prácticas
+
+1. **Gestión de Estado**
+   - Usar `useRef` para datos que no requieren re-renders
+   - Mantener estado mínimo necesario
+   - Evitar dependencias circulares en callbacks
+
+2. **Optimización de Rendimiento**
+   - Memoizar callbacks con `useCallback`
+   - Evitar re-renders innecesarios
+   - Limpiar listeners y marcadores al desmontar
+
+3. **Manejo de Errores**
+   - Validar existencia de instancia del mapa
+   - Verificar número mínimo de vértices
+   - Manejar casos edge en eliminación de vértices
+
+4. **Estilos y Visualización**
+   - Usar colores consistentes para marcadores
+   - Mantener tamaños apropiados para interacción
+   - Proporcionar feedback visual claro
 
 ## 🎨 Guía de Diseño
 

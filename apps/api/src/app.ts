@@ -34,7 +34,7 @@ app.use(cookieParser()); // Agregar cookie-parser antes de CORS
 
 // Configuración de CORS
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: true, // Permitir todas las origins en desarrollo
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -45,7 +45,7 @@ app.use(cors(corsOptions));
 // Configurar headers de seguridad
 app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:3000');
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   next();

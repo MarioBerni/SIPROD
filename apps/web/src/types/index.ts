@@ -7,7 +7,6 @@ export interface User {
   grado: string;
   cargo: string;
   activo: boolean;
-  fechaCreacion: string;
   ultimaFechaAcceso?: string;
 }
 

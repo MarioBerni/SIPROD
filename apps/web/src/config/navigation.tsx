@@ -6,6 +6,8 @@ import {
   LocationOn as LocationOnIcon,
   Settings as SettingsIcon,
   Person as PersonIcon,
+  TableChart as TableChartIcon,
+  Map as MapIcon,
 } from '@mui/icons-material';
 
 export interface NavigationItem {
@@ -83,6 +85,16 @@ export const navigationConfig: NavigationItem[] = [
         href: '/dashboard/administrador/usuarios',
         icon: PersonIcon,
         title: 'Usuarios'
+      },
+      {
+        href: '/dashboard/administrador/tabla-principal',
+        icon: TableChartIcon,
+        title: 'Tabla Principal'
+      },
+      {
+        href: '/dashboard/administrador/mapas',
+        icon: MapIcon,
+        title: 'Mapas'
       }
     ]
   }

@@ -66,6 +66,94 @@ module.exports = {
 };
 ```
 
+### DataGrid Optimizations
+```typescript
+// Memoización de filas y columnas
+const DataTable: React.FC<DataTableProps> = ({ rows, loading }) => {
+  // Memoizar filas para evitar re-renders innecesarios
+  const memoizedRows = useMemo(() => rows, [rows]);
+  
+  // Memoizar columnas con operadores de filtro personalizados
+  const memoizedColumns = useMemo(() => columns.map(column => ({
+    ...column,
+    filterOperators: getCustomOperators(column.type),
+  })), [columns]);
+
+  // Configuración de paginación optimizada
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+
+  // Manejador de cambios de paginación memoizado
+  const handlePaginationModelChange = useCallback(
+    (newModel: GridPaginationModel) => {
+      setPaginationModel(newModel);
+    },
+    []
+  );
+
+  return (
+    <DataGrid
+      rows={memoizedRows}
+      columns={memoizedColumns}
+      paginationModel={paginationModel}
+      onPaginationModelChange={handlePaginationModelChange}
+      // ... otras props
+    />
+  );
+};
+
+// Operadores de filtro optimizados
+const getCustomOperators = (type: string) => {
+  switch (type) {
+    case 'string':
+      return customStringOperators;
+    case 'date':
+    case 'dateTime':
+      return customDateOperators;
+    case 'number':
+      return customNumericOperators;
+    default:
+      return undefined;
+  }
+};
+```
+
+### Rendimiento del DataGrid
+- Utilizar `paginationModel` para controlar el estado de paginación
+- Implementar `useMemo` para filas y columnas
+- Personalizar operadores de filtro por tipo de columna
+- Usar `useCallback` para manejadores de eventos
+- Configurar debounce en la búsqueda rápida
+
+### Caché y Estado
+```typescript
+// Implementación de caché para datos de tabla
+const useTableData = (queryKey: string) => {
+  return useQuery({
+    queryKey: ['tableData', queryKey],
+    queryFn: () => fetchTableData(),
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    cacheTime: 30 * 60 * 1000, // 30 minutos
+  });
+};
+
+// Estado local optimizado
+const useTableState = () => {
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({
+    items: [],
+    quickFilterValues: [],
+  });
+
+  return {
+    filterModel,
+    setFilterModel,
+    // ... otros estados
+  };
+};
+```
+
 ## 🔧 Backend
 
 ### Express
@@ -276,4 +364,3 @@ const withPWA = require('next-pwa')({
 module.exports = withPWA({
   // Next.js config
 });
-```
