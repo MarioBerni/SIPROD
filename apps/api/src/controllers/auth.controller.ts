@@ -33,21 +33,13 @@ export class AuthController {
         userRole: user?.rol 
       });
 
-      if (!user) {
-        logger.warn(`Usuario no encontrado: ${correo}`);
-        throw new ApiError(401, 'Credenciales inválidas');
-      }
-
-      // Verificar contraseña usando bcrypt
-      logger.info('Comparando contraseñas');
-      console.log('Verificando contraseña para usuario:', user.correo);
-      const isValidPassword = await bcrypt.compare(password, user.contrasenaActual);
-      console.log('Contraseña válida:', isValidPassword);
-      logger.info('Resultado de comparación:', { isValidPassword });
-
-      if (!isValidPassword) {
+      if (!user || !await bcrypt.compare(password, user.contrasenaActual)) {
         logger.warn(`Intento de login fallido para usuario: ${correo}`);
-        throw new ApiError(401, 'Credenciales inválidas');
+        res.status(401).json({
+          success: false,
+          message: 'Credenciales inválidas'
+        });
+        return;
       }
 
       // Actualizar última fecha de acceso
@@ -61,20 +53,20 @@ export class AuthController {
       logger.info('Generando token para usuario:', { id: user.id });
       console.log('Generando token para usuario ID:', user.id);
       const token = await generateToken({ 
-        id: user.id.toString(), 
+        userId: user.id.toString(),
         role: user.rol
       });
 
       console.log('Token generado exitosamente');
       logger.info('Token generado exitosamente');
 
-      // Configurar la cookie
+      // Configurar cookie con opciones de seguridad
       res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días en milisegundos
+        path: '/'
       });
 
       const response = {

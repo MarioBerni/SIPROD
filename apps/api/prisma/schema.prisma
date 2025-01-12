@@ -160,20 +160,20 @@ model TablaPrincipal {
   observacionesOrden   String?
   seccional            Int[]
   barrios              String[]
-  moviles              Int
-  ppssEnMovil          Int
-  ssoo                 Int
-  motos                Int
-  motosBitripuladas    Int
-  hipos                Int
-  canes                Int
-  pieTierra            Int
-  drones               Int
-  antidisturbioApostado Int
-  antidisturbioAlerta   Int
-  geoApostado          Int
-  geoAlerta            Int
-  totalPpss            Int
+  moviles              Int             @default(0)
+  ppssEnMovil          Int             @default(0)
+  ssoo                 Int             @default(0)
+  motos                Int             @default(0)
+  motosBitripuladas    Int             @default(0)
+  hipos                Int             @default(0)
+  canes                Int             @default(0)
+  pieTierra            Int             @default(0)
+  drones               Int             @default(0)
+  antidisturbioApostado Int             @default(0)
+  antidisturbioAlerta   Int             @default(0)
+  geoApostado          Int             @default(0)
+  geoAlerta            Int             @default(0)
+  totalPpss            Int             @default(0)
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
   createdBy            User            @relation("CreadorRegistro", fields: [createdById], references: [id])

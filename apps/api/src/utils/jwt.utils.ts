@@ -4,12 +4,12 @@ import { Rol } from '@prisma/client';
 
 interface TokenPayload {
   userId: string;
-  rol: Rol;
+  role: Rol;
 }
 
 type JwtPayload = {
   userId: string;
-  rol: Rol;
+  role: Rol;
   iat: number;
   exp: number;
 };
@@ -31,12 +31,12 @@ export const verifyToken = async (token: string): Promise<TokenPayload> => {
         try {
           // Verificar que el payload tenga la estructura correcta
           const payload = decoded as JwtPayload;
-          if (!payload.userId || !payload.rol) {
+          if (!payload.userId || !payload.role) {
             reject(new Error('Invalid token payload structure'));
           } else {
             resolve({
               userId: payload.userId,
-              rol: payload.rol
+              role: payload.role
             });
           }
         } catch {
