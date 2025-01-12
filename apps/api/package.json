@@ -18,6 +18,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "ts-node src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
+    "db:seed": "prisma db seed",
     "docs:generate": "swagger-jsdoc -d src/swagger/definition.ts -o src/swagger/swagger.json",
     "docs:serve": "swagger-ui-express -o src/swagger/swagger.json"
   },

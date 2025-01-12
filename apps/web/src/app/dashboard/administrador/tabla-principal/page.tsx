@@ -21,6 +21,7 @@ export default function TablaPrincipalPage() {
     editingRecord,
     handleEditClick,
     handleDeleteClick,
+    handleAddClick,
     handleAddAfterClick,
     handleCloseAddModal,
     handleSubmit,
@@ -64,7 +65,10 @@ export default function TablaPrincipalPage() {
             overflow: 'hidden',
           }}
         >
-          <TableHeader responsive={responsive} />
+          <TableHeader 
+            responsive={responsive}
+            onAddClick={handleAddClick}
+          />
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
             <DataTable
               rows={rows}

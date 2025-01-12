@@ -47,7 +47,7 @@ interface AddRecordModalProps {
   error?: string | null;
   validationErrors?: Record<string, string>;
   mode?: 'add' | 'edit';
-  initialData?: TablaPrincipal;
+  initialData?: TablaPrincipal | null;
 }
 
 // Definición de colores basados en el theme institucional

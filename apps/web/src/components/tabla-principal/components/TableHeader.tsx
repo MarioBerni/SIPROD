@@ -3,6 +3,7 @@ import { UseResponsiveColumnsReturn } from '../hooks/useResponsiveColumns';
 
 interface TableHeaderProps {
   responsive: UseResponsiveColumnsReturn;
+  onAddClick: () => void;
 }
 
 export const TableHeader = ({ responsive }: TableHeaderProps) => {
