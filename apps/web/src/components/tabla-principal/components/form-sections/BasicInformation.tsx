@@ -1,83 +1,206 @@
-import { Grid, TextField, MenuItem } from '@mui/material';
-import { TablaPrincipal, Departamento, Unidad, TipoOrden } from '../../types';
+import React from 'react';
+import {
+  Grid,
+  Autocomplete,
+  TextField,
+} from '@mui/material';
+import {
+  TablaPrincipal,
+  Departamento,
+  DepartamentoLabel,
+  Unidad,
+  UnidadLabel,
+  TipoOrden,
+  TipoOrdenLabel,
+} from '../../types';
 
 interface BasicInformationProps {
   formData: Partial<TablaPrincipal>;
-  handleChange: (field: keyof TablaPrincipal) => (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => void;
+  handleChange: (field: keyof TablaPrincipal) => (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   validationErrors: Record<string, string>;
 }
 
-export const BasicInformation = ({ formData, handleChange, validationErrors }: BasicInformationProps) => {
-  // Función auxiliar para manejar valores nulos o undefined
-  const getValue = <T,>(value: T | null | undefined): T | string => value === null || value === undefined ? '' : value;
+interface Option {
+  value: string;
+  label: string;
+}
+
+const autocompleteStyles = {
+  '& .MuiOutlinedInput-root': {
+    padding: '8px !important',
+    gap: '5px',
+    flexWrap: 'wrap',
+  },
+  '& .MuiAutocomplete-endAdornment': {
+    right: '8px',
+  },
+  '& .MuiFormLabel-root': {
+    backgroundColor: '#fff',
+    padding: '0 8px',
+    marginLeft: '-4px',
+  },
+  '& .MuiInputLabel-shrink': {
+    transform: 'translate(14px, -9px) scale(0.75)',
+  },
+};
+
+export const BasicInformation: React.FC<BasicInformationProps> = ({
+  formData,
+  handleChange,
+  validationErrors
+}) => {
+  const getEnumOptions = <T extends { [key: string]: string }>(
+    enumObj: T,
+    labelObj: { [key: string]: string }
+  ): Option[] => {
+    return Object.entries(enumObj)
+      .filter(([key]) => isNaN(Number(key)))
+      .map(([key]) => ({
+        value: key,
+        label: labelObj[key as keyof typeof labelObj]
+      }));
+  };
+
+  const departamentoOptions = getEnumOptions(Departamento, DepartamentoLabel);
+  const unidadOptions = getEnumOptions(Unidad, UnidadLabel);
+  const tipoOrdenOptions = getEnumOptions(TipoOrden, TipoOrdenLabel);
+
+  const findSelectedOption = (value: string | undefined, options: Option[]): Option | null => {
+    if (!value) return null;
+    return options.find(option => option.value === value) || null;
+  };
 
   return (
-    <>
-      <Grid item xs={12} sm={6} md={3}>
-        <TextField
+    <Grid container spacing={2}>
+      {/* Departamento */}
+      <Grid item xs={12} sm={6}>
+        <Autocomplete
+          size="small"
           fullWidth
-          label="Departamento"
-          select
-          value={getValue(formData.departamento)}
-          onChange={handleChange('departamento')}
-          error={!!validationErrors.departamento}
-          helperText={validationErrors.departamento}
-          required
-        >
-          {Object.values(Departamento).map((dep) => (
-            <MenuItem key={dep} value={dep}>
-              {dep.replace(/_/g, ' ')}
-            </MenuItem>
-          ))}
-        </TextField>
+          value={findSelectedOption(formData.departamento, departamentoOptions)}
+          onChange={(_, newValue) => {
+            handleChange('departamento')({
+              target: { value: newValue?.value || '' }
+            } as React.ChangeEvent<HTMLInputElement>);
+          }}
+          options={departamentoOptions}
+          getOptionLabel={(option) => option.label}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              label="Departamento"
+              error={!!validationErrors.departamento}
+              helperText={validationErrors.departamento}
+              InputLabelProps={{
+                sx: {
+                  backgroundColor: '#fff',
+                  padding: '0 8px',
+                  marginLeft: '-4px',
+                }
+              }}
+            />
+          )}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+          sx={autocompleteStyles}
+        />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <TextField
+
+      {/* Unidad */}
+      <Grid item xs={12} sm={6}>
+        <Autocomplete
+          size="small"
           fullWidth
-          label="Unidad"
-          select
-          value={getValue(formData.unidad)}
-          onChange={handleChange('unidad')}
-          error={!!validationErrors.unidad}
-          helperText={validationErrors.unidad}
-          required
-        >
-          {Object.values(Unidad).map((unit) => (
-            <MenuItem key={unit} value={unit}>
-              {unit.replace(/_/g, ' ')}
-            </MenuItem>
-          ))}
-        </TextField>
+          value={findSelectedOption(formData.unidad, unidadOptions)}
+          onChange={(_, newValue) => {
+            handleChange('unidad')({
+              target: { value: newValue?.value || '' }
+            } as React.ChangeEvent<HTMLInputElement>);
+          }}
+          options={unidadOptions}
+          getOptionLabel={(option) => option.label}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              label="Unidad"
+              error={!!validationErrors.unidad}
+              helperText={validationErrors.unidad}
+              InputLabelProps={{
+                sx: {
+                  backgroundColor: '#fff',
+                  padding: '0 8px',
+                  marginLeft: '-4px',
+                }
+              }}
+            />
+          )}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+          sx={autocompleteStyles}
+        />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <TextField
+
+      {/* Tipo de Orden */}
+      <Grid item xs={12} sm={6}>
+        <Autocomplete
+          size="small"
           fullWidth
-          label="Tipo de Orden"
-          select
-          value={getValue(formData.tipoOrden)}
-          onChange={handleChange('tipoOrden')}
-          error={!!validationErrors.tipoOrden}
-          helperText={validationErrors.tipoOrden}
-          required
-        >
-          {Object.values(TipoOrden).map((tipo) => (
-            <MenuItem key={tipo} value={tipo}>
-              {tipo.replace(/_/g, ' ')}
-            </MenuItem>
-          ))}
-        </TextField>
+          value={findSelectedOption(formData.tipoOrden, tipoOrdenOptions)}
+          onChange={(_, newValue) => {
+            handleChange('tipoOrden')({
+              target: { value: newValue?.value || '' }
+            } as React.ChangeEvent<HTMLInputElement>);
+          }}
+          options={tipoOrdenOptions}
+          getOptionLabel={(option) => option.label}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              label="Tipo de Orden"
+              error={!!validationErrors.tipoOrden}
+              helperText={validationErrors.tipoOrden}
+              InputLabelProps={{
+                sx: {
+                  backgroundColor: '#fff',
+                  padding: '0 8px',
+                  marginLeft: '-4px',
+                }
+              }}
+            />
+          )}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+          sx={autocompleteStyles}
+        />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
+
+      {/* Número de Orden */}
+      <Grid item xs={12} sm={6}>
         <TextField
+          size="small"
           fullWidth
-          label="Nro. de Orden"
-          value={getValue(formData.nroOrden)}
+          variant="outlined"
+          label="Número de Orden"
+          value={formData.nroOrden || ''}
           onChange={handleChange('nroOrden')}
           error={!!validationErrors.nroOrden}
           helperText={validationErrors.nroOrden}
-          required
+          InputLabelProps={{
+            sx: {
+              backgroundColor: '#fff',
+              padding: '0 8px',
+              marginLeft: '-4px',
+            }
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              padding: '8.5px 14px',
+            }
+          }}
         />
       </Grid>
-    </>
+    </Grid>
   );
 };

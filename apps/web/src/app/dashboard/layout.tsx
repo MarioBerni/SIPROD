@@ -6,7 +6,12 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { PageTitleProvider, usePageTitle } from '@/contexts/PageTitleContext';
 import { navigationConfig } from '@/config/navigation';
 
-function findNavItem(pathname: string) {
+function findNavItem(pathname: string | null) {
+  // Si pathname es null o undefined, devolver el item del dashboard
+  if (!pathname) {
+    return navigationConfig[0];
+  }
+
   // Primero buscar coincidencia exacta
   const exactMatch = navigationConfig.find(item => item.href === pathname);
   if (exactMatch) {

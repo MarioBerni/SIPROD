@@ -16,6 +16,7 @@ import { TablaPrincipal } from '../types';
 import { UseResponsiveColumnsReturn } from '../hooks/useResponsiveColumns';
 import { useTheme } from '@mui/material';
 import { useCallback, useMemo, useState } from 'react';
+import { styled } from '@mui/material/styles';
 
 // Operadores personalizados para filtros
 const customStringOperators: GridFilterOperator[] = getGridStringOperators().map(operator => ({
@@ -166,8 +167,8 @@ const localeText = {
 
   // Otros
   booleanCellTrueLabel: 'Sí',
-  booleanCellFalseLabel: 'No',
-};
+  booleanCellFalseLabel: 'No'
+}
 
 interface DataTableProps {
   rows: TablaPrincipal[];
@@ -183,6 +184,109 @@ const VIRTUALIZATION_CONFIG = {
   rowBufferPx: 60,
   columnBufferPx: 30,
 };
+
+const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  border: 'none',
+  backgroundColor: theme.palette.background.paper,
+  '& .MuiDataGrid-main': {
+    border: `1px solid ${theme.palette.grey[200]}`,
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.1)}`,
+  },
+  // Estilo para el encabezado
+  '& .MuiDataGrid-columnHeaders': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.03),
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    minHeight: '60px !important',
+    maxHeight: 'unset !important',
+    lineHeight: '1.2',
+  },
+  // Estilo específico para las celdas de cabecera
+  '& .MuiDataGrid-columnHeader': {
+    height: 'unset !important',
+    maxHeight: 'unset !important',
+    whiteSpace: 'normal',
+    padding: '8px',
+    '& .MuiDataGrid-columnHeaderTitle': {
+      whiteSpace: 'normal',
+      lineHeight: '1.2',
+      overflow: 'visible',
+      textOverflow: 'unset',
+    },
+  },
+  // Ajustar altura y alineación de las filas
+  '& .MuiDataGrid-row': {
+    minHeight: '52px !important',
+    '&:nth-of-type(even)': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.02),
+    },
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.04),
+    },
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.08),
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.12),
+      },
+    },
+  },
+  // Estilo para las celdas
+  '& .MuiDataGrid-cell': {
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    fontSize: '0.9rem',
+    padding: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    '&:focus': {
+      outline: 'none',
+    },
+    '&:focus-within': {
+      outline: 'none',
+    },
+  },
+  // Estilo para el contenido de las celdas
+  '& .MuiDataGrid-cellContent': {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'inherit',
+  },
+  // Estilo para el footer
+  '& .MuiDataGrid-footerContainer': {
+    borderTop: `2px solid ${theme.palette.grey[200]}`,
+    backgroundColor: alpha(theme.palette.primary.main, 0.02),
+  },
+  // Estilo para los botones de paginación
+  '& .MuiPaginationItem-root': {
+    borderRadius: theme.shape.borderRadius,
+  },
+  // Estilo para el toolbar
+  '& .MuiDataGrid-toolbarContainer': {
+    padding: theme.spacing(2),
+    gap: theme.spacing(2),
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+  },
+  // Estilo para los checkboxes
+  '& .MuiCheckbox-root': {
+    color: theme.palette.primary.main,
+  },
+  // Estilo para los iconos de ordenamiento
+  '& .MuiDataGrid-sortIcon': {
+    color: alpha(theme.palette.primary.main, 0.7),
+  },
+  // Estilo para el ícono de menú de columnas
+  '& .MuiDataGrid-menuIcon': {
+    color: alpha(theme.palette.primary.main, 0.7),
+  },
+  // Estilo para el mensaje de no-rows
+  '& .MuiDataGrid-overlay': {
+    backgroundColor: alpha(theme.palette.background.paper, 0.8)
+  }
+}));
 
 export const DataTable = ({ 
   rows, 
@@ -330,7 +434,7 @@ export const DataTable = ({
         </Box>
       )}
       
-      <DataGrid
+      <StyledDataGrid
         rows={memoizedRows}
         columns={memoizedColumns.map(column => ({
           ...column,
@@ -411,7 +515,7 @@ export const DataTable = ({
         checkboxSelection
         disableRowSelectionOnClick
         density={isMobile ? 'compact' : 'comfortable'}
-        columnHeaderHeight={48}
+        columnHeaderHeight={60}
         autoHeight
         sx={{
           border: 'none',

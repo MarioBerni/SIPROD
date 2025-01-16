@@ -1,82 +1,58 @@
-export enum Departamento {
-  MONTEVIDEO = 'MONTEVIDEO',
-  CANELONES = 'CANELONES',
-  MALDONADO = 'MALDONADO',
-  ROCHA = 'ROCHA',
-  TREINTA_Y_TRES = 'TREINTA_Y_TRES',
-  CERRO_LARGO = 'CERRO_LARGO',
-  RIVERA = 'RIVERA',
-  ARTIGAS = 'ARTIGAS',
-  SALTO = 'SALTO',
-  PAYSANDU = 'PAYSANDU',
-  RIO_NEGRO = 'RIO_NEGRO',
-  SORIANO = 'SORIANO',
-  COLONIA = 'COLONIA',
-  SAN_JOSE = 'SAN_JOSE',
-  FLORES = 'FLORES',
-  FLORIDA = 'FLORIDA',
-  LAVALLEJA = 'LAVALLEJA',
-  TACUAREMBO = 'TACUAREMBO',
-  DURAZNO = 'DURAZNO'
-}
+// Re-exportar los tipos generados
+export * from './generated';
 
-export enum Unidad {
-  UNIDAD_1 = 'UNIDAD_1',
-  UNIDAD_2 = 'UNIDAD_2',
-  UNIDAD_3 = 'UNIDAD_3',
-  UNIDAD_4 = 'UNIDAD_4'
-}
-
-export enum TipoOrden {
-  ORDEN_SERVICIO = 'ORDEN_SERVICIO',
-  ORDEN_OPERACIONES = 'ORDEN_OPERACIONES'
-}
-
-export enum TipoOperativo {
-  SATURACION = 'SATURACION',
-  RASTRILLO = 'RASTRILLO',
-  ALLANAMIENTO = 'ALLANAMIENTO',
-  PATRULLAJE = 'PATRULLAJE',
-  CONTROL = 'CONTROL'
-}
-
-export enum TiempoOperativo {
-  PERMANENTE = 'PERMANENTE',
-  TRANSITORIO = 'TRANSITORIO'
-}
-
+// Interfaces
 export interface TablaPrincipal {
   id?: string;
-  departamento: Departamento;
-  unidad: string;
-  tipoOrden: string;
-  nroOrden: string;
-  tipoOperativo: string;
-  tiempoOperativo: string;
-  nombreOperativo: string;
-  fechaInicio: Date;
-  horaInicio: Date;
-  fechaFin: Date;
-  horaFin: Date;
+  departamento?: string;
+  unidad?: string;
+  tipoOrden?: string;
+  nroOrden?: string;
+  tipoOperativo?: string;
+  tiempoOperativo?: string;
+  nombreOperativo?: string;
+  fechaInicio?: string | Date;
+  horaInicio?: string | Date;
+  horaFin?: string | Date;
+  fechaFin?: string | Date;
+  observacionesOrden?: string;
   seccional: number[];
-  mapa: string[];
-  puntosControl: string[];
-  recorridos: string[];
   barrios: string[];
-  objetivos: string;
-  resultados: string;
-  observaciones: string;
-  moviles: number;
-  motos: number;
-  efectivos: number;
-  geoApostado: number;
-  geoMovil: number;
-  dnic: number;
-  uae: number;
-  otras: number;
-  totalPpss: number;
-  createdAt?: string;
-  updatedAt?: string;
+  moviles?: number;
+  ppssEnMovil?: number;
+  ssoo?: number;
+  motos?: number;
+  motosBitripuladas?: number;
+  hipos?: number;
+  canes?: number;
+  pieTierra?: number;
+  drones?: number;
+  antidisturbioApostado?: number;
+  antidisturbioAlerta?: number;
+  geoApostado?: number;
+  geoAlerta?: number;
+  totalPpss?: number;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   createdById?: string;
-  updatedById?: string;
 }
+
+// Tipos de respuesta API
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  validationErrors?: Record<string, string>;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+// Tipo específico para respuestas de TablaPrincipal
+export type TablaPrincipalResponse = ApiResponse<TablaPrincipal>;
+export type TablaPrincipalListResponse = ApiResponse<PaginatedResponse<TablaPrincipal>>;

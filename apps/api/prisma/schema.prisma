@@ -16,171 +16,162 @@ datasource db {
 // -----------------------------------------------
 
 // Enums de Usuario y Autenticación
-enum Grado {
-  CTE_GENERAL
-  CTE_MAYOR
-  CAPITAN
-  TENIENTE_PRIMERO
-  TENIENTE
-  ALFEREZ
-  SUB_OFICIAL
-  SARGENTO
-  CABO
-  GUARDIA
-}
-
 enum Rol {
   ADMINISTRADOR
-  OFICIAL
+  SUPERVISOR
+  OPERADOR
   COMANDO_DIRECCION_I
   COMANDO_DIRECCION_II
   COMANDO_GEO
   COMANDO_DNGR
-  JEFEDIA_DIRECCION_I
-  JEFEDIA_DIRECCION_II_Y_GEO
 }
 
-// Enums de Tabla Principal
+enum Grado {
+  CTE_MAYOR
+  CTE
+  MAY
+  CAP
+  TTE_1RO
+  TTE
+  ALF
+  SGTO_1RO
+  SGTO
+  CABO_1RO
+  CABO_2DO
+  CABO
+  AG_1RA
+  AG_2DA
+  CADETE
+}
+
 enum Departamento {
-  ARTIGAS
-  CANELONES
-  CERRO_LARGO
-  COLONIA
-  DURAZNO
-  FLORES
-  FLORIDA
-  LAVALLEJA
-  MALDONADO
-  MONTEVIDEO
-  PAYSANDU
-  RIO_NEGRO
-  RIVERA
-  ROCHA
-  SALTO
-  SAN_JOSE
-  SORIANO
-  TACUAREMBO
-  TREINTA_Y_TRES
+  ARTIGAS        @map("Artigas")
+  CANELONES      @map("Canelones")
+  CERRO_LARGO    @map("Cerro Largo")
+  COLONIA        @map("Colonia")
+  DURAZNO        @map("Durazno")
+  FLORES         @map("Flores")
+  FLORIDA        @map("Florida")
+  LAVALLEJA      @map("Lavalleja")
+  MALDONADO      @map("Maldonado")
+  MONTEVIDEO     @map("Montevideo")
+  PAYSANDU       @map("Paysandú")
+  RIO_NEGRO      @map("Río Negro")
+  RIVERA         @map("Rivera")
+  ROCHA          @map("Rocha")
+  SALTO          @map("Salto")
+  SAN_JOSE       @map("San José")
+  SORIANO        @map("Soriano")
+  TACUAREMBO     @map("Tacuarembó")
+  TREINTA_Y_TRES @map("Treinta y Tres")
 }
 
 enum Unidad {
-  DIRECCION_I
-  DIRECCION_II
-  GEO
-  REGIONAL_ESTE
-  REGIONAL_NORTE
+  DIRECCION_I    @map("Dirección I")
+  DIRECCION_II   @map("Dirección II")
+  GEO            @map("GEO")
+  REGIONAL_ESTE  @map("Regional Este")
+  REGIONAL_NORTE @map("Regional Norte")
+  DIRECCION_V    @map("Dirección V")
+  OTRAS          @map("Otras")
 }
 
 enum TipoOrden {
-  O_OP
-  CIR
-  COM
-  ORD
-  SERV
-  REG
+  O_OP     @map("O. Op.")
+  CIR      @map("Cir.")
+  COM      @map("Com.")
+  ORD_SERV @map("Ord. Serv.")
 }
 
 enum TipoOperativo {
-  OPERATIVO
-  PATRULLAJE
-  APOYO
-  GRUPO_CHOQUE_APOSTADO
-  GRUPO_CHOQUE_ALERTA
-  EQUIPO_CHOQUE_APOSTADO
-  EQUIPO_CHOQUE_ALERTA
-  GAT
-  GRUPO_GEO_APOSTADO
-  GRUPO_GEO_ALERTA
-  EQUIPO_GEO_APOSTADO
-  EQUIPO_GEO_ALERTA
-  PERIMETRAL_ALLANAMIENTO
-  INCURSION_ALLANAMIENTO
-  AUF
-  FUBB
-  ESPECTACULOS_VARIOS
-  OTROS
+  OPERATIVO               @map("Operativo")
+  PATRULLAJE              @map("Patrullaje")
+  APOYO                   @map("Apoyo")
+  GRUPO_CHOQUE_APOSTADO   @map("Grupo choque apostado")
+  GRUPO_CHOQUE_ALERTA     @map("Grupo choque alerta")
+  EQUIPO_CHOQUE_APOSTADO  @map("Equipo choque apostado")
+  EQUIPO_CHOQUE_ALERTA    @map("Equipo choque alerta")
+  GAT                     @map("GAT")
+  GRUPO_GEO_APOSTADO      @map("Grupo GEO apostado")
+  GRUPO_GEO_ALERTA        @map("Grupo GEO alerta")
+  EQUIPO_GEO_APOSTADO     @map("Equipo GEO apostado")
+  EQUIPO_GEO_ALERTA       @map("Equipo GEO alerta")
+  PERIMETRAL_ALLANAMIENTO @map("Perimetral allanamiento")
+  INCURSION_ALLANAMIENTO  @map("Incursión allanamiento")
+  AUF                     @map("AUF")
+  FUBB                    @map("FUBB")
+  ESPECTACULOS_VARIOS     @map("Espectaculos varios")
+  OTROS                   @map("Otros")
 }
 
 enum TiempoOperativo {
-  PATRULLAJE
-  PERM_ESTATICO
-  TRANSITORIO
+  PATRULLAJE    @map("Patrullaje")
+  PERM_ESTATICO @map("Perm. estatico")
+  TRANSITORIO   @map("Transitorio")
 }
 
 // -----------------------------------------------
 // Modelos de Usuario y Autenticación
 // -----------------------------------------------
+
 model User {
-  id                    String          @id @default(dbgenerated("concat('USR', to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS'))"))
-  fechaCreacion         DateTime        @default(now())
-  ultimaFechaAcceso     DateTime?
-  contrasenaActual      String
-  nuevaContrasena       String?
-  grado                 Grado
-  nombre                String
-  rol                   Rol
-  cargo                 String
-  correo                String          @unique
-  terminosCondiciones   Boolean         @default(false)
-  actualizacionesLeidas Actualizacion[] @relation("UserActualizaciones")
-  desplieguesCargados   Int            @default(0)
-  activo                Boolean         @default(true)
-  updatedAt             DateTime        @updatedAt
-  registrosCreados      TablaPrincipal[] @relation("CreadorRegistro")
+  id                  String           @id @default(dbgenerated("concat('USR', to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYYMMDDHHMMSS'))"))
+  fechaCreacion       DateTime         @default(now()) @map("fecha_creacion")
+  ultimaFechaAcceso   DateTime?        @map("ultima_fecha_acceso")
+  contrasenaActual    String           @map("contrasena_actual")
+  nuevaContrasena     String?          @map("nueva_contrasena")
+  grado               Grado
+  nombre              String
+  rol                 Rol
+  cargo               String
+  correo              String           @unique
+  terminosCondiciones Boolean          @default(false) @map("terminos_condiciones")
+  desplieguesCargados Int              @default(0) @map("despliegues_cargados")
+  activo              Boolean          @default(true)
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  registros           TablaPrincipal[]
 
   @@map("users")
-}
-
-model Actualizacion {
-  id          Int      @id @default(autoincrement())
-  fecha       DateTime @default(now())
-  titulo      String
-  descripcion String
-  usuarios    User[]   @relation("UserActualizaciones")
-  
-  @@map("actualizaciones")
 }
 
 // -----------------------------------------------
 // Modelos Operativos
 // -----------------------------------------------
-model TablaPrincipal {
-  id                    String          @id @default(dbgenerated("concat('REG', to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS'))"))
-  departamento          Departamento
-  unidad               Unidad
-  tipoOrden            TipoOrden
-  nroOrden             String
-  tipoOperativo        TipoOperativo
-  tiempoOperativo      TiempoOperativo
-  nombreOperativo      String
-  fechaInicio          DateTime?
-  horaInicio           DateTime?
-  horaFin              DateTime?
-  fechaFin             DateTime?
-  observacionesOrden   String?
-  seccional            Int[]
-  barrios              String[]
-  moviles              Int             @default(0)
-  ppssEnMovil          Int             @default(0)
-  ssoo                 Int             @default(0)
-  motos                Int             @default(0)
-  motosBitripuladas    Int             @default(0)
-  hipos                Int             @default(0)
-  canes                Int             @default(0)
-  pieTierra            Int             @default(0)
-  drones               Int             @default(0)
-  antidisturbioApostado Int             @default(0)
-  antidisturbioAlerta   Int             @default(0)
-  geoApostado          Int             @default(0)
-  geoAlerta            Int             @default(0)
-  totalPpss            Int             @default(0)
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-  createdBy            User            @relation("CreadorRegistro", fields: [createdById], references: [id])
-  createdById          String
 
-  @@index([departamento])
-  @@index([unidad])
-  @@index([tipoOperativo])
+model TablaPrincipal {
+  id                    String           @id @default(dbgenerated("concat('REG', to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYYMMDDHHMMSS'))"))
+  departamento          Departamento?
+  unidad                Unidad?
+  tipoOrden             TipoOrden?       @map("tipo_orden")
+  nroOrden              String?          @map("nro_orden")
+  tipoOperativo         TipoOperativo?   @map("tipo_operativo")
+  tiempoOperativo       TiempoOperativo? @map("tiempo_operativo")
+  nombreOperativo       String?          @map("nombre_operativo")
+  fechaInicio           DateTime?        @map("fecha_inicio")
+  horaInicio            DateTime?        @map("hora_inicio")
+  horaFin               DateTime?        @map("hora_fin")
+  fechaFin              DateTime?        @map("fecha_fin")
+  observacionesOrden    String?          @map("observaciones_orden")
+  seccional             Int[]
+  barrios               String[]
+  moviles               Int?
+  ppssEnMovil           Int?             @map("ppss_en_movil")
+  ssoo                  Int?
+  motos                 Int?
+  motosBitripuladas     Int?             @map("motos_bitripuladas")
+  hipos                 Int?
+  canes                 Int?
+  pieTierra             Int?             @map("pie_tierra")
+  drones                Int?
+  antidisturbioApostado Int?             @map("antidisturbio_apostado")
+  antidisturbioAlerta   Int?             @map("antidisturbio_alerta")
+  geoApostado           Int?             @map("geo_apostado")
+  geoAlerta             Int?             @map("geo_alerta")
+  totalPpss             Int?             @map("total_ppss")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  createdBy             User             @relation(fields: [createdById], references: [id])
+  createdById           String           @map("created_by_id")
+
   @@map("tabla_principal")
 }

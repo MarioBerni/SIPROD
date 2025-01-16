@@ -148,7 +148,12 @@ export function useTableData() {
       setError(null);
       setValidationErrors({});
 
+      console.log('Datos a enviar al servidor:', JSON.stringify(record, null, 2));
+      console.log('Tipos de datos:', Object.entries(record).map(([key, value]) => `${key}: ${typeof value}`));
+      
       const response = await api.post('/registros', record);
+      console.log('Respuesta del servidor:', response.data);
+
       const newRecord = response.data;
 
       setRows(prevRows => {
@@ -183,9 +188,9 @@ export function useTableData() {
       setError(null);
       setValidationErrors({});
 
-      console.log(`Enviando datos de actualización: ${JSON.stringify(formData)}`);
+      console.log(`Enviando datos de actualización: ${JSON.stringify(formData, null, 2)}`);
       const response = await api.put(`/registros/${editingRecord.id}`, formData);
-      console.log(`Respuesta del servidor: ${JSON.stringify(response)}`);
+      console.log(`Respuesta del servidor: ${JSON.stringify(response.data)}`);
 
       setRows(prev => prev.map(row => 
         row.id === editingRecord.id ? response.data : row

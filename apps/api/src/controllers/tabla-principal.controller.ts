@@ -14,6 +14,22 @@ const ROLES_ADMIN: Rol[] = [
   Rol.COMANDO_DNGR
 ];
 
+interface RecordData {
+  ppssEnMovil?: number;
+  motos?: number;
+  hipos?: number;
+  pieTierra?: number;
+  motosBitripuladas?: number;
+}
+
+const calculateTotalPpss = (data: RecordData) => {
+  return (data.ppssEnMovil || 0) +
+         (data.motos || 0) +
+         (data.hipos || 0) +
+         (data.pieTierra || 0) +
+         ((data.motosBitripuladas || 0) * 2);
+};
+
 export const tablaPrincipalController = {
   // Obtener todos los registros
   getAllRegistros: async (_req: Request, res: Response) => {
@@ -66,10 +82,6 @@ export const tablaPrincipalController = {
         return res.status(403).json({ message: 'No tiene permisos para crear registros' });
       }
 
-      // Eliminar campos que no existen en el esquema
-      delete data.mapa;
-      delete data.puntosControl;
-      delete data.recorridos;
 
       // Asegurar valores por defecto para campos numéricos
       const defaultNumericFields = {
@@ -89,10 +101,11 @@ export const tablaPrincipalController = {
         totalPpss: 0
       };
 
-      // Combinar los datos con los valores por defecto
-      const dataWithDefaults = {
+      // Combinar los datos con los valores por defecto y calcular totalPpss
+      const dataWithDefaults: RecordData & typeof defaultNumericFields = {
         ...defaultNumericFields,
         ...data,
+        totalPpss: calculateTotalPpss(data)
       };
 
       logger.info(`Creando registro por usuario ${req.user.userId} con rol ${req.user.role}`);
@@ -126,6 +139,9 @@ export const tablaPrincipalController = {
       if (!ROLES_ADMIN.includes(req.user.role)) {
         return res.status(403).json({ message: 'No tiene permisos para actualizar registros' });
       }
+
+      // Calcular totalPpss con los datos actualizados
+      data.totalPpss = calculateTotalPpss(data);
 
       const registro = await prisma.tablaPrincipal.update({
         where: { id },

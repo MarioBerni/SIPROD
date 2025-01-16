@@ -1,5 +1,8 @@
-const { resolve } = require('path');
-const { config } = require('dotenv');
+import { resolve } from 'path';
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // Cargar variables de entorno
 const envPath = process.env.NODE_ENV === 'production'
@@ -34,4 +37,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

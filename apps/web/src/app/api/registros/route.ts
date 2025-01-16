@@ -18,6 +18,13 @@ type AuthError = {
 
 type AuthResult = AuthSuccess | AuthError;
 
+// Tipo para errores de Prisma
+type PrismaError = {
+  code?: string;
+  message?: string;
+  clientVersion?: string;
+};
+
 // Middleware para verificar autenticación y obtener usuario
 async function checkAuth(request: NextRequest): Promise<AuthResult> {
   const token = request.cookies.get('token')?.value;
@@ -85,7 +92,8 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    console.log('Datos recibidos:', data);
+    console.log('Datos recibidos en el servidor:', JSON.stringify(data, null, 2));
+    console.log('Tipos de datos recibidos:', Object.entries(data).map(([key, value]) => `${key}: ${typeof value}`));
     
     // Asignar valores por defecto a campos numéricos
     const defaultNumericFields = {
@@ -105,85 +113,89 @@ export async function POST(request: NextRequest) {
       totalPpss: 0
     };
 
-    // Convertir fechas a formato ISO string
-    const formattedDates = {
-      fechaInicio: new Date(data.fechaInicio).toISOString(),
-      horaInicio: new Date(data.horaInicio).toISOString(),
-      horaFin: new Date(data.horaFin).toISOString(),
-      fechaFin: new Date(data.fechaFin).toISOString()
+    const calculateTotalPpss = (data: {
+      ppssEnMovil?: number;
+      motos?: number;
+      hipos?: number;
+      pieTierra?: number;
+      motosBitripuladas?: number;
+    }) => {
+      return (data.ppssEnMovil || 0) +
+             (data.motos || 0) +
+             (data.hipos || 0) +
+             (data.pieTierra || 0) +
+             ((data.motosBitripuladas || 0) * 2);
     };
 
-    // Combinar datos recibidos con valores por defecto y fechas formateadas
-    const dataWithDefaults = {
+    // Asignar createdById del usuario autenticado y limpiar datos
+    const recordData = {
       ...defaultNumericFields,
       ...data,
-      ...formattedDates,
+      createdById: (authResult as AuthSuccess).userId,
+      totalPpss: calculateTotalPpss(data),
+      // Asegurar que los enums sean null si están vacíos
+      departamento: data.departamento || null,
+      unidad: data.unidad || null,
+      tipoOrden: data.tipoOrden || null,
+      tipoOperativo: data.tipoOperativo || null,
+      tiempoOperativo: data.tiempoOperativo || null,
+      // Asegurar que las fechas sean null si están vacías
+      fechaInicio: data.fechaInicio || null,
+      horaInicio: data.horaInicio || null,
+      fechaFin: data.fechaFin || null,
+      horaFin: data.horaFin || null,
       // Asegurar que los arrays estén inicializados
       seccional: data.seccional || [],
-      mapa: data.mapa || [],
-      puntosControl: data.puntosControl || [],
-      recorridos: data.recorridos || [],
       barrios: data.barrios || []
     };
 
-    console.log('Datos con valores por defecto:', dataWithDefaults);
-    
-    // Validar campos requeridos
-    const requiredFields = [
-      'departamento',
-      'unidad',
-      'tipoOrden',
-      'nroOrden',
-      'tipoOperativo',
-      'tiempoOperativo',
-      'nombreOperativo',
-      'fechaInicio',
-      'horaInicio',
-      'horaFin',
-      'fechaFin'
-    ];
+    console.log('Datos procesados antes de crear:', JSON.stringify(recordData, null, 2));
 
-    for (const field of requiredFields) {
-      if (!dataWithDefaults[field]) {
+    try {
+      const newRecord = await prisma.tablaPrincipal.create({
+        data: recordData
+      });
+      console.log('Registro creado exitosamente:', newRecord);
+      return NextResponse.json(newRecord);
+    } catch (error) {
+      console.error('Error detallado de Prisma:', error);
+      
+      const prismaError = error as PrismaError;
+      
+      // Manejar diferentes tipos de errores de Prisma
+      if (prismaError.code === 'P2002') {
         return NextResponse.json(
-          { error: `Campo requerido: ${field}` },
+          { error: 'Ya existe un registro con estos datos' },
+          { status: 400 }
+        );
+      } else if (prismaError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Error de referencia: uno de los campos hace referencia a un registro que no existe' },
+          { status: 400 }
+        );
+      } else if (prismaError.code === 'P2005') {
+        return NextResponse.json(
+          { error: 'Error de validación: uno de los campos tiene un valor inválido' },
           { status: 400 }
         );
       }
-    }
-
-    // Crear el registro en la base de datos
-    try {
-      const registro = await prisma.tablaPrincipal.create({
-        data: {
-          ...dataWithDefaults,
-          createdById: authResult.userId
-        },
-        include: {
-          createdBy: {
-            select: {
-              id: true,
-              nombre: true,
-              grado: true,
-              rol: true
-            }
-          }
-        }
-      });
       
-      console.log('Registro creado exitosamente por:', registro.createdBy);
-      return NextResponse.json(registro);
-    } catch (dbError) {
-      console.error('Error al crear registro en la base de datos:', dbError);
       return NextResponse.json(
-        { error: 'Error al crear registro en la base de datos', details: dbError },
+        { 
+          error: 'Error al crear registro en la base de datos',
+          details: {
+            message: prismaError.message,
+            code: prismaError.code
+          }
+        },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Error general en POST /registros:', error);
+    const generalError = error as Error;
+    console.error('Error general en POST /registros:', generalError);
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     );
   }

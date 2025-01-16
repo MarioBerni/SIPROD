@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { type FC, type SyntheticEvent } from 'react';
 import {
   Box,
   Chip,
@@ -47,201 +47,111 @@ const barriosSeccionalMap = Object.entries(seccionalBarriosMap).reduce((acc, [se
   return acc;
 }, {} as Record<string, string[]>);
 
-// Obtener todas las seccionales y barrios
-const allSeccionales = Object.keys(seccionalBarriosMap).map(seccional => ({
-  id: seccional,
-  label: `Seccional ${seccional}`
-}));
+// Obtener lista de seccionales ordenada
+const seccionalOptions = Object.keys(seccionalBarriosMap).sort((a, b) => a.localeCompare(b, 'es'));
 
-const allBarrios = Array.from(new Set(Object.values(seccionalBarriosMap).flat()))
-  .sort((a, b) => a.localeCompare(b, 'es')) // Ordenar alfabéticamente usando el locale español
-  .map(barrio => ({
-    id: barrio,
-    label: barrio
-  }));
+// Obtener lista de barrios ordenada
+const barriosOptions = Array.from(new Set(Object.values(seccionalBarriosMap).flat()))
+  .sort((a, b) => a.localeCompare(b, 'es'));
 
-interface UbicacionFormProps {
-  initialSeccionales?: number[];
-  initialBarrios?: string[];
-  onChange: (seccionales: number[], barrios: string[]) => void;
+// Función para validar que los barrios correspondan a las seccionales seleccionadas
+const validateBarriosForSeccionales = (selectedBarrios: string[], selectedSeccionales: string[]): boolean => {
+  return selectedBarrios.every(barrio => {
+    const seccionales = barriosSeccionalMap[barrio] || [];
+    return seccionales.some(s => selectedSeccionales.includes(s));
+  });
+};
+
+export interface UbicacionFormProps {
+  seccional: number[];
+  barrios: string[];
+  onSeccionalChange: (value: number[]) => void;
+  onBarriosChange: (value: string[]) => void;
+  errors?: {
+    seccional?: string;
+    barrios?: string;
+  };
 }
 
-export function UbicacionForm({ initialSeccionales = [], initialBarrios = [], onChange }: UbicacionFormProps) {
-  type SeccionalOption = { id: string; label: string };
-  type BarrioOption = { id: string; label: string };
-
-  const [selectedSeccionales, setSelectedSeccionales] = useState<SeccionalOption[]>(
-    initialSeccionales.map(s => ({ id: s.toString(), label: `Seccional ${s}` }))
-  );
-  const [selectedBarrios, setSelectedBarrios] = useState<BarrioOption[]>(
-    initialBarrios.map(b => ({ id: b, label: b }))
-  );
-
-  const updateValues = useCallback((newSeccionales: SeccionalOption[], newBarrios: BarrioOption[]) => {
-    onChange(
-      newSeccionales.map(s => parseInt(s.id, 10)),
-      newBarrios.map(b => b.id)
-    );
-  }, [onChange]);
-
-  const handleSeccionalChange = (_: React.SyntheticEvent, newValue: SeccionalOption[]) => {
-    const newSeccionalIds = newValue.map(s => s.id);
-    const newBarrios = Array.from(new Set(newSeccionalIds.flatMap(seccional => seccionalBarriosMap[seccional] || [])));
-    
-    const updatedBarrios = newBarrios.map(b => ({ id: b, label: b }));
-    setSelectedSeccionales(newValue);
-    setSelectedBarrios(updatedBarrios);
-    updateValues(newValue, updatedBarrios);
+export const UbicacionForm: FC<UbicacionFormProps> = ({
+  seccional = [],
+  barrios = [],
+  onSeccionalChange,
+  onBarriosChange,
+  errors = {}
+}) => {
+  // Convertir números a strings para el Autocomplete
+  const seccionalStrings = seccional.map(String);
+  
+  const handleSeccionalChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
+    onSeccionalChange(newValue.map(Number));
   };
 
-  const handleBarrioChange = (_: React.SyntheticEvent, newValue: BarrioOption[]) => {
-    const newBarrioIds = newValue.map(b => b.id);
-    const newSeccionales = Array.from(new Set(newBarrioIds.flatMap(barrio => barriosSeccionalMap[barrio] || [])));
-    
-    const updatedSeccionales = newSeccionales.map(s => ({ id: s, label: `Seccional ${s}` }));
-    setSelectedBarrios(newValue);
-    setSelectedSeccionales(updatedSeccionales);
-    updateValues(updatedSeccionales, newValue);
-  };
-
-  useEffect(() => {
-    setSelectedSeccionales(initialSeccionales.map(s => ({ id: s.toString(), label: `Seccional ${s}` })));
-    setSelectedBarrios(initialBarrios.map(b => ({ id: b, label: b })));
-  }, [initialSeccionales, initialBarrios]);
-
-  const chipStyles = {
-    margin: '3px',
-    '& .MuiChip-deleteIcon': {
-      marginLeft: '5px',
-    },
-    height: '28px',
-    '& .MuiChip-label': {
-      padding: '0 8px',
-      fontSize: '0.875rem',
-    },
-  };
-
-  const autocompleteStyles = {
-    flex: 1,
-    '& .MuiOutlinedInput-root': {
-      padding: '8px !important',
-      gap: '5px',
-      flexWrap: 'wrap',
-      '& .MuiAutocomplete-tag': {
-        margin: '2px',
-      },
-    },
-    '& .MuiAutocomplete-endAdornment': {
-      right: '8px',
-    },
-    '& .MuiFormLabel-root': {
-      backgroundColor: '#fff',
-      padding: '0 8px',
-      marginLeft: '-4px',
-    },
-    '& .MuiInputLabel-shrink': {
-      transform: 'translate(14px, -9px) scale(0.75)',
-    },
+  const handleBarriosChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
+    // Validar que los barrios seleccionados correspondan a las seccionales
+    if (validateBarriosForSeccionales(newValue, seccionalStrings)) {
+      onBarriosChange(newValue);
+    } else {
+      // Si hay barrios que no corresponden, filtrarlos
+      const validBarrios = newValue.filter(barrio => {
+        const seccionales = barriosSeccionalMap[barrio] || [];
+        return seccionales.some(s => seccionalStrings.includes(s));
+      });
+      onBarriosChange(validBarrios);
+    }
   };
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      gap: 2, 
-      width: '100%',
-      mt: 3 // Agregando margen superior para mantener consistencia con otras cards
-    }}>
-      <Autocomplete<SeccionalOption, true>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Autocomplete
         multiple
-        disableCloseOnSelect
-        limitTags={4}
-        id="seccionales-tags"
-        options={allSeccionales}
-        value={selectedSeccionales}
+        options={seccionalOptions}
+        value={seccionalStrings}
         onChange={handleSeccionalChange}
-        getOptionLabel={(option) => option.label}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        renderTags={(tagValue, getTagProps) =>
-          tagValue.map((option, index) => {
-            const { key, ...tagProps } = getTagProps({ index });
-            return (
-              <Chip
-                key={key}
-                label={option.label}
-                {...tagProps}
-                sx={chipStyles}
-                size="small"
-              />
-            );
-          })
-        }
         renderInput={(params) => (
           <TextField
             {...params}
-            InputLabelProps={{
-              sx: {
-                backgroundColor: '#fff',
-                padding: '0 8px',
-                marginLeft: '-4px',
-              }
-            }}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '-4px' }}>
-                <LocationOnIcon sx={{ mr: 0.5, fontSize: 20 }} />
-                Seccionales
-              </Box>
-            }
-            placeholder={selectedSeccionales.length === 0 ? "Seleccionar seccionales" : ""}
+            label="Seccional"
+            error={!!errors.seccional}
+            helperText={errors.seccional}
           />
         )}
-        sx={autocompleteStyles}
+        renderTags={(value: string[], getTagProps) =>
+          value.map((option: string, index: number) => (
+            <Chip
+              {...getTagProps({ index })}
+              key={`seccional-${option}`}
+              label={`Seccional ${option}`}
+              icon={<LocationOnIcon />}
+            />
+          ))
+        }
       />
 
-      <Autocomplete<BarrioOption, true>
+      <Autocomplete
         multiple
-        disableCloseOnSelect
-        limitTags={4}
-        id="barrios-tags"
-        options={allBarrios}
-        value={selectedBarrios}
-        onChange={handleBarrioChange}
-        getOptionLabel={(option) => option.label}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        renderTags={(tagValue, getTagProps) =>
-          tagValue.map((option, index) => {
-            const { key, ...tagProps } = getTagProps({ index });
-            return (
-              <Chip
-                key={key}
-                label={option.label}
-                {...tagProps}
-                sx={chipStyles}
-                size="small"
-              />
-            );
-          })
-        }
+        options={barriosOptions}
+        value={barrios}
+        onChange={handleBarriosChange}
         renderInput={(params) => (
           <TextField
             {...params}
-            InputLabelProps={{
-              sx: {
-                backgroundColor: '#fff',
-                padding: '0 8px',
-                marginLeft: '-4px',
-              }
-            }}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '-4px' }}>
-                <LocationOnIcon sx={{ mr: 0.5, fontSize: 20 }} />
-                Barrios
-              </Box>
-            }
-            placeholder={selectedBarrios.length === 0 ? "Seleccionar barrios" : ""}
+            label="Barrios"
+            error={!!errors.barrios}
+            helperText={errors.barrios}
           />
         )}
-        sx={autocompleteStyles}
+        renderTags={(value: string[], getTagProps) =>
+          value.map((option: string, index: number) => (
+            <Chip
+              {...getTagProps({ index })}
+              key={`barrio-${option}`}
+              label={option}
+              icon={<LocationOnIcon />}
+            />
+          ))
+        }
       />
     </Box>
   );
-}
+};

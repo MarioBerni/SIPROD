@@ -1,42 +1,37 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  IconButton,
   Grid,
   Typography,
   Box,
-  Alert,
-  CircularProgress,
   useTheme,
   alpha,
-  Card,
-  CardContent
+  SelectChangeEvent,
+  TextField,
+  Autocomplete,
+  Chip
 } from '@mui/material';
 import { 
-  Close as CloseIcon,
   Info as InfoIcon,
   Description as DescriptionIcon,
   AccessTime as AccessTimeIcon,
   Group as GroupIcon,
   LocationOn as LocationOnIcon,
   Note as NoteIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Save as SaveIcon
+  AddCircleOutline as AddCircleOutlineIcon
 } from '@mui/icons-material';
 import { TablaPrincipal, Departamento, Unidad, TipoOrden, TipoOperativo, TiempoOperativo } from '../types';
-import { format, isValid, parse } from 'date-fns';
+import { isValid } from 'date-fns';
 
 // Importar secciones del formulario
 import { BasicInformation } from './form-sections/BasicInformation';
 import { OperativeInformation } from './form-sections/OperativeInformation';
 import { DateTimeInformation } from './form-sections/DateTimeInformation';
 import { ResourceInformation } from './form-sections/ResourceInformation';
-import { Observations } from './form-sections/Observations';
 import { UbicacionForm } from './UbicacionForm';
 
 interface AddRecordModalProps {
@@ -84,47 +79,9 @@ const sectionColors = {
   }
 };
 
-// Componente para el encabezado de cada sección
-const SectionHeader = ({ 
-  icon: Icon, 
-  title, 
-  color 
-}: { 
-  icon: React.ElementType; 
-  title: string;
-  color: keyof typeof sectionColors;
-}) => {
-  const theme = useTheme();
-  return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        mb: 2,
-        p: 1.5,
-        borderRadius: 1,
-        backgroundColor: theme.palette.background.paper,
-        borderBottom: `2px solid ${sectionColors[color].main}`,
-        boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`
-      }}
-    >
-      <Icon sx={{ mr: 1, color: sectionColors[color].main }} />
-      <Typography 
-        variant="h6" 
-        sx={{ 
-          color: sectionColors[color].main,
-          fontWeight: 600
-        }}
-      >
-        {title}
-      </Typography>
-    </Box>
-  );
-};
-
 // Componente para la sección del formulario
 const FormSection = ({ 
-  icon, 
+  icon: Icon, 
   title, 
   children,
   color
@@ -135,60 +92,167 @@ const FormSection = ({
   color: keyof typeof sectionColors;
 }) => {
   const theme = useTheme();
+  
   return (
-    <Card
+    <Box
       sx={{
-        mb: 2,
-        backgroundColor: theme.palette.background.paper,
-        transition: theme.transitions.create(['box-shadow', 'border-color'], {
-          duration: theme.transitions.duration.shorter,
-        }),
-        '&:hover': {
-          boxShadow: `0 0 0 1px ${sectionColors[color].border}, ${theme.shadows[2]}`,
-        },
-        border: `1px solid ${theme.palette.grey[200]}`,
-        borderRadius: 1,
-        overflow: 'visible'
+        mb: 4,
+        position: 'relative',
+        '&:last-child': {
+          mb: 0
+        }
       }}
     >
-      <CardContent sx={{ p: 3 }}>
-        <SectionHeader icon={icon} title={title} color={color} />
-        <Box 
-          sx={{ 
-            mt: 2,
-            '& .MuiTextField-root': {
-              '& .MuiOutlinedInput-root': {
-                '&.Mui-focused fieldset': {
-                  borderColor: sectionColors[color].main,
-                  borderWidth: '1.5px'
-                },
-                '&:hover fieldset': {
-                  borderColor: sectionColors[color].border,
-                },
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: sectionColors[color].main,
-              },
-            },
-            '& .MuiFormLabel-root.Mui-focused': {
-              color: sectionColors[color].main,
-            },
-            '& .MuiChip-root': {
-              backgroundColor: sectionColors[color].light,
-              borderColor: sectionColors[color].border,
-              '& .MuiChip-deleteIcon': {
-                color: sectionColors[color].main,
-                '&:hover': {
-                  color: theme.palette.error.main,
-                },
-              },
-            },
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '12px',
+            backgroundColor: alpha(sectionColors[color].main, 0.08),
+            color: sectionColors[color].main,
           }}
         >
-          {children}
+          <Icon sx={{ fontSize: 24 }} />
         </Box>
-      </CardContent>
-    </Card>
+        <Typography
+          variant="h6"
+          sx={{
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+          }}
+        >
+          {title}
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          pl: 7,
+          position: 'relative',
+          '&:before': {
+            content: '""',
+            position: 'absolute',
+            left: '20px',
+            top: '-10px',
+            bottom: '0',
+            width: '1px',
+            bgcolor: theme.palette.divider,
+            opacity: 0.3,
+          },
+          '& .MuiFormControl-root': {
+            mb: 3,
+            '& .MuiInputBase-root': {
+              backgroundColor: theme.palette.background.paper,
+              transition: 'all 0.2s ease-in-out',
+              borderRadius: '12px',
+              border: `1px solid ${theme.palette.divider}`,
+              '&:hover': {
+                borderColor: sectionColors[color].main,
+                backgroundColor: alpha(sectionColors[color].light, 0.1),
+              },
+              '&.Mui-focused': {
+                borderColor: sectionColors[color].main,
+                boxShadow: `0 0 0 2px ${alpha(sectionColors[color].main, 0.2)}`,
+                backgroundColor: theme.palette.background.paper,
+              },
+              '& fieldset': {
+                border: 'none',
+              }
+            },
+            '& .MuiInputLabel-root': {
+              '&.Mui-focused': {
+                color: sectionColors[color].main,
+              }
+            }
+          },
+          '& .MuiAutocomplete-root': {
+            '& .MuiOutlinedInput-root': {
+              padding: '4px !important',
+            }
+          },
+          '& .MuiChip-root': {
+            borderRadius: '8px',
+            height: '28px',
+            fontSize: '0.85rem',
+            backgroundColor: alpha(sectionColors[color].light, 0.2),
+            borderColor: 'transparent',
+            '&:hover': {
+              backgroundColor: alpha(sectionColors[color].main, 0.1),
+            },
+            '& .MuiChip-deleteIcon': {
+              fontSize: '16px',
+              color: alpha(sectionColors[color].main, 0.7),
+              '&:hover': {
+                color: theme.palette.error.main,
+              },
+            },
+          }
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+// Componente AutocompleteField
+const AutocompleteField = ({
+  options,
+  value,
+  onChange,
+  label,
+  error,
+  helperText,
+  multiple = false,
+  required = false
+}: {
+  options: string[];
+  value: string | string[] | null;
+  onChange: (value: string | string[]) => void;
+  label: string;
+  error?: boolean;
+  helperText?: string;
+  multiple?: boolean;
+  required?: boolean;
+}) => {
+  return (
+    <Autocomplete
+      multiple={multiple}
+      options={options}
+      value={value || (multiple ? [] : null)}
+      onChange={(_, newValue) => onChange(newValue || (multiple ? [] : ''))}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          error={error}
+          helperText={helperText}
+          required={required}
+        />
+      )}
+      renderTags={(tagValue: string[], getTagProps) =>
+        tagValue.map((option: string, index: number) => (
+          <Chip
+            {...getTagProps({ index })}
+            key={`chip-${index}`}
+            variant="outlined"
+            label={option}
+          />
+        ))
+      }
+    />
   );
 };
 
@@ -197,21 +261,18 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   onClose,
   onSubmit,
   loading = false,
-  error = null,
-  validationErrors: externalValidationErrors = {},
+  validationErrors = {},
   mode = 'add',
-  initialData
-}: AddRecordModalProps) => {
-  const theme = useTheme();
-  
+  initialData = null
+}) => {
   // Estado inicial del formulario para modo 'add'
   const emptyFormData = useMemo<Partial<TablaPrincipal>>(() => ({
     departamento: '' as Departamento,
     unidad: '' as Unidad,
     tipoOrden: '' as TipoOrden,
-    nroOrden: '',
     tipoOperativo: '' as TipoOperativo,
     tiempoOperativo: '' as TiempoOperativo,
+    nroOrden: '',
     nombreOperativo: '',
     fechaInicio: undefined,
     horaInicio: undefined,
@@ -219,9 +280,6 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
     horaFin: undefined,
     observacionesOrden: '',
     seccional: [],
-    mapa: [],
-    puntosControl: [],
-    recorridos: [],
     barrios: [],
     moviles: undefined,
     ppssEnMovil: undefined,
@@ -243,40 +301,25 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
   // Efecto para actualizar el formulario cuando cambian los datos iniciales
   useEffect(() => {
-    if (mode === 'edit' && initialData) {
-      console.log('Actualizando formulario para edición:', initialData);
-      // Asegurarse de que las fechas sean instancias de Date
-      const formattedData = {
-        ...initialData,
-        fechaInicio: initialData.fechaInicio ? new Date(initialData.fechaInicio) : undefined,
-        horaInicio: initialData.horaInicio ? new Date(initialData.horaInicio) : undefined,
-        fechaFin: initialData.fechaFin ? new Date(initialData.fechaFin) : undefined,
-        horaFin: initialData.horaFin ? new Date(initialData.horaFin) : undefined
-      };
-      setFormData(formattedData);
-    } else if (mode === 'add') {
-      console.log('Inicializando formulario vacío');
-      setFormData(emptyFormData);
+    if (open) {
+      if (mode === 'edit' && initialData) {
+        setFormData(initialData);
+      } else {
+        setFormData(emptyFormData);
+      }
     }
-  }, [initialData, mode, emptyFormData]);
+  }, [open, initialData, mode, emptyFormData]);
 
   const [internalValidationErrors, setInternalValidationErrors] = useState<Record<string, string>>({});
 
   // Combinar errores de validación externos e internos
-  const allValidationErrors = { ...internalValidationErrors, ...externalValidationErrors };
+  const allValidationErrors = { ...internalValidationErrors, ...validationErrors };
 
   // Efecto para resetear el formulario cuando se cierra el modal
   useEffect(() => {
     if (!open) {
       if (mode === 'edit' && initialData) {
-        const formattedData = {
-          ...initialData,
-          fechaInicio: initialData.fechaInicio ? new Date(initialData.fechaInicio) : undefined,
-          horaInicio: initialData.horaInicio ? new Date(initialData.horaInicio) : undefined,
-          fechaFin: initialData.fechaFin ? new Date(initialData.fechaFin) : undefined,
-          horaFin: initialData.horaFin ? new Date(initialData.horaFin) : undefined
-        };
-        setFormData(formattedData);
+        setFormData(initialData);
       } else {
         setFormData(emptyFormData);
       }
@@ -285,14 +328,38 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   }, [open, initialData, mode, emptyFormData]);
 
   const handleChange = (field: keyof TablaPrincipal) => (
-    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
   ) => {
     const value = event.target.value;
-    console.log(`Cambiando campo ${field}:`, value);
     
+    // Manejar arrays
+    if (['seccional', 'barrios'].includes(field)) {
+      const arrayValue = Array.isArray(value) ? value : value ? value.split(',').map(item => item.trim()) : [];
+      setFormData(prev => ({
+        ...prev,
+        [field]: arrayValue
+      }));
+      return;
+    }
+
+    // Manejar números
+    if ([
+      'moviles', 'ppssEnMovil', 'ssoo', 'motos', 'motosBitripuladas',
+      'hipos', 'canes', 'pieTierra', 'drones', 'antidisturbioApostado',
+      'antidisturbioAlerta', 'geoApostado', 'geoAlerta', 'totalPpss'
+    ].includes(field)) {
+      const numberValue = value === '' ? undefined : Number(value);
+      setFormData(prev => ({
+        ...prev,
+        [field]: numberValue
+      }));
+      return;
+    }
+
+    // Manejar otros campos
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value === '' ? undefined : value
     }));
   };
 
@@ -300,291 +367,262 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
     event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
   ) => {
     const value = parseInt(event.target.value as string, 10) || 0;
-    setFormData(prev => ({
+    setFormData((prev: Partial<TablaPrincipal>) => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const formatDateForInput = (date: Date | null): string => {
-    if (!date) return '';
-    return format(date, 'yyyy-MM-dd');
-  };
-
-  const formatTimeForInput = (date: Date | null): string => {
-    if (!date) return '';
-    return format(date, 'HH:mm');
-  };
-
-  const handleDateChange = (field: keyof TablaPrincipal) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
+  const handleDateChange = (field: keyof TablaPrincipal, value: string) => {
     try {
-      const parsedDate = parse(value, 'yyyy-MM-dd', new Date());
-      if (!isValid(parsedDate)) {
+      const newDate = value ? new Date(value) : undefined;
+      
+      if (value && !isValid(newDate)) {
+        console.error(`Fecha inválida para ${String(field)}: ${value}`);
         return;
       }
 
-      const currentTime = formData[field as keyof typeof formData] as Date || new Date();
-      parsedDate.setHours(currentTime.getHours(), currentTime.getMinutes());
-
-      setFormData(prev => ({
-        ...prev,
-        [field]: parsedDate
-      }));
-    } catch (error) {
-      console.error('Error al parsear la fecha:', error);
-    }
-  };
-
-  const handleTimeChange = (field: keyof TablaPrincipal) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = event.target.value;
-    try {
-      const [hours, minutes] = value.split(':').map(Number);
-      const currentDate = formData[field as keyof typeof formData] as Date || new Date();
-      const newDate = new Date(currentDate);
-      newDate.setHours(hours, minutes);
-
-      if (!isValid(newDate)) {
-        return;
-      }
-
-      setFormData(prev => ({
+      setFormData((prev: Partial<TablaPrincipal>) => ({
         ...prev,
         [field]: newDate
       }));
     } catch (error) {
-      console.error('Error al parsear la hora:', error);
+      console.error(`Error al procesar fecha para ${String(field)}:`, error);
     }
   };
 
+  const handleTimeChange = (field: keyof TablaPrincipal, value: string) => {
+    try {
+      const newDate = value ? new Date(`1970-01-01T${value}`) : undefined;
 
+      if (value && !isValid(newDate)) {
+        console.error(`Hora inválida para ${String(field)}: ${value}`);
+        return;
+      }
 
-
-  const handleUbicacionChange = (seccionales: number[], barrios: string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      seccional: seccionales,
-      barrios: barrios
-    }));
+      setFormData((prev: Partial<TablaPrincipal>) => ({
+        ...prev,
+        [field]: newDate
+      }));
+    } catch (error) {
+      console.error(`Error al procesar hora para ${String(field)}:`, error);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const requiredFields: Array<keyof TablaPrincipal> = [
-      'departamento',
-      'unidad',
-      'tipoOrden',
-      'nroOrden',
-      'tipoOperativo',
-      'tiempoOperativo',
-      'nombreOperativo',
-      'fechaInicio',
-      'horaInicio',
-      'horaFin',
-      'fechaFin'
-    ];
-
-    const missingFields = requiredFields.filter(field => !formData[field]);
-    if (missingFields.length > 0) {
-      console.error('Campos requeridos faltantes:', missingFields);
-      return;
-    }
-    
     const totalPpss = (formData.ppssEnMovil || 0) + 
-                     (formData.ssoo || 0) + 
+                     (formData.motos || 0) +
+                     (formData.hipos || 0) +
                      (formData.pieTierra || 0) +
-                     (formData.antidisturbioApostado || 0) +
-                     (formData.antidisturbioAlerta || 0) +
-                     (formData.geoApostado || 0) +
-                     (formData.geoAlerta || 0);
+                     ((formData.motosBitripuladas || 0) * 2); // Duplicar el valor de motos bitripuladas
 
-    const dataToSubmit = {
+    // Limpiar valores vacíos de enums
+    const cleanedData: Partial<TablaPrincipal> = {
       ...formData,
-      totalPpss
+      departamento: formData.departamento || undefined,
+      unidad: formData.unidad || undefined,
+      tipoOrden: formData.tipoOrden || undefined,
+      tipoOperativo: formData.tipoOperativo || undefined,
+      tiempoOperativo: formData.tiempoOperativo || undefined,
+      totalPpss,
+      // Asegurar que los arrays estén inicializados
+      seccional: formData.seccional || [],
+      barrios: formData.barrios || []
     };
 
-    onSubmit(dataToSubmit);
+    onSubmit(cleanedData);
   };
 
   return (
     <Dialog 
       open={open} 
       onClose={onClose}
-      maxWidth="xl"
+      maxWidth="md"
       fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '16px',
+          boxShadow: (theme) => `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
+        }
+      }}
     >
-      <DialogTitle sx={{ 
-        bgcolor: 'primary.main', 
-        color: 'primary.contrastText',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <Box display="flex" alignItems="center">
-          {mode === 'add' ? (
-            <>
-              <AddIcon sx={{ mr: 1 }} />
-              Agregar Nuevo Registro
-            </>
-          ) : (
-            <>
-              <EditIcon sx={{ mr: 1 }} />
-              Editar Registro
-            </>
-          )}
-        </Box>
-        <IconButton
-          aria-label="close"
+      <DialogTitle
+        sx={{
+          px: 3,
+          pt: 3,
+          pb: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        {mode === 'add' ? (
+          <AddCircleOutlineIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+        ) : (
+          <InfoIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+        )}
+        <Typography variant="h5" component="span" sx={{ fontWeight: 600 }}>
+          {mode === 'add' ? 'Agregar Nuevo Registro' : 'Editar Registro'}
+        </Typography>
+      </DialogTitle>
+
+      <DialogContent sx={{ p: 3 }}>
+        <form onSubmit={handleSubmit}>
+          {/* Sección 1: Información Básica */}
+          <FormSection 
+            icon={DescriptionIcon} 
+            title="Información Básica"
+            color="basic"
+          >
+            <Grid container spacing={3}>
+              <BasicInformation 
+                formData={formData}
+                handleChange={handleChange}
+                validationErrors={allValidationErrors}
+              />
+            </Grid>
+          </FormSection>
+
+          {/* Sección 2: Información del Operativo */}
+          <FormSection 
+            icon={InfoIcon} 
+            title="Detalles del Operativo"
+            color="operative"
+          >
+            <Grid container spacing={3}>
+              <OperativeInformation 
+                formData={formData}
+                handleChange={handleChange}
+                validationErrors={allValidationErrors}
+              />
+            </Grid>
+          </FormSection>
+
+          {/* Sección 3: Fechas y Horas */}
+          <FormSection 
+            icon={AccessTimeIcon} 
+            title="Período del Operativo"
+            color="datetime"
+          >
+            <Grid container spacing={3}>
+              <DateTimeInformation 
+                formData={formData}
+                handleDateChange={handleDateChange}
+                handleTimeChange={handleTimeChange}
+                validationErrors={allValidationErrors}
+              />
+            </Grid>
+          </FormSection>
+
+          {/* Sección 4: Recursos */}
+          <FormSection 
+            icon={GroupIcon} 
+            title="Recursos Asignados"
+            color="resources"
+          >
+            <Grid container spacing={3}>
+              <ResourceInformation 
+                formData={formData}
+                handleNumberChange={handleNumberChange}
+                validationErrors={allValidationErrors}
+              />
+            </Grid>
+          </FormSection>
+
+          {/* Sección 5: Ubicación */}
+          <FormSection 
+            icon={LocationOnIcon} 
+            title="Ubicación"
+            color="location"
+          >
+            <Grid container spacing={3}>
+              <UbicacionForm
+                seccional={formData.seccional || []}
+                barrios={formData.barrios || []}
+                onSeccionalChange={(newValue) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    seccional: newValue,
+                    barrios: newValue.length === 0 ? [] : prev.barrios
+                  }));
+                }}
+                onBarriosChange={(newValue) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    barrios: newValue
+                  }));
+                }}
+                errors={{
+                  seccional: allValidationErrors.seccional,
+                  barrios: allValidationErrors.barrios
+                }}
+              />
+            </Grid>
+          </FormSection>
+
+          {/* Sección 6: Observaciones */}
+          <FormSection 
+            icon={NoteIcon} 
+            title="Observaciones"
+            color="observations"
+          >
+            <AutocompleteField
+              options={['Opción 1', 'Opción 2', 'Opción 3']}
+              value={formData.observacionesOrden || ''}
+              onChange={(value) => {
+                setFormData(prev => ({
+                  ...prev,
+                  observacionesOrden: Array.isArray(value) ? value[0] : value
+                }));
+              }}
+              label="Observaciones"
+              error={!!validationErrors.observacionesOrden}
+              helperText={validationErrors.observacionesOrden}
+              multiple={false}
+            />
+          </FormSection>
+        </form>
+      </DialogContent>
+
+      <DialogActions 
+        sx={{ 
+          px: 3, 
+          py: 2.5,
+          gap: 1,
+          borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Button
+          variant="outlined"
           onClick={onClose}
           sx={{
-            color: 'inherit',
+            borderRadius: '10px',
+            textTransform: 'none',
+            px: 3,
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+          sx={{
+            borderRadius: '10px',
+            textTransform: 'none',
+            px: 3,
+            boxShadow: 'none',
             '&:hover': {
-              bgcolor: alpha('#fff', 0.1)
+              boxShadow: 'none',
             }
           }}
         >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-
-      <form onSubmit={handleSubmit}>
-        <DialogContent sx={{ px: 3 }}>
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 2,
-                borderRadius: 1,
-                backgroundColor: alpha(theme.palette.error.main, 0.05),
-                color: theme.palette.error.main,
-                '& .MuiAlert-icon': {
-                  color: theme.palette.error.main
-                }
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-
-          <Box sx={{ mt: 1 }}>
-            {/* Sección 1: Información Básica */}
-            <FormSection 
-              icon={DescriptionIcon} 
-              title="Información Básica"
-              color="basic"
-            >
-              <Grid container spacing={2}>
-                <BasicInformation 
-                  formData={formData}
-                  handleChange={handleChange}
-                  validationErrors={allValidationErrors}
-                />
-              </Grid>
-            </FormSection>
-
-            {/* Sección 2: Información del Operativo */}
-            <FormSection 
-              icon={InfoIcon} 
-              title="Detalles del Operativo"
-              color="operative"
-            >
-              <Grid container spacing={2}>
-                <OperativeInformation 
-                  formData={formData}
-                  handleChange={handleChange}
-                  validationErrors={allValidationErrors}
-                />
-              </Grid>
-            </FormSection>
-
-            {/* Sección 3: Fechas y Horas */}
-            <FormSection 
-              icon={AccessTimeIcon} 
-              title="Período del Operativo"
-              color="datetime"
-            >
-              <Grid container spacing={2}>
-                <DateTimeInformation 
-                  formData={formData}
-                  handleDateChange={handleDateChange}
-                  handleTimeChange={handleTimeChange}
-                  formatDateForInput={formatDateForInput}
-                  formatTimeForInput={formatTimeForInput}
-                  validationErrors={allValidationErrors}
-                />
-              </Grid>
-            </FormSection>
-
-            {/* Sección 4: Recursos */}
-            <FormSection 
-              icon={GroupIcon} 
-              title="Recursos Asignados"
-              color="resources"
-            >
-              <Grid container spacing={2}>
-                <ResourceInformation 
-                  formData={formData}
-                  handleNumberChange={handleNumberChange}
-                  validationErrors={allValidationErrors}
-                />
-              </Grid>
-            </FormSection>
-
-            {/* Sección 5: Ubicación */}
-            <FormSection 
-              icon={LocationOnIcon} 
-              title="Ubicación"
-              color="location"
-            >
-              <Grid container spacing={2}>
-                <UbicacionForm
-                  initialSeccionales={formData.seccional}
-                  initialBarrios={formData.barrios}
-                  onChange={handleUbicacionChange}
-                />
-              </Grid>
-            </FormSection>
-
-            {/* Sección 6: Observaciones */}
-            <FormSection 
-              icon={NoteIcon} 
-              title="Observaciones"
-              color="observations"
-            >
-              <Grid container spacing={2}>
-                <Observations 
-                  formData={formData}
-                  handleChange={handleChange}
-                  validationErrors={allValidationErrors}
-                />
-              </Grid>
-            </FormSection>
-          </Box>
-        </DialogContent>
-
-        <DialogActions sx={{ p: 2, bgcolor: 'background.default' }}>
-          <Button
-            onClick={onClose}
-            variant="outlined"
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : mode === 'add' ? <AddIcon /> : <SaveIcon />}
-          >
-            {mode === 'add' ? 'Agregar' : 'Guardar Cambios'}
-          </Button>
-        </DialogActions>
-      </form>
+          {loading ? 'Guardando...' : mode === 'add' ? 'Guardar Registro' : 'Actualizar Registro'}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

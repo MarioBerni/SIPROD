@@ -9,7 +9,7 @@ async function main() {
       data: {
         correo: 'admin@siprod.gob.ar',
         contrasenaActual: 'admin123',
-        grado: Grado.CTE_GENERAL,
+        grado: Grado.CTE_MAYOR,
         nombre: 'Administrador del Sistema',
         rol: Rol.ADMINISTRADOR,
         cargo: 'Administrador',

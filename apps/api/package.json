@@ -15,12 +15,13 @@
     "test:coverage": "jest --coverage",
     "type-check": "tsc --noEmit",
     "db:init": "ts-node src/db/init-db.ts",
-    "db:generate": "drizzle-kit generate:pg",
+    "db:generate": "drizzle-kit generate:pg && npm run generate-enums",
     "db:migrate": "ts-node src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
     "db:seed": "prisma db seed",
     "docs:generate": "swagger-jsdoc -d src/swagger/definition.ts -o src/swagger/swagger.json",
-    "docs:serve": "swagger-ui-express -o src/swagger/swagger.json"
+    "docs:serve": "swagger-ui-express -o src/swagger/swagger.json",
+    "generate-enums": "ts-node scripts/generate-enums.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",

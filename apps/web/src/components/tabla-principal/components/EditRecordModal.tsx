@@ -54,41 +54,35 @@ export function EditRecordModal({
   // Adaptadores para DateTimeInformation
   const handleDateChange = useCallback(
     (field: keyof TablaPrincipal) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      formik.setFieldValue(field, new Date(event.target.value));
+      formik.setFieldValue(field, event.target.value);
     },
     [formik]
   );
 
   const handleTimeChange = useCallback(
     (field: keyof TablaPrincipal) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      const [hours, minutes] = event.target.value.split(':');
-      const date = formik.values[field] ? new Date(formik.values[field] as Date) : new Date();
-      date.setHours(parseInt(hours), parseInt(minutes));
-      formik.setFieldValue(field, date);
+      formik.setFieldValue(field, event.target.value);
     },
     [formik]
   );
 
-  const formatDateForInput = useCallback((date: Date | null) => {
-    if (!date) return '';
-    return new Date(date).toISOString().split('T')[0];
-  }, []);
-
-  const formatTimeForInput = useCallback((date: Date | null) => {
-    if (!date) return '';
-    const d = new Date(date);
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  }, []);
-
   // Manejadores para LocationDetails
   const handleArrayInput = useCallback((field: keyof TablaPrincipal) => (value: string) => {
-    const currentArray = (formik.values[field] as string[]) || [];
-    formik.setFieldValue(field, [...currentArray, value]);
+    const currentValues = formik.values[field] as string[] | number[];
+    if (Array.isArray(currentValues)) {
+      formik.setFieldValue(field, [...currentValues, value]);
+    } else {
+      formik.setFieldValue(field, [value]);
+    }
   }, [formik]);
 
   const handleArrayDelete = useCallback((field: keyof TablaPrincipal) => (index: number) => {
-    const currentArray = (formik.values[field] as string[]) || [];
-    formik.setFieldValue(field, currentArray.filter((_, i) => i !== index));
+    const currentValues = formik.values[field] as string[] | number[];
+    if (Array.isArray(currentValues)) {
+      const newValues = [...currentValues];
+      newValues.splice(index, 1);
+      formik.setFieldValue(field, newValues);
+    }
   }, [formik]);
 
   return (
@@ -122,8 +116,6 @@ export function EditRecordModal({
               formData={formik.values} 
               handleDateChange={handleDateChange}
               handleTimeChange={handleTimeChange}
-              formatDateForInput={formatDateForInput}
-              formatTimeForInput={formatTimeForInput}
               validationErrors={validationErrors}
             />
 
@@ -132,14 +124,9 @@ export function EditRecordModal({
               formData={formik.values}
               handleSeccionalInput={handleArrayInput('seccional')}
               handleBarrioInput={handleArrayInput('barrios')}
-              handleMapaInput={handleArrayInput('mapa')}
-              handlePuntosControlInput={handleArrayInput('puntosControl')}
-              handleRecorridosInput={handleArrayInput('recorridos')}
               handleDeleteSeccional={handleArrayDelete('seccional')}
               handleDeleteBarrio={handleArrayDelete('barrios')}
-              handleDeleteMapa={handleArrayDelete('mapa')}
-              handleDeletePuntosControl={handleArrayDelete('puntosControl')}
-              handleDeleteRecorridos={handleArrayDelete('recorridos')}
+              validationErrors={validationErrors}
             />
 
             {/* Sección de Ubicación */}

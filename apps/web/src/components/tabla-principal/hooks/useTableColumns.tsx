@@ -13,6 +13,14 @@ import {
   AddCircleOutline as AddIcon,
 } from '@mui/icons-material';
 import { UseResponsiveColumnsReturn } from './useResponsiveColumns';
+import { stringToColor } from '@/utils/colorUtils';
+
+import {
+  TipoOrden,
+  TipoOperativo,
+  TipoOrdenLabel,
+  TipoOperativoLabel
+} from '../types/generated';
 
 interface UseTableColumnsProps {
   responsive: UseResponsiveColumnsReturn;
@@ -29,6 +37,98 @@ const TruncatedText = styled('div')({
   maxWidth: '100%'
 });
 
+// Componente para mostrar múltiples chips con límite
+const LimitedChips = ({ values, limit = 2 }: { values: string[], limit: number }) => {
+  const theme = useTheme();
+  
+  if (!values || values.length === 0) return null;
+
+  const displayValues = values.slice(0, limit);
+  const remaining = values.length - limit;
+
+  return (
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      {displayValues.map((value, index) => (
+        <Chip
+          key={index}
+          label={value}
+          size="small"
+          sx={{
+            backgroundColor: theme.palette.grey[200],
+            color: theme.palette.grey[800],
+          }}
+        />
+      ))}
+      {remaining > 0 && (
+        <Tooltip title={values.slice(limit).join(', ')}>
+          <Chip
+            label={`+${remaining}`}
+            size="small"
+            sx={{
+              backgroundColor: theme.palette.grey[100],
+              color: theme.palette.grey[600],
+            }}
+          />
+        </Tooltip>
+      )}
+    </Box>
+  );
+};
+
+// Función para convertir valores enum a formato legible
+const formatEnumValue = (value: string | null | undefined): string => {
+  if (!value) return '';
+  
+  // Primero intentamos obtener el valor de los mapeos específicos
+  if (Object.keys(TipoOrdenLabel).includes(value)) {
+    return TipoOrdenLabel[value as keyof typeof TipoOrden];
+  }
+  
+  if (Object.keys(TipoOperativoLabel).includes(value)) {
+    return TipoOperativoLabel[value as keyof typeof TipoOperativo];
+  }
+  
+  // Si no está en los mapeos específicos, usamos el mapeo general
+  const enumMappings: Record<string, string> = {
+    // Departamento
+    ARTIGAS: 'Artigas',
+    CANELONES: 'Canelones',
+    CERRO_LARGO: 'Cerro Largo',
+    COLONIA: 'Colonia',
+    DURAZNO: 'Durazno',
+    FLORES: 'Flores',
+    FLORIDA: 'Florida',
+    LAVALLEJA: 'Lavalleja',
+    MALDONADO: 'Maldonado',
+    MONTEVIDEO: 'Montevideo',
+    PAYSANDU: 'Paysandú',
+    RIO_NEGRO: 'Río Negro',
+    RIVERA: 'Rivera',
+    ROCHA: 'Rocha',
+    SALTO: 'Salto',
+    SAN_JOSE: 'San José',
+    SORIANO: 'Soriano',
+    TACUAREMBO: 'Tacuarembó',
+    TREINTA_Y_TRES: 'Treinta y Tres',
+    
+    // Unidad
+    DIRECCION_I: 'Dirección I',
+    DIRECCION_II: 'Dirección II',
+    DIRECCION_III: 'Dirección III',
+    DIRECCION_IV: 'Dirección IV',
+    DPTO_I: 'Dpto. I',
+    DPTO_II: 'Dpto. II',
+    DPTO_III: 'Dpto. III',
+    DPTO_IV: 'Dpto. IV',
+    
+    // TiempoOperativo
+    PERMANENTE: 'Permanente',
+    TRANSITORIO: 'Transitorio'
+  };
+
+  return enumMappings[value] || value;
+};
+
 export const useTableColumns = ({
   responsive,
   onEdit,
@@ -41,6 +141,8 @@ export const useTableColumns = ({
   const baseColumnProps: Partial<GridColDef> = {
     sortable: true,
     filterable: true,
+    headerAlign: 'left',
+    align: 'left',
   };
 
   const columns: GridColDef[] = [
@@ -50,6 +152,8 @@ export const useTableColumns = ({
       type: 'actions',
       headerName: 'Acciones',
       width: 120,
+      align: 'center',
+      headerAlign: 'center',
       getActions: (params: GridRowParams) => [
         <GridActionsCellItem
           key="edit"
@@ -78,70 +182,220 @@ export const useTableColumns = ({
       ...baseColumnProps,
       field: 'departamento',
       headerName: 'Departamento',
-      minWidth: 150,
-      flex: 1.2,
+      minWidth: 160,
+      flex: 1,
+      align: 'left',
       renderCell: (params: GridRenderCellParams) => (
-        <Chip
-          label={params.value}
-          size="small"
-          sx={{
-            backgroundColor: theme.palette.primary.light,
-            color: theme.palette.primary.contrastText,
-          }}
-        />
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'flex-start' 
+        }}>
+          <TruncatedText>
+            {formatEnumValue(params.value)}
+          </TruncatedText>
+        </Box>
       ),
     },
     {
       ...baseColumnProps,
       field: 'unidad',
       headerName: 'Unidad',
-      minWidth: 150,
+      minWidth: 160,
       flex: 1,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => (
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'flex-start' 
+        }}>
+          <TruncatedText>
+            {formatEnumValue(params.value)}
+          </TruncatedText>
+        </Box>
+      ),
     },
     {
       ...baseColumnProps,
       field: 'tipoOrden',
-      headerName: 'Tipo Orden',
-      minWidth: 130,
+      headerName: 'Tipo de Orden',
+      minWidth: 180,
       flex: 1,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => (
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'flex-start' 
+        }}>
+          <TruncatedText>
+            {formatEnumValue(params.value)}
+          </TruncatedText>
+        </Box>
+      ),
     },
     {
       ...baseColumnProps,
       field: 'nroOrden',
       headerName: 'Nro. Orden',
-      minWidth: 120,
+      minWidth: 140,
       flex: 0.8,
-    },
-    {
-      ...baseColumnProps,
-      field: 'tipoOperativo',
-      headerName: 'Tipo Operativo',
-      minWidth: 180,
-      flex: 1.5,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => (
-        <Chip
-          label={params.value}
-          size="small"
-          sx={{
-            backgroundColor: theme.palette.secondary.light,
-            color: theme.palette.secondary.contrastText,
-          }}
-        />
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'center' 
+        }}>
+          {params.value}
+        </Box>
       ),
-    },
-    {
-      ...baseColumnProps,
-      field: 'tiempoOperativo',
-      headerName: 'Tiempo Operativo',
-      minWidth: 150,
-      flex: 1.2,
     },
     {
       ...baseColumnProps,
       field: 'nombreOperativo',
       headerName: 'Nombre Operativo',
       minWidth: 200,
-      flex: 2,
+      flex: 1.2,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => {
+        if (!params.value) return null;
+        
+        const backgroundColor = stringToColor(params.value);
+        const textColor = theme.palette.getContrastText(backgroundColor);
+        
+        return (
+          <Box sx={{ 
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'flex-start'
+          }}>
+            <Chip
+              label={params.value}
+              size="small"
+              sx={{
+                backgroundColor,
+                color: textColor,
+                '&:hover': {
+                  backgroundColor: backgroundColor,
+                  opacity: 0.9,
+                },
+              }}
+            />
+          </Box>
+        );
+      },
+    },
+    {
+      ...baseColumnProps,
+      field: 'tipoOperativo',
+      headerName: 'Tipo de Operativo',
+      minWidth: 200,
+      flex: 1.2,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => (
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'flex-start' 
+        }}>
+          <TruncatedText>
+            {formatEnumValue(params.value)}
+          </TruncatedText>
+        </Box>
+      ),
+    },
+    {
+      ...baseColumnProps,
+      field: 'tiempoOperativo',
+      headerName: 'Tiempo Operativo',
+      minWidth: 180,
+      flex: 1,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => (
+        <Box sx={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'flex-start' 
+        }}>
+          <TruncatedText>
+            {formatEnumValue(params.value)}
+          </TruncatedText>
+        </Box>
+      ),
+    },
+    {
+      ...baseColumnProps,
+      field: 'seccional',
+      headerName: 'Seccional',
+      minWidth: 200,
+      flex: 1.2,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => {
+        if (!params.value) return null;
+        
+        const values = Array.isArray(params.value) 
+          ? params.value 
+          : typeof params.value === 'string'
+            ? params.value.split(',').map(v => v.trim())
+            : [];
+            
+        return (
+          <Box sx={{ 
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'flex-start'
+          }}>
+            <LimitedChips values={values} limit={2} />
+          </Box>
+        );
+      },
+    },
+    {
+      ...baseColumnProps,
+      field: 'barrios',
+      headerName: 'Barrios',
+      minWidth: 200,
+      flex: 1.2,
+      align: 'left',
+      renderCell: (params: GridRenderCellParams) => {
+        if (!params.value) return null;
+        
+        const values = Array.isArray(params.value)
+          ? params.value
+          : typeof params.value === 'string'
+            ? params.value.split(',').map(v => v.trim())
+            : [];
+            
+        return (
+          <Box sx={{ 
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'flex-start'
+          }}>
+            <LimitedChips values={values} limit={2} />
+          </Box>
+        );
+      },
     },
     {
       ...baseColumnProps,
@@ -149,6 +403,7 @@ export const useTableColumns = ({
       headerName: 'Fecha Inicio',
       minWidth: 130,
       flex: 1,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => {
         if (!params.value) return '-';
         try {
@@ -167,6 +422,7 @@ export const useTableColumns = ({
       headerName: 'Hora Inicio',
       minWidth: 120,
       flex: 0.8,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => {
         if (!params.value) return '-';
         try {
@@ -189,6 +445,7 @@ export const useTableColumns = ({
       headerName: 'Fecha Fin',
       minWidth: 130,
       flex: 1,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => {
         if (!params.value) return '-';
         try {
@@ -207,6 +464,7 @@ export const useTableColumns = ({
       headerName: 'Hora Fin',
       minWidth: 120,
       flex: 0.8,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => {
         if (!params.value) return '-';
         try {
@@ -229,6 +487,7 @@ export const useTableColumns = ({
       headerName: 'Observaciones',
       minWidth: 200,
       flex: 2,
+      align: 'left',
       renderCell: (params: GridRenderCellParams) => {
         if (!params.value) return '-';
         return (
@@ -242,139 +501,84 @@ export const useTableColumns = ({
     },
     {
       ...baseColumnProps,
-      field: 'seccional',
-      headerName: 'Seccional',
-      minWidth: 180,
-      flex: 1,
-      renderCell: (params: GridRenderCellParams) => {
-        if (!params.value) return <Box>-</Box>;
-        
-        const seccionales = Array.isArray(params.value) ? params.value : [params.value];
-        
-        return (
-          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-            {seccionales.map((seccional: string, index: number) => (
-              <Chip
-                key={`${seccional}-${index}`}
-                label={seccional}
-                size="small"
-                sx={{ 
-                  maxWidth: '120px',
-                  '& .MuiChip-label': {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }
-                }}
-              />
-            ))}
-          </Box>
-        );
-      },
-    },
-    {
-      ...baseColumnProps,
-      field: 'barrios',
-      headerName: 'Barrios',
-      minWidth: 200,
-      flex: 1.2,
-      renderCell: (params: GridRenderCellParams) => {
-        if (!params.value || !Array.isArray(params.value)) {
-          return <Box>-</Box>;
-        }
-        
-        return (
-          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-            {params.value.map((barrio: string, index: number) => (
-              <Chip
-                key={`${barrio}-${index}`}
-                label={barrio}
-                size="small"
-                sx={{ 
-                  maxWidth: '150px',
-                  '& .MuiChip-label': {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }
-                }}
-              />
-            ))}
-          </Box>
-        );
-      },
-    },
-    {
-      ...baseColumnProps,
       field: 'moviles',
       headerName: 'Móviles',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'ppssEnMovil',
       headerName: 'PPSS en Móvil',
       type: 'number',
-      minWidth: 120,
+      minWidth: 160,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'ssoo',
       headerName: 'SSOO',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'motos',
       headerName: 'Motos',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'motosBitripuladas',
       headerName: 'Motos Bitripuladas',
       type: 'number',
-      minWidth: 140,
+      minWidth: 180,
       flex: 1,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'hipos',
       headerName: 'Hipos',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'canes',
       headerName: 'Canes',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'pieTierra',
       headerName: 'Pie Tierra',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
       field: 'drones',
       headerName: 'Drones',
       type: 'number',
-      minWidth: 100,
+      minWidth: 140,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
@@ -383,6 +587,7 @@ export const useTableColumns = ({
       type: 'number',
       minWidth: 160,
       flex: 1,
+      align: 'center',
     },
     {
       ...baseColumnProps,
@@ -391,6 +596,7 @@ export const useTableColumns = ({
       type: 'number',
       minWidth: 160,
       flex: 1,
+      align: 'center',
     },
     {
       ...baseColumnProps,
@@ -399,6 +605,7 @@ export const useTableColumns = ({
       type: 'number',
       minWidth: 120,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
@@ -407,6 +614,7 @@ export const useTableColumns = ({
       type: 'number',
       minWidth: 120,
       flex: 0.8,
+      align: 'center',
     },
     {
       ...baseColumnProps,
@@ -415,6 +623,7 @@ export const useTableColumns = ({
       type: 'number',
       minWidth: 120,
       flex: 0.8,
+      align: 'center',
       renderCell: (params: GridRenderCellParams) => (
         <Chip
           label={params.value}

@@ -67,6 +67,11 @@ export const navigationConfig: NavigationItem[] = [
     title: 'Estadística'
   },
   {
+    href: '/dashboard/escalafon-jefes',
+    icon: PersonIcon,
+    title: 'Escalafón Jefes día'
+  },
+  {
     href: '/dashboard/resultados',
     icon: AssignmentIcon,
     title: 'Resultados'
