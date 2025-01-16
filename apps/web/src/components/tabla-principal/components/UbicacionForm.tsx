@@ -1,11 +1,12 @@
 import { type FC, type SyntheticEvent } from 'react';
 import {
-  Box,
   Chip,
   TextField,
   Autocomplete,
+  Grid
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { useMemo } from 'react';
 
 // Mapa de relación entre seccionales y barrios
 const seccionalBarriosMap: Record<string, string[]> = {
@@ -47,20 +48,17 @@ const barriosSeccionalMap = Object.entries(seccionalBarriosMap).reduce((acc, [se
   return acc;
 }, {} as Record<string, string[]>);
 
-// Obtener lista de seccionales ordenada
-const seccionalOptions = Object.keys(seccionalBarriosMap).sort((a, b) => a.localeCompare(b, 'es'));
+// Obtener lista de seccionales ordenada numéricamente
+const seccionalOptions = Object.keys(seccionalBarriosMap)
+  .map(Number)
+  .sort((a, b) => a - b)
+  .map(String);
 
-// Obtener lista de barrios ordenada
+// Obtener lista de barrios ordenada alfabéticamente
 const barriosOptions = Array.from(new Set(Object.values(seccionalBarriosMap).flat()))
-  .sort((a, b) => a.localeCompare(b, 'es'));
+  .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
 // Función para validar que los barrios correspondan a las seccionales seleccionadas
-const validateBarriosForSeccionales = (selectedBarrios: string[], selectedSeccionales: string[]): boolean => {
-  return selectedBarrios.every(barrio => {
-    const seccionales = barriosSeccionalMap[barrio] || [];
-    return seccionales.some(s => selectedSeccionales.includes(s));
-  });
-};
 
 export interface UbicacionFormProps {
   seccional: number[];
@@ -83,75 +81,111 @@ export const UbicacionForm: FC<UbicacionFormProps> = ({
   // Convertir números a strings para el Autocomplete
   const seccionalStrings = seccional.map(String);
   
+  // Obtener los barrios disponibles según las seccionales seleccionadas
+  const availableBarrios = useMemo(() => {
+    if (seccionalStrings.length === 0) return barriosOptions;
+    const filteredBarrios = new Set<string>();
+    seccionalStrings.forEach(sec => {
+      const barriosForSeccional = seccionalBarriosMap[sec] || [];
+      barriosForSeccional.forEach(barrio => filteredBarrios.add(barrio));
+    });
+    return Array.from(filteredBarrios).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+  }, [seccionalStrings]);
+
+  // Manejar cambio de seccional
   const handleSeccionalChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
-    onSeccionalChange(newValue.map(Number));
+    const newSeccionales = newValue.map(Number);
+    onSeccionalChange(newSeccionales);
+    
+    // Cargar automáticamente todos los barrios correspondientes a las seccionales seleccionadas
+    const newBarrios = new Set<string>();
+    newValue.forEach(sec => {
+      const barriosForSeccional = seccionalBarriosMap[sec] || [];
+      barriosForSeccional.forEach(barrio => newBarrios.add(barrio));
+    });
+    
+    // Convertir a array y ordenar
+    const sortedBarrios = Array.from(newBarrios).sort((a, b) => 
+      a.localeCompare(b, 'es', { sensitivity: 'base' })
+    );
+    
+    onBarriosChange(sortedBarrios);
   };
 
+  // Manejar cambio de barrios
   const handleBarriosChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
-    // Validar que los barrios seleccionados correspondan a las seccionales
-    if (validateBarriosForSeccionales(newValue, seccionalStrings)) {
-      onBarriosChange(newValue);
-    } else {
-      // Si hay barrios que no corresponden, filtrarlos
-      const validBarrios = newValue.filter(barrio => {
-        const seccionales = barriosSeccionalMap[barrio] || [];
-        return seccionales.some(s => seccionalStrings.includes(s));
-      });
-      onBarriosChange(validBarrios);
-    }
+    // Obtener todas las seccionales correspondientes a los barrios seleccionados
+    const selectedSeccionales = new Set<string>();
+    newValue.forEach(barrio => {
+      const seccionales = barriosSeccionalMap[barrio] || [];
+      seccionales.forEach(s => selectedSeccionales.add(s));
+    });
+
+    // Actualizar seccionales
+    const newSeccionales = Array.from(selectedSeccionales)
+      .map(Number)
+      .sort((a, b) => a - b);
+    
+    onSeccionalChange(newSeccionales);
+    onBarriosChange(newValue);
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Autocomplete
-        multiple
-        options={seccionalOptions}
-        value={seccionalStrings}
-        onChange={handleSeccionalChange}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Seccional"
-            error={!!errors.seccional}
-            helperText={errors.seccional}
-          />
-        )}
-        renderTags={(value: string[], getTagProps) =>
-          value.map((option: string, index: number) => (
-            <Chip
-              {...getTagProps({ index })}
-              key={`seccional-${option}`}
-              label={`Seccional ${option}`}
-              icon={<LocationOnIcon />}
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={6}>
+        <Autocomplete
+          multiple
+          options={seccionalOptions}
+          value={seccionalStrings}
+          onChange={handleSeccionalChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Seccional"
+              error={!!errors.seccional}
+              helperText={errors.seccional}
+              placeholder="Seleccione las seccionales"
             />
-          ))
-        }
-      />
-
-      <Autocomplete
-        multiple
-        options={barriosOptions}
-        value={barrios}
-        onChange={handleBarriosChange}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Barrios"
-            error={!!errors.barrios}
-            helperText={errors.barrios}
-          />
-        )}
-        renderTags={(value: string[], getTagProps) =>
-          value.map((option: string, index: number) => (
-            <Chip
-              {...getTagProps({ index })}
-              key={`barrio-${option}`}
-              label={option}
-              icon={<LocationOnIcon />}
+          )}
+          renderTags={(value: string[], getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                {...getTagProps({ index })}
+                key={option}
+                label={`Seccional ${option}`}
+                icon={<LocationOnIcon />}
+              />
+            ))
+          }
+        />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <Autocomplete
+          multiple
+          options={availableBarrios}
+          value={barrios}
+          onChange={handleBarriosChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Barrios"
+              error={!!errors.barrios}
+              helperText={errors.barrios || 'Seleccione los barrios correspondientes a las seccionales'}
+              placeholder="Seleccione los barrios"
             />
-          ))
-        }
-      />
-    </Box>
+          )}
+          renderTags={(value: string[], getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                {...getTagProps({ index })}
+                key={option}
+                label={option}
+                icon={<LocationOnIcon />}
+              />
+            ))
+          }
+        />
+      </Grid>
+    </Grid>
   );
 };
