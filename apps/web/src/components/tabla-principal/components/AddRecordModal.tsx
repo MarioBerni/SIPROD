@@ -12,8 +12,6 @@ import {
   alpha,
   SelectChangeEvent,
   TextField,
-  Autocomplete,
-  Chip
 } from '@mui/material';
 import { 
   Info as InfoIcon,
@@ -96,165 +94,64 @@ const FormSection = ({
   return (
     <Box
       sx={{
-        mb: 4,
-        position: 'relative',
-        '&:last-child': {
-          mb: 0
-        }
+        mb: { xs: 2, sm: 2.5, md: 3 },
+        p: { xs: 2, sm: 2.5 },
+        borderRadius: { xs: '8px', sm: '12px' },
+        backgroundColor: sectionColors[color].light,
+        border: `1px solid ${sectionColors[color].border}`,
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.05)}`,
+          borderColor: sectionColors[color].main,
+        },
+        '& .MuiFormControl-root': {
+          mb: { xs: 1.5, sm: 2 },
+        },
+        '& .MuiInputBase-root': {
+          borderRadius: { xs: '6px', sm: '8px' },
+        },
+        '& .MuiAutocomplete-root': {
+          '& .MuiOutlinedInput-root': {
+            padding: '3px !important',
+          }
+        },
+        '& .MuiChip-root': {
+          height: '28px',
+          fontSize: '0.85rem',
+          borderRadius: '6px',
+          margin: '2px',
+        },
       }}
     >
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          gap: 2,
-          mb: 3,
+          gap: { xs: 1, sm: 1.5 },
+          mb: { xs: 1.5, sm: 2, md: 2.5 },
         }}
       >
-        <Box
-          sx={{
-            width: 40,
-            height: 40,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '12px',
-            backgroundColor: alpha(sectionColors[color].main, 0.08),
-            color: sectionColors[color].main,
-          }}
-        >
-          <Icon sx={{ fontSize: 24 }} />
-        </Box>
+        <Icon sx={{ 
+          color: sectionColors[color].main,
+          fontSize: { xs: 20, sm: 24 },
+        }} />
         <Typography
           variant="h6"
           sx={{
-            fontSize: '1.1rem',
             fontWeight: 600,
-            color: theme.palette.text.primary,
+            color: sectionColors[color].main,
+            fontSize: { xs: '1rem', sm: '1.1rem' },
           }}
         >
           {title}
         </Typography>
       </Box>
-
-      <Box
-        sx={{
-          pl: 7,
-          position: 'relative',
-          '&:before': {
-            content: '""',
-            position: 'absolute',
-            left: '20px',
-            top: '-10px',
-            bottom: '0',
-            width: '1px',
-            bgcolor: theme.palette.divider,
-            opacity: 0.3,
-          },
-          '& .MuiFormControl-root': {
-            mb: 3,
-            '& .MuiInputBase-root': {
-              backgroundColor: theme.palette.background.paper,
-              transition: 'all 0.2s ease-in-out',
-              borderRadius: '12px',
-              border: `1px solid ${theme.palette.divider}`,
-              '&:hover': {
-                borderColor: sectionColors[color].main,
-                backgroundColor: alpha(sectionColors[color].light, 0.1),
-              },
-              '&.Mui-focused': {
-                borderColor: sectionColors[color].main,
-                boxShadow: `0 0 0 2px ${alpha(sectionColors[color].main, 0.2)}`,
-                backgroundColor: theme.palette.background.paper,
-              },
-              '& fieldset': {
-                border: 'none',
-              }
-            },
-            '& .MuiInputLabel-root': {
-              '&.Mui-focused': {
-                color: sectionColors[color].main,
-              }
-            }
-          },
-          '& .MuiAutocomplete-root': {
-            '& .MuiOutlinedInput-root': {
-              padding: '4px !important',
-            }
-          },
-          '& .MuiChip-root': {
-            borderRadius: '8px',
-            height: '28px',
-            fontSize: '0.85rem',
-            backgroundColor: alpha(sectionColors[color].light, 0.2),
-            borderColor: 'transparent',
-            '&:hover': {
-              backgroundColor: alpha(sectionColors[color].main, 0.1),
-            },
-            '& .MuiChip-deleteIcon': {
-              fontSize: '16px',
-              color: alpha(sectionColors[color].main, 0.7),
-              '&:hover': {
-                color: theme.palette.error.main,
-              },
-            },
-          }
-        }}
-      >
-        {children}
-      </Box>
+      {children}
     </Box>
   );
 };
 
 // Componente AutocompleteField
-const AutocompleteField = ({
-  options,
-  value,
-  onChange,
-  label,
-  error,
-  helperText,
-  multiple = false,
-  required = false
-}: {
-  options: string[];
-  value: string | string[] | null;
-  onChange: (value: string | string[]) => void;
-  label: string;
-  error?: boolean;
-  helperText?: string;
-  multiple?: boolean;
-  required?: boolean;
-}) => {
-  return (
-    <Autocomplete
-      multiple={multiple}
-      options={options}
-      value={value || (multiple ? [] : null)}
-      onChange={(_, newValue) => onChange(newValue || (multiple ? [] : ''))}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          error={error}
-          helperText={helperText}
-          required={required}
-        />
-      )}
-      renderTags={(tagValue: string[], getTagProps) =>
-        tagValue.map((option: string, index: number) => (
-          <Chip
-            {...getTagProps({ index })}
-            key={`chip-${index}`}
-            variant="outlined"
-            label={option}
-          />
-        ))
-      }
-    />
-  );
-};
 
 export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   open,
@@ -439,169 +336,212 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
     <Dialog 
       open={open} 
       onClose={onClose}
-      maxWidth="md"
+      maxWidth="lg"
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: '16px',
+          borderRadius: { xs: '12px', sm: '16px' },
           boxShadow: (theme) => `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
+          maxHeight: '90vh',
+          margin: { xs: 1, sm: 2 },
+          width: '100%',
         }
       }}
     >
       <DialogTitle
         sx={{
-          px: 3,
-          pt: 3,
-          pb: 2,
+          px: { xs: 2, sm: 3 },
+          pt: { xs: 2, sm: 3 },
+          pb: { xs: 1.5, sm: 2 },
           display: 'flex',
           alignItems: 'center',
-          gap: 1,
+          gap: { xs: 1, sm: 1.5 },
           borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          backgroundColor: (theme) => theme.palette.primary.main,
+          color: 'white',
         }}
       >
         {mode === 'add' ? (
-          <AddCircleOutlineIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+          <AddCircleOutlineIcon sx={{ 
+            fontSize: { xs: 24, sm: 28 } 
+          }} />
         ) : (
-          <InfoIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+          <InfoIcon sx={{ 
+            fontSize: { xs: 24, sm: 28 } 
+          }} />
         )}
-        <Typography variant="h5" component="span" sx={{ fontWeight: 600 }}>
+        <Typography 
+          variant="h5" 
+          component="span" 
+          sx={{ 
+            fontWeight: 600,
+            fontSize: { xs: '1.25rem', sm: '1.5rem' },
+          }}
+        >
           {mode === 'add' ? 'Agregar Nuevo Registro' : 'Editar Registro'}
         </Typography>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
+      <DialogContent 
+        sx={{ 
+          p: { xs: 2, sm: 3 },
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#888',
+            borderRadius: '4px',
+            '&:hover': {
+              background: '#666',
+            },
+          },
+        }}
+      >
         <form onSubmit={handleSubmit}>
-          {/* Sección 1: Información Básica */}
-          <FormSection 
-            icon={DescriptionIcon} 
-            title="Información Básica"
-            color="basic"
+          <Grid 
+            container 
+            spacing={{ xs: 2, sm: 3 }}
+            sx={{
+              '& .MuiGrid-item': {
+                width: '100%',
+              }
+            }}
           >
-            <Grid container spacing={3}>
-              <BasicInformation 
-                formData={formData}
-                handleChange={handleChange}
-                validationErrors={allValidationErrors}
-              />
-            </Grid>
-          </FormSection>
-
-          {/* Sección 2: Información del Operativo */}
-          <FormSection 
-            icon={InfoIcon} 
-            title="Detalles del Operativo"
-            color="operative"
-          >
-            <Grid container spacing={3}>
-              <OperativeInformation 
-                formData={formData}
-                handleChange={handleChange}
-                validationErrors={allValidationErrors}
-              />
-            </Grid>
-          </FormSection>
-
-          {/* Sección 3: Fechas y Horas */}
-          <FormSection 
-            icon={AccessTimeIcon} 
-            title="Período del Operativo"
-            color="datetime"
-          >
-            <Grid container spacing={3}>
-              <DateTimeInformation 
-                formData={formData}
-                handleDateChange={handleDateChange}
-                handleTimeChange={handleTimeChange}
-                validationErrors={allValidationErrors}
-              />
-            </Grid>
-          </FormSection>
-
-          {/* Sección 4: Recursos */}
-          <FormSection 
-            icon={GroupIcon} 
-            title="Recursos Asignados"
-            color="resources"
-          >
-            <Grid container spacing={3}>
-              <ResourceInformation 
-                formData={formData}
-                handleNumberChange={handleNumberChange}
-                validationErrors={allValidationErrors}
-              />
-            </Grid>
-          </FormSection>
-
-          {/* Sección 5: Ubicación */}
-          <FormSection 
-            icon={LocationOnIcon} 
-            title="Ubicación"
-            color="location"
-          >
-            <Grid container spacing={3}>
-              <UbicacionForm
-                seccional={formData.seccional || []}
-                barrios={formData.barrios || []}
-                onSeccionalChange={(newValue) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    seccional: newValue,
-                    barrios: newValue.length === 0 ? [] : prev.barrios
-                  }));
-                }}
-                onBarriosChange={(newValue) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    barrios: newValue
-                  }));
-                }}
-                errors={{
-                  seccional: allValidationErrors.seccional,
-                  barrios: allValidationErrors.barrios
-                }}
-              />
-            </Grid>
-          </FormSection>
-
-          {/* Sección 6: Observaciones */}
-          <FormSection 
-            icon={NoteIcon} 
-            title="Observaciones"
-            color="observations"
-          >
-            <AutocompleteField
-              options={['Opción 1', 'Opción 2', 'Opción 3']}
-              value={formData.observacionesOrden || ''}
-              onChange={(value) => {
-                setFormData(prev => ({
-                  ...prev,
-                  observacionesOrden: Array.isArray(value) ? value[0] : value
-                }));
+            <Grid 
+              item 
+              xs={12}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: { xs: 2, sm: 2.5, md: 3 },
               }}
-              label="Observaciones"
-              error={!!validationErrors.observacionesOrden}
-              helperText={validationErrors.observacionesOrden}
-              multiple={false}
-            />
-          </FormSection>
+            >
+              <FormSection 
+                icon={DescriptionIcon} 
+                title="Información Básica"
+                color="basic"
+              >
+                <BasicInformation 
+                  formData={formData}
+                  handleChange={handleChange}
+                  validationErrors={allValidationErrors}
+                />
+              </FormSection>
+
+              <FormSection 
+                icon={InfoIcon} 
+                title="Detalles del Operativo"
+                color="operative"
+              >
+                <OperativeInformation 
+                  formData={formData}
+                  handleChange={handleChange}
+                  validationErrors={allValidationErrors}
+                />
+              </FormSection>
+
+              <FormSection 
+                icon={GroupIcon} 
+                title="Recursos Asignados"
+                color="resources"
+              >
+                <ResourceInformation 
+                  formData={formData}
+                  handleNumberChange={handleNumberChange}
+                  validationErrors={allValidationErrors}
+                />
+              </FormSection>
+
+              <FormSection 
+                icon={LocationOnIcon} 
+                title="Ubicación"
+                color="location"
+              >
+                <UbicacionForm
+                  seccional={formData.seccional || []}
+                  barrios={formData.barrios || []}
+                  onSeccionalChange={(newValue) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      seccional: newValue,
+                    }));
+                  }}
+                  onBarriosChange={(newValue) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      barrios: newValue
+                    }));
+                  }}
+                  errors={{
+                    seccional: allValidationErrors.seccional,
+                    barrios: allValidationErrors.barrios
+                  }}
+                />
+              </FormSection>
+
+              <FormSection 
+                icon={AccessTimeIcon} 
+                title="Período del Operativo"
+                color="datetime"
+              >
+                <DateTimeInformation 
+                  formData={formData}
+                  handleDateChange={handleDateChange}
+                  handleTimeChange={handleTimeChange}
+                  validationErrors={allValidationErrors}
+                />
+              </FormSection>
+
+              <FormSection 
+                icon={NoteIcon} 
+                title="Observaciones"
+                color="observations"
+              >
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Observaciones"
+                  value={formData.observacionesOrden || ''}
+                  onChange={handleChange('observacionesOrden')}
+                  error={!!validationErrors.observacionesOrden}
+                  helperText={validationErrors.observacionesOrden}
+                  variant="outlined"
+                  placeholder="Ingrese las observaciones del operativo..."
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'white',
+                      borderRadius: { xs: '6px', sm: '8px' },
+                    }
+                  }}
+                />
+              </FormSection>
+            </Grid>
+          </Grid>
         </form>
       </DialogContent>
 
       <DialogActions 
         sx={{ 
-          px: 3, 
-          py: 2.5,
-          gap: 1,
+          px: { xs: 2, sm: 3 }, 
+          py: { xs: 2, sm: 2.5 },
+          gap: { xs: 1, sm: 1.5 },
           borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+          backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.03),
         }}
       >
         <Button
           variant="outlined"
           onClick={onClose}
           sx={{
-            borderRadius: '10px',
+            borderRadius: { xs: '6px', sm: '8px' },
             textTransform: 'none',
-            px: 3,
+            px: { xs: 2, sm: 3 },
+            fontSize: { xs: '0.875rem', sm: '1rem' },
           }}
         >
           Cancelar
@@ -611,9 +551,10 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
           onClick={handleSubmit}
           disabled={loading}
           sx={{
-            borderRadius: '10px',
+            borderRadius: { xs: '6px', sm: '8px' },
             textTransform: 'none',
-            px: 3,
+            px: { xs: 2, sm: 3 },
+            fontSize: { xs: '0.875rem', sm: '1rem' },
             boxShadow: 'none',
             '&:hover': {
               boxShadow: 'none',
