@@ -1,0 +1,19 @@
+-- AlterTable
+ALTER TABLE "tabla_principal" ALTER COLUMN "id" SET DEFAULT concat('REG', to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYYMMDDHHMMSS'));
+
+-- AlterTable
+ALTER TABLE "users" ALTER COLUMN "id" SET DEFAULT concat('USR', to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYYMMDDHHMMSS'));
+
+-- CreateTable
+CREATE TABLE "escalafon_jefes" (
+    "id" TEXT NOT NULL DEFAULT concat('ESC', to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'YYYYMMDDHHMMSS')),
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "hora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "grado" TEXT NOT NULL,
+    "nombre" TEXT NOT NULL,
+    "apellido" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "escalafon_jefes_pkey" PRIMARY KEY ("id")
+);
