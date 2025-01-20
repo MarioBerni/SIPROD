@@ -53,6 +53,8 @@ interface PDFFormattedRegistro {
   horaInicio: string;
   horaFin: string;
   seccional: string;
+  tipoOrden?: string;
+  nroOrden?: string;
 }
 
 export const tablaPrincipalController = {
@@ -341,7 +343,9 @@ export const tablaPrincipalController = {
           horaInicio: true,
           horaFin: true,
           seccional: true,
-          unidad: true
+          unidad: true,
+          tipoOrden: true,
+          nroOrden: true
         },
         orderBy: {
           unidad: 'asc'
@@ -382,7 +386,9 @@ export const tablaPrincipalController = {
               minute: '2-digit',
               hour12: false 
             }) : '',
-            seccional: registro.seccional ? registro.seccional.join(', ') : ''
+            seccional: registro.seccional ? registro.seccional.join(', ') : '',
+            tipoOrden: registro.tipoOrden || undefined,
+            nroOrden: registro.nroOrden || undefined
           });
         }
         return acc;

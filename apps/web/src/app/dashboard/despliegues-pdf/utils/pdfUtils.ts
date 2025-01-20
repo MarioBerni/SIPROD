@@ -30,9 +30,8 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
   const pageHeight = doc.internal.pageSize.getHeight();
 
   try {
-    // Configurar eventos de página y agregar encabezado inicial
+    // Configurar eventos de página
     setupPageEvent(doc);
-    addHeaderAndFooter(doc);
 
     // Obtener datos filtrados
     console.log('Solicitando datos filtrados con filtros:', {
@@ -48,7 +47,8 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
     });
     console.log('Datos filtrados recibidos:', datosFiltrados);
 
-    // Iniciar desde el margen superior
+    // Iniciar desde el margen superior de la primera página
+    addHeaderAndFooter(doc);
     let currentY = PAGE_MARGINS.top + SPACING.afterHeader;
 
     // Array para almacenar los totales de cada tabla
@@ -131,6 +131,9 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
       console.log('No hay totales para agregar a la tabla resumen');
     }
 
+    // Eliminar la primera página que está vacía
+    removeFirstPage(doc);
+
     // Guardar el PDF con fecha y hora
     const now = new Date();
     const fecha = now.toLocaleDateString('es-UY', { 
@@ -151,6 +154,15 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
   } catch (error) {
     console.error('Error generando el PDF:', error);
     throw error;
+  }
+};
+
+/**
+ * Elimina la primera página del PDF
+ */
+const removeFirstPage = (doc: ExtendedJsPDF): void => {
+  if (doc.getNumberOfPages() > 1) {
+    doc.deletePage(1);
   }
 };
 

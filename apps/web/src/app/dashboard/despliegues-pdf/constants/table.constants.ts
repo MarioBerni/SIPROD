@@ -17,8 +17,21 @@ export const TABLE_STYLES = {
     halign: 'center' as const,
     valign: 'middle' as const,
     lineWidth: 0.1,
-    minCellHeight: 10,
+    minCellHeight: 8,
     cellWidth: 'auto' as const
+  } satisfies Partial<Styles>,
+  HEADER_TEXT: {
+    minCellHeight: 10,
+    fillColor: [41, 128, 185] as [number, number, number],
+    textColor: 255,
+    fontSize: 8,
+    fontStyle: 'bold' as const
+  } satisfies Partial<Styles>,
+  HEADER_ICON: {
+    minCellHeight: 10,
+    fillColor: [255, 255, 255] as [number, number, number],
+    fontSize: 8,
+    fontStyle: 'bold' as const
   } satisfies Partial<Styles>,
   TOTAL_CELL: {
     fillColor: [41, 128, 185] as [number, number, number],
@@ -31,7 +44,12 @@ export const TABLE_STYLES = {
     fillColor: [255, 255, 255] as [number, number, number],
     lineWidth: { top: 0.1, right: 0, bottom: 0, left: 0 },
     fontSize: 10
-  } satisfies Partial<Styles>
+  } satisfies Partial<Styles>,
+  TITLE: {
+    fontSize: 14,
+    textColor: 0,
+    fontStyle: 'bold' as const
+  }
 } as const;
 
 export const COLUMN_WIDTHS = {
