@@ -19,7 +19,9 @@ import {
   TipoOrden,
   TipoOperativo,
   TipoOrdenLabel,
-  TipoOperativoLabel
+  TipoOperativoLabel,
+  TiempoOperativo,
+  TiempoOperativoLabel
 } from '../types/generated';
 
 interface UseTableColumnsProps {
@@ -87,6 +89,10 @@ const formatEnumValue = (value: string | null | undefined): string => {
   if (Object.keys(TipoOperativoLabel).includes(value)) {
     return TipoOperativoLabel[value as keyof typeof TipoOperativo];
   }
+
+  if (Object.keys(TiempoOperativoLabel).includes(value)) {
+    return TiempoOperativoLabel[value as keyof typeof TiempoOperativo];
+  }
   
   // Si no está en los mapeos específicos, usamos el mapeo general
   const enumMappings: Record<string, string> = {
@@ -120,10 +126,6 @@ const formatEnumValue = (value: string | null | undefined): string => {
     DPTO_II: 'Dpto. II',
     DPTO_III: 'Dpto. III',
     DPTO_IV: 'Dpto. IV',
-    
-    // TiempoOperativo
-    PERMANENTE: 'Permanente',
-    TRANSITORIO: 'Transitorio'
   };
 
   return enumMappings[value] || value;

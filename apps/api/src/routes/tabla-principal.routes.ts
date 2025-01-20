@@ -7,6 +7,12 @@ const router = Router();
 // Proteger todas las rutas con el middleware de autenticación
 router.use(authMiddleware);
 
+// Ruta para obtener opciones de filtros
+router.get('/options', tablaPrincipalController.getFilterOptions);
+
+// Ruta para obtener datos filtrados para PDF
+router.get('/pdf-data', tablaPrincipalController.getFilteredDataForPDF);
+
 // Rutas CRUD para la tabla principal
 router.get('/', tablaPrincipalController.getAllRegistros);
 router.get('/:id', tablaPrincipalController.getRegistroById);

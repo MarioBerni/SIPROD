@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { getCookie, removeCookie } from './cookies';
+import { PDFTableData } from '@/app/dashboard/despliegues-pdf/types';
 
 // Tipos
 export interface LoginData {
@@ -82,6 +83,16 @@ export const API_ROUTES = {
     SEARCH: '/registros/search',
     FILTER: '/registros/filter',
     EXPORT: '/registros/export',
+  },
+  TABLA_PRINCIPAL: {
+    BASE: '/tabla-principal',
+    GET_ALL: '/tabla-principal',
+    GET_BY_ID: (id: string) => `/tabla-principal/${id}`,
+    CREATE: '/tabla-principal',
+    UPDATE: (id: string) => `/tabla-principal/${id}`,
+    DELETE: (id: string) => `/tabla-principal/${id}`,
+    OPTIONS: '/tabla-principal/options',
+    PDF_DATA: '/tabla-principal/pdf-data'
   }
 };
 
@@ -289,5 +300,62 @@ export const registrosApi = {
     } catch (error) {
       handleApiError(error);
     }
+  }
+};
+
+// Interfaces para las opciones de filtro
+export interface FilterOptions {
+  unidades: string[];
+  tiemposOperativos: string[];
+  nombresOperativos: string[];
+}
+
+// API de tabla principal
+export const tablaPrincipalApi = {
+  instance: api,
+  
+  // Obtener opciones para los filtros
+  async getFilterOptions(): Promise<FilterOptions> {
+    try {
+      const response = await api.get(API_ROUTES.TABLA_PRINCIPAL.OPTIONS);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return { unidades: [], tiemposOperativos: [], nombresOperativos: [] };
+    }
+  },
+
+  // Obtener datos filtrados para PDF
+  getFilteredDataForPDF(filters: { 
+    unidades?: string[],
+    tiemposOperativos?: string[],
+    nombresOperativos?: string[],
+    selectedOperativos?: string[] 
+  }): Promise<PDFTableData> {
+    console.log('API - Enviando filtros:', filters);
+    const params = new URLSearchParams();
+    if (filters.unidades?.length) {
+      params.append('unidades', JSON.stringify(filters.unidades));
+    }
+    if (filters.tiemposOperativos?.length) {
+      params.append('tiemposOperativos', JSON.stringify(filters.tiemposOperativos));
+    }
+    if (filters.nombresOperativos?.length) {
+      params.append('nombresOperativos', JSON.stringify(filters.nombresOperativos));
+    }
+    if (filters.selectedOperativos?.length) {
+      params.append('selectedOperativos', JSON.stringify(filters.selectedOperativos));
+    }
+    
+    return this.instance
+      .get(API_ROUTES.TABLA_PRINCIPAL.PDF_DATA, { params })
+      .then((response) => {
+        console.log('API - Respuesta recibida:', response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        handleApiError(error);
+        return {};
+      });
   }
 };

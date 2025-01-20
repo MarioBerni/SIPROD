@@ -288,6 +288,21 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   }
 }));
 
+const TableContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  height: 'calc(100vh - 200px)', // Ajusta este valor según el espacio que necesites
+  '& .MuiDataGrid-root': {
+    border: 'none',
+  },
+  '& .MuiDataGrid-columnHeaders': {
+    backgroundColor: theme.palette.background.paper,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  '& .MuiDataGrid-virtualScroller': {
+    overflowY: 'auto',
+  },
+}));
+
 export const DataTable = ({ 
   rows, 
   columns, 
@@ -337,84 +352,7 @@ export const DataTable = ({
   }, []);
 
   return (
-    <Box 
-      sx={{ 
-        flex: 1, 
-        width: '100%', 
-        overflow: 'hidden',
-        position: 'relative',
-        '& .super-app-theme--header': {
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.primary.contrastText,
-          fontWeight: 'bold',
-          fontSize: theme.typography.pxToRem(14),
-          minHeight: '48px',
-          height: '48px !important',
-          display: 'flex',
-          alignItems: 'center',
-          whiteSpace: 'normal',
-        },
-        '& .MuiDataGrid-root': {
-          '& ::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px',
-          },
-          '& ::-webkit-scrollbar-track': {
-            background: theme.palette.grey[200],
-          },
-          '& ::-webkit-scrollbar-thumb': {
-            backgroundColor: theme.palette.grey[400],
-            borderRadius: '4px',
-            '&:hover': {
-              backgroundColor: theme.palette.grey[500],
-            },
-          },
-          scrollbarWidth: 'thin',
-          scrollbarColor: `${theme.palette.grey[400]} ${theme.palette.grey[200]}`,
-        },
-        '& .MuiDataGrid-virtualScroller': {
-          minHeight: '300px',
-          maxHeight: '600px',
-          overflow: 'auto',
-          scrollbarWidth: 'thin',
-          msOverflowStyle: 'none',
-          '&::-webkit-scrollbar': {
-            width: '6px',
-            height: '6px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: alpha(theme.palette.primary.main, 0.05),
-            borderRadius: '3px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: alpha(theme.palette.primary.main, 0.3),
-            borderRadius: '3px',
-            '&:hover': {
-              backgroundColor: alpha(theme.palette.primary.main, 0.5),
-            },
-          },
-        },
-        '& .MuiDataGrid-columnHeaders': {
-          position: 'sticky',
-          top: 0,
-          zIndex: 2,
-          backgroundColor: alpha(theme.palette.primary.main, 0.04),
-        },
-        '& .MuiDataGrid-cell': {
-          padding: '8px 16px',
-          whiteSpace: 'normal',
-          wordWrap: 'break-word',
-          '&:focus': {
-            outline: 'none',
-          },
-        },
-        '& .MuiDataGrid-row': {
-          '&:hover': {
-            backgroundColor: alpha(theme.palette.primary.main, 0.04),
-          },
-        },
-      }}
-    >
+    <TableContainer>
       {loading && (
         <Box
           sx={{
@@ -516,7 +454,7 @@ export const DataTable = ({
         disableRowSelectionOnClick
         density={isMobile ? 'compact' : 'comfortable'}
         columnHeaderHeight={60}
-        autoHeight
+        autoHeight={false}
         sx={{
           border: 'none',
           backgroundColor: theme.palette.background.paper,
@@ -525,6 +463,6 @@ export const DataTable = ({
           },
         }}
       />
-    </Box>
+    </TableContainer>
   );
 };

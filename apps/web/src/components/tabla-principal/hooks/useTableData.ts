@@ -30,7 +30,7 @@ export function useTableData() {
       setError(null);
       setValidationErrors({});
       
-      const response = await api.get('/registros');
+      const response = await api.get('/tabla-principal');
       console.log(`Datos cargados: ${JSON.stringify(response.data)}`);
       setRows(response.data || []);
     } catch (error: unknown) {
@@ -115,7 +115,7 @@ export function useTableData() {
       setLoading(true);
       setError(null);
       
-      await api.delete(`/registros/${deletingId}`);
+      await api.delete(`/tabla-principal/${deletingId}`);
       setRows(prev => prev.filter(row => row.id !== deletingId));
       setIsDeleteDialogOpen(false);
       setDeletingId(null);
@@ -151,7 +151,7 @@ export function useTableData() {
       console.log('Datos a enviar al servidor:', JSON.stringify(record, null, 2));
       console.log('Tipos de datos:', Object.entries(record).map(([key, value]) => `${key}: ${typeof value}`));
       
-      const response = await api.post('/registros', record);
+      const response = await api.post('/tabla-principal', record);
       console.log('Respuesta del servidor:', response.data);
 
       const newRecord = response.data;
@@ -189,7 +189,7 @@ export function useTableData() {
       setValidationErrors({});
 
       console.log(`Enviando datos de actualización: ${JSON.stringify(formData, null, 2)}`);
-      const response = await api.put(`/registros/${editingRecord.id}`, formData);
+      const response = await api.put(`/tabla-principal/${editingRecord.id}`, formData);
       console.log(`Respuesta del servidor: ${JSON.stringify(response.data)}`);
 
       setRows(prev => prev.map(row => 

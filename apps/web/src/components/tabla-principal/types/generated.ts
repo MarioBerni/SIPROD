@@ -1,40 +1,23 @@
-// Este archivo es generado automáticamente. No modificar manualmente.
-
-// Utilidades de conversión para enums
-export const convertToEnumValue = (str: string): string => {
-  if (!str) return '';
-  // Normalizar el valor eliminando tildes y puntos extras
-  return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Eliminar tildes
-    .toUpperCase()
-    .replace(/\s+/g, '_') // Reemplazar espacios con _
-    .replace(/\.+/g, '.') // Reducir múltiples puntos a uno solo
-    .replace(/\.$/, ''); // Eliminar punto final si existe
-};
-
-export const convertToLabel = (enumValue: string): string => {
-  return enumValue
-    .split(/[_.]/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-};
+// Este archivo es generado automáticamente. NO EDITAR MANUALMENTE.
 
 export enum Rol {
   ADMINISTRADOR = 'ADMINISTRADOR',
   SUPERVISOR = 'SUPERVISOR',
   OPERADOR = 'OPERADOR',
+  COMANDO_DIRECCION_I = 'COMANDO_DIRECCION_I',
+  COMANDO_DIRECCION_II = 'COMANDO_DIRECCION_II',
+  COMANDO_GEO = 'COMANDO_GEO',
+  COMANDO_DNGR = 'COMANDO_DNGR',
 }
 
-export const RolLabel: Record<keyof typeof Rol, string> = {
-  ADMINISTRADOR: 'Administrador',
-  SUPERVISOR: 'Supervisor',
-  OPERADOR: 'Operador',
-} as const;
-
-export const convertToRol = (str: string): Rol => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as Rol;
+export const RolLabel: Record<Rol, string> = {
+  [Rol.ADMINISTRADOR]: 'ADMINISTRADOR',
+  [Rol.SUPERVISOR]: 'SUPERVISOR',
+  [Rol.OPERADOR]: 'OPERADOR',
+  [Rol.COMANDO_DIRECCION_I]: 'COMANDO DIRECCION I',
+  [Rol.COMANDO_DIRECCION_II]: 'COMANDO DIRECCION II',
+  [Rol.COMANDO_GEO]: 'COMANDO GEO',
+  [Rol.COMANDO_DNGR]: 'COMANDO DNGR',
 };
 
 export enum Grado {
@@ -55,27 +38,22 @@ export enum Grado {
   CADETE = 'CADETE',
 }
 
-export const GradoLabel: Record<keyof typeof Grado, string> = {
-  CTE_MAYOR: 'Cte Mayor',
-  CTE: 'Cte',
-  MAY: 'May',
-  CAP: 'Cap',
-  TTE_1RO: 'Tte 1ro',
-  TTE: 'Tte',
-  ALF: 'Alf',
-  SGTO_1RO: 'Sgto 1ro',
-  SGTO: 'Sgto',
-  CABO_1RO: 'Cabo 1ro',
-  CABO_2DO: 'Cabo 2do',
-  CABO: 'Cabo',
-  AG_1RA: 'Ag 1ra',
-  AG_2DA: 'Ag 2da',
-  CADETE: 'Cadete',
-} as const;
-
-export const convertToGrado = (str: string): Grado => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as Grado;
+export const GradoLabel: Record<Grado, string> = {
+  [Grado.CTE_MAYOR]: 'CTE MAYOR',
+  [Grado.CTE]: 'CTE',
+  [Grado.MAY]: 'MAY',
+  [Grado.CAP]: 'CAP',
+  [Grado.TTE_1RO]: 'TTE 1RO',
+  [Grado.TTE]: 'TTE',
+  [Grado.ALF]: 'ALF',
+  [Grado.SGTO_1RO]: 'SGTO 1RO',
+  [Grado.SGTO]: 'SGTO',
+  [Grado.CABO_1RO]: 'CABO 1RO',
+  [Grado.CABO_2DO]: 'CABO 2DO',
+  [Grado.CABO]: 'CABO',
+  [Grado.AG_1RA]: 'AG 1RA',
+  [Grado.AG_2DA]: 'AG 2DA',
+  [Grado.CADETE]: 'CADETE',
 };
 
 export enum Departamento {
@@ -89,42 +67,37 @@ export enum Departamento {
   LAVALLEJA = 'LAVALLEJA',
   MALDONADO = 'MALDONADO',
   MONTEVIDEO = 'MONTEVIDEO',
-  PAYSANDU = 'PAYSANDÚ',
-  RIO_NEGRO = 'RÍO_NEGRO',
+  PAYSANDU = 'PAYSANDU',
+  RIO_NEGRO = 'RIO_NEGRO',
   RIVERA = 'RIVERA',
   ROCHA = 'ROCHA',
   SALTO = 'SALTO',
-  SAN_JOSE = 'SAN_JOSÉ',
+  SAN_JOSE = 'SAN_JOSE',
   SORIANO = 'SORIANO',
-  TACUAREMBO = 'TACUAREMBÓ',
+  TACUAREMBO = 'TACUAREMBO',
   TREINTA_Y_TRES = 'TREINTA_Y_TRES',
 }
 
-export const DepartamentoLabel: Record<keyof typeof Departamento, string> = {
-  ARTIGAS: 'Artigas',
-  CANELONES: 'Canelones',
-  CERRO_LARGO: 'Cerro Largo',
-  COLONIA: 'Colonia',
-  DURAZNO: 'Durazno',
-  FLORES: 'Flores',
-  FLORIDA: 'Florida',
-  LAVALLEJA: 'Lavalleja',
-  MALDONADO: 'Maldonado',
-  MONTEVIDEO: 'Montevideo',
-  PAYSANDU: 'Paysandú',
-  RIO_NEGRO: 'Río Negro',
-  RIVERA: 'Rivera',
-  ROCHA: 'Rocha',
-  SALTO: 'Salto',
-  SAN_JOSE: 'San José',
-  SORIANO: 'Soriano',
-  TACUAREMBO: 'Tacuarembó',
-  TREINTA_Y_TRES: 'Treinta y Tres',
-} as const;
-
-export const convertToDepartamento = (str: string): Departamento => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as Departamento;
+export const DepartamentoLabel: Record<Departamento, string> = {
+  [Departamento.ARTIGAS]: 'Artigas',
+  [Departamento.CANELONES]: 'Canelones',
+  [Departamento.CERRO_LARGO]: 'Cerro Largo',
+  [Departamento.COLONIA]: 'Colonia',
+  [Departamento.DURAZNO]: 'Durazno',
+  [Departamento.FLORES]: 'Flores',
+  [Departamento.FLORIDA]: 'Florida',
+  [Departamento.LAVALLEJA]: 'Lavalleja',
+  [Departamento.MALDONADO]: 'Maldonado',
+  [Departamento.MONTEVIDEO]: 'Montevideo',
+  [Departamento.PAYSANDU]: 'Paysandú',
+  [Departamento.RIO_NEGRO]: 'Río Negro',
+  [Departamento.RIVERA]: 'Rivera',
+  [Departamento.ROCHA]: 'Rocha',
+  [Departamento.SALTO]: 'Salto',
+  [Departamento.SAN_JOSE]: 'San José',
+  [Departamento.SORIANO]: 'Soriano',
+  [Departamento.TACUAREMBO]: 'Tacuarembó',
+  [Departamento.TREINTA_Y_TRES]: 'Treinta y Tres',
 };
 
 export enum Unidad {
@@ -134,41 +107,31 @@ export enum Unidad {
   REGIONAL_ESTE = 'REGIONAL_ESTE',
   REGIONAL_NORTE = 'REGIONAL_NORTE',
   DIRECCION_V = 'DIRECCION_V',
-  OTRAS = 'OTRAS'
+  OTRAS = 'OTRAS',
 }
 
-export const UnidadLabel: Record<keyof typeof Unidad, string> = {
-  DIRECCION_I: 'Dirección I',
-  DIRECCION_II: 'Dirección II',
-  GEO: 'GEO',
-  REGIONAL_ESTE: 'Regional Este',
-  REGIONAL_NORTE: 'Regional Norte',
-  DIRECCION_V: 'Dirección V',
-  OTRAS: 'Otras'
-} as const;
-
-export const convertToUnidad = (str: string): Unidad => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as Unidad;
+export const UnidadLabel: Record<Unidad, string> = {
+  [Unidad.DIRECCION_I]: 'Dirección I',
+  [Unidad.DIRECCION_II]: 'Dirección II',
+  [Unidad.GEO]: 'GEO',
+  [Unidad.REGIONAL_ESTE]: 'Regional Este',
+  [Unidad.REGIONAL_NORTE]: 'Regional Norte',
+  [Unidad.DIRECCION_V]: 'Dirección V',
+  [Unidad.OTRAS]: 'Otras',
 };
 
 export enum TipoOrden {
   O_OP = 'O_OP',
   CIR = 'CIR',
   COM = 'COM',
-  ORD_SERV = 'ORD_SERV'
+  ORD_SERV = 'ORD_SERV',
 }
 
-export const TipoOrdenLabel: Record<keyof typeof TipoOrden, string> = {
-  O_OP: 'O. Op.',
-  CIR: 'Cir.',
-  COM: 'Com.',
-  ORD_SERV: 'Ord. Serv.'
-} as const;
-
-export const convertToTipoOrden = (str: string): TipoOrden => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as TipoOrden;
+export const TipoOrdenLabel: Record<TipoOrden, string> = {
+  [TipoOrden.O_OP]: 'O. Op.',
+  [TipoOrden.CIR]: 'Cir.',
+  [TipoOrden.COM]: 'Com.',
+  [TipoOrden.ORD_SERV]: 'Ord. Serv.',
 };
 
 export enum TipoOperativo {
@@ -185,52 +148,43 @@ export enum TipoOperativo {
   EQUIPO_GEO_APOSTADO = 'EQUIPO_GEO_APOSTADO',
   EQUIPO_GEO_ALERTA = 'EQUIPO_GEO_ALERTA',
   PERIMETRAL_ALLANAMIENTO = 'PERIMETRAL_ALLANAMIENTO',
-  INCURSION_ALLANAMIENTO = 'INCURSIÓN_ALLANAMIENTO',
+  INCURSION_ALLANAMIENTO = 'INCURSION_ALLANAMIENTO',
   AUF = 'AUF',
   FUBB = 'FUBB',
   ESPECTACULOS_VARIOS = 'ESPECTACULOS_VARIOS',
   OTROS = 'OTROS',
 }
 
-export const TipoOperativoLabel: Record<keyof typeof TipoOperativo, string> = {
-  OPERATIVO: 'Operativo',
-  PATRULLAJE: 'Patrullaje',
-  APOYO: 'Apoyo',
-  GRUPO_CHOQUE_APOSTADO: 'Grupo choque apostado',
-  GRUPO_CHOQUE_ALERTA: 'Grupo choque alerta',
-  EQUIPO_CHOQUE_APOSTADO: 'Equipo choque apostado',
-  EQUIPO_CHOQUE_ALERTA: 'Equipo choque alerta',
-  GAT: 'GAT',
-  GRUPO_GEO_APOSTADO: 'Grupo GEO apostado',
-  GRUPO_GEO_ALERTA: 'Grupo GEO alerta',
-  EQUIPO_GEO_APOSTADO: 'Equipo GEO apostado',
-  EQUIPO_GEO_ALERTA: 'Equipo GEO alerta',
-  PERIMETRAL_ALLANAMIENTO: 'Perimetral allanamiento',
-  INCURSION_ALLANAMIENTO: 'Incursión allanamiento',
-  AUF: 'AUF',
-  FUBB: 'FUBB',
-  ESPECTACULOS_VARIOS: 'Espectaculos varios',
-  OTROS: 'Otros',
-} as const;
-
-export const convertToTipoOperativo = (str: string): TipoOperativo => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as TipoOperativo;
+export const TipoOperativoLabel: Record<TipoOperativo, string> = {
+  [TipoOperativo.OPERATIVO]: 'Operativo',
+  [TipoOperativo.PATRULLAJE]: 'Patrullaje',
+  [TipoOperativo.APOYO]: 'Apoyo',
+  [TipoOperativo.GRUPO_CHOQUE_APOSTADO]: 'Grupo choque apostado',
+  [TipoOperativo.GRUPO_CHOQUE_ALERTA]: 'Grupo choque alerta',
+  [TipoOperativo.EQUIPO_CHOQUE_APOSTADO]: 'Equipo choque apostado',
+  [TipoOperativo.EQUIPO_CHOQUE_ALERTA]: 'Equipo choque alerta',
+  [TipoOperativo.GAT]: 'GAT',
+  [TipoOperativo.GRUPO_GEO_APOSTADO]: 'Grupo GEO apostado',
+  [TipoOperativo.GRUPO_GEO_ALERTA]: 'Grupo GEO alerta',
+  [TipoOperativo.EQUIPO_GEO_APOSTADO]: 'Equipo GEO apostado',
+  [TipoOperativo.EQUIPO_GEO_ALERTA]: 'Equipo GEO alerta',
+  [TipoOperativo.PERIMETRAL_ALLANAMIENTO]: 'Perimetral allanamiento',
+  [TipoOperativo.INCURSION_ALLANAMIENTO]: 'Incursión allanamiento',
+  [TipoOperativo.AUF]: 'AUF',
+  [TipoOperativo.FUBB]: 'FUBB',
+  [TipoOperativo.ESPECTACULOS_VARIOS]: 'Espectaculos varios',
+  [TipoOperativo.OTROS]: 'Otros',
 };
 
 export enum TiempoOperativo {
   PATRULLAJE = 'PATRULLAJE',
-  PERM_ESTATICO = 'PERM._ESTATICO',
+  PERM_ESTATICO = 'PERM_ESTATICO',
   TRANSITORIO = 'TRANSITORIO',
 }
 
-export const TiempoOperativoLabel: Record<keyof typeof TiempoOperativo, string> = {
-  PATRULLAJE: 'Patrullaje',
-  PERM_ESTATICO: 'Perm. estatico',
-  TRANSITORIO: 'Transitorio',
-} as const;
-
-export const convertToTiempoOperativo = (str: string): TiempoOperativo => {
-  const enumValue = convertToEnumValue(str);
-  return enumValue as TiempoOperativo;
+export const TiempoOperativoLabel: Record<TiempoOperativo, string> = {
+  [TiempoOperativo.PATRULLAJE]: 'Patrullaje',
+  [TiempoOperativo.PERM_ESTATICO]: 'Perm. estatico',
+  [TiempoOperativo.TRANSITORIO]: 'Transitorio',
 };
+
