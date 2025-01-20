@@ -21,6 +21,6 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 
 // Rutas de tabla principal
-router.use('/registros', tablaPrincipalRoutes);
+router.use('/tabla-principal', tablaPrincipalRoutes);
 
 export default router;

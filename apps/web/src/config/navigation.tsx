@@ -8,6 +8,7 @@ import {
   Person as PersonIcon,
   TableChart as TableChartIcon,
   Map as MapIcon,
+  PictureAsPdf as PdfIcon,
 } from '@mui/icons-material';
 
 export interface NavigationItem {
@@ -28,6 +29,11 @@ export const navigationConfig: NavigationItem[] = [
     href: '/dashboard',
     icon: DashboardIcon,
     title: 'Panel Principal'
+  },
+  {
+    href: '/dashboard/despliegues-pdf',
+    icon: PdfIcon,
+    title: 'Despliegues PDF'
   },
   {
     href: '/dashboard/direccion-1',

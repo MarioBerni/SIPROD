@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { TablaPrincipal } from '../types';
 import {
   Dialog,
   DialogTitle,
@@ -22,7 +23,13 @@ import {
   Note as NoteIcon,
   AddCircleOutline as AddCircleOutlineIcon
 } from '@mui/icons-material';
-import { TablaPrincipal, Departamento, Unidad, TipoOrden, TipoOperativo, TiempoOperativo } from '../types';
+import { 
+  Departamento, 
+  Unidad, 
+  TipoOrden, 
+  TipoOperativo, 
+  TiempoOperativo 
+} from '../types/generated';
 import { isValid } from 'date-fns';
 
 // Importar secciones del formulario

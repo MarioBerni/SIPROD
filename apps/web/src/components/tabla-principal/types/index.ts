@@ -16,8 +16,8 @@ export interface TablaPrincipal {
   horaFin?: string | Date;
   fechaFin?: string | Date;
   observacionesOrden?: string;
-  seccional: number[];
-  barrios: string[];
+  seccional?: number[];
+  barrios?: string[];
   moviles?: number;
   ppssEnMovil?: number;
   ssoo?: number;
@@ -35,6 +35,7 @@ export interface TablaPrincipal {
   createdAt?: string | Date;
   updatedAt?: string | Date;
   createdById?: string;
+  seccion?: string;
 }
 
 // Tipos de respuesta API

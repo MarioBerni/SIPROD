@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient, Rol } from '@prisma/client';
+import { PrismaClient, Rol, Unidad, TiempoOperativo, Prisma } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { logger } from '../utils/logger';
 
@@ -29,6 +29,31 @@ const calculateTotalPpss = (data: RecordData) => {
          (data.pieTierra || 0) +
          ((data.motosBitripuladas || 0) * 2);
 };
+
+interface WhereClause extends Prisma.TablaPrincipalWhereInput {
+  unidad?: {
+    in: Unidad[];
+  };
+  tiempoOperativo?: {
+    in: TiempoOperativo[];
+  };
+  nombreOperativo?: {
+    in: string[];
+  };
+}
+
+interface PDFFormattedRegistro {
+  nombreOperativo: string;
+  moviles: number;
+  ssoo: number;
+  motos: number;
+  hipos: number;
+  pieTierra: number;
+  totalPpss: number;
+  horaInicio: string;
+  horaFin: string;
+  seccional: string;
+}
 
 export const tablaPrincipalController = {
   // Obtener todos los registros
@@ -177,6 +202,202 @@ export const tablaPrincipalController = {
     } catch (error) {
       console.error('Error deleting registro:', error);
       return res.status(500).json({ message: 'Error al eliminar el registro' });
+    }
+  },
+
+  // Obtener opciones para los filtros
+  getFilterOptions: async (_req: Request, res: Response) => {
+    try {
+      const [unidades, tiemposOperativos, nombresOperativos] = await Promise.all([
+        prisma.tablaPrincipal.findMany({
+          select: { unidad: true },
+          distinct: ['unidad'],
+          where: { unidad: { not: null } }
+        }),
+        prisma.tablaPrincipal.findMany({
+          select: { tiempoOperativo: true },
+          distinct: ['tiempoOperativo'],
+          where: { tiempoOperativo: { not: null } }
+        }),
+        prisma.tablaPrincipal.findMany({
+          select: { nombreOperativo: true },
+          distinct: ['nombreOperativo'],
+          where: { nombreOperativo: { not: null } }
+        })
+      ]);
+
+      return res.json({
+        unidades: unidades.map(u => u.unidad).filter(Boolean),
+        tiemposOperativos: tiemposOperativos.map(t => t.tiempoOperativo).filter(Boolean),
+        nombresOperativos: nombresOperativos.map(n => n.nombreOperativo).filter(Boolean)
+      });
+    } catch (error) {
+      console.error('Error al obtener opciones de filtro:', error);
+      return res.status(500).json({ message: 'Error al obtener opciones de filtro' });
+    }
+  },
+
+  // Obtener datos filtrados para PDF
+  getFilteredDataForPDF: async (req: Request, res: Response) => {
+    try {
+      console.log('Backend - Query params recibidos:', req.query);
+      
+      const whereClause: WhereClause = {};
+      let unidadesFiltradas: Unidad[] = [];
+      let tiemposOperativosFiltrados: TiempoOperativo[] = [];
+      let nombresOperativosFiltrados: string[] = [];
+      
+      // Obtener y validar unidades del parámetro JSON
+      if (req.query.unidades) {
+        try {
+          const unidadesArray = JSON.parse(req.query.unidades as string);
+          console.log('Backend - Unidades parseadas:', unidadesArray);
+          
+          unidadesFiltradas = unidadesArray
+            .filter((u: string): u is Unidad => Object.values(Unidad).includes(u as Unidad));
+          
+          console.log('Backend - Unidades válidas:', unidadesFiltradas);
+
+          if (unidadesFiltradas.length > 0) {
+            whereClause.unidad = {
+              in: unidadesFiltradas
+            };
+          }
+        } catch (error) {
+          console.error('Error al parsear unidades:', error);
+        }
+      }
+
+      // Obtener y validar tiempos operativos
+      if (req.query.tiemposOperativos) {
+        try {
+          const tiemposArray = JSON.parse(req.query.tiemposOperativos as string);
+          console.log('Backend - Tiempos operativos parseados:', tiemposArray);
+
+          tiemposOperativosFiltrados = tiemposArray
+            .filter((t: string): t is TiempoOperativo => Object.values(TiempoOperativo).includes(t as TiempoOperativo));
+
+          console.log('Backend - Tiempos operativos válidos:', tiemposOperativosFiltrados);
+
+          if (tiemposOperativosFiltrados.length > 0) {
+            whereClause.tiempoOperativo = {
+              in: tiemposOperativosFiltrados
+            };
+          }
+        } catch (error) {
+          console.error('Error al parsear tiempos operativos:', error);
+        }
+      }
+
+      // Obtener y validar nombres operativos
+      if (req.query.nombresOperativos) {
+        try {
+          nombresOperativosFiltrados = JSON.parse(req.query.nombresOperativos as string);
+          console.log('Backend - Nombres operativos parseados:', nombresOperativosFiltrados);
+
+          if (nombresOperativosFiltrados.length > 0) {
+            whereClause.nombreOperativo = {
+              in: nombresOperativosFiltrados
+            };
+          }
+        } catch (error) {
+          console.error('Error al parsear nombres operativos:', error);
+        }
+      }
+
+      // Obtener y validar operativos seleccionados para tablas personalizadas
+      if (req.query.selectedOperativos) {
+        try {
+          const selectedOperativos = JSON.parse(req.query.selectedOperativos as string);
+          console.log('Backend - Operativos seleccionados parseados:', selectedOperativos);
+
+          if (selectedOperativos.length > 0) {
+            whereClause.nombreOperativo = {
+              in: selectedOperativos
+            };
+            // Para tablas personalizadas, ignoramos los filtros de unidad, tiempo operativo y nombre operativo
+            delete whereClause.unidad;
+            delete whereClause.tiempoOperativo;
+          }
+        } catch (error) {
+          console.error('Error al parsear operativos seleccionados:', error);
+        }
+      }
+
+      console.log('Backend - Cláusula WHERE final:', whereClause);
+
+      // Obtener los registros filtrados
+      const registros = await prisma.tablaPrincipal.findMany({
+        where: whereClause,
+        select: {
+          tipoOperativo: true,
+          nombreOperativo: true,
+          moviles: true,
+          ssoo: true,
+          motos: true,
+          hipos: true,
+          pieTierra: true,
+          totalPpss: true,
+          horaInicio: true,
+          horaFin: true,
+          seccional: true,
+          unidad: true
+        },
+        orderBy: {
+          unidad: 'asc'
+        }
+      });
+
+      console.log('Backend - Registros encontrados:', registros.length);
+
+      if (!registros || registros.length === 0) {
+        console.log('Backend - No se encontraron registros');
+        return res.json({});
+      }
+
+      // Organizar datos por unidad
+      const datosPorUnidad = registros.reduce<Record<string, PDFFormattedRegistro[]>>((acc, registro) => {
+        const unidad = registro.unidad;
+        
+        // Solo incluir registros de las unidades filtradas
+        if (unidad && (!unidadesFiltradas.length || unidadesFiltradas.includes(unidad))) {
+          if (!acc[unidad]) {
+            acc[unidad] = [];
+          }
+          acc[unidad].push({
+            nombreOperativo: `${registro.tipoOperativo || ''} ${registro.nombreOperativo || ''}`.trim(),
+            moviles: registro.moviles || 0,
+            ssoo: registro.ssoo || 0,
+            motos: registro.motos || 0,
+            hipos: registro.hipos || 0,
+            pieTierra: registro.pieTierra || 0,
+            totalPpss: registro.totalPpss || 0,
+            horaInicio: registro.horaInicio ? new Date(registro.horaInicio).toLocaleTimeString('es-UY', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: false 
+            }) : '',
+            horaFin: registro.horaFin ? new Date(registro.horaFin).toLocaleTimeString('es-UY', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: false 
+            }) : '',
+            seccional: registro.seccional ? registro.seccional.join(', ') : ''
+          });
+        }
+        return acc;
+      }, {});
+
+      console.log('Backend - Datos organizados por unidad:', {
+        unidadesFiltradas,
+        unidadesEncontradas: Object.keys(datosPorUnidad),
+        registrosPorUnidad: Object.entries(datosPorUnidad).map(([u, d]) => `${u}: ${d.length}`)
+      });
+
+      return res.json(datosPorUnidad);
+    } catch (error) {
+      console.error('Error al obtener datos filtrados para PDF:', error);
+      return res.status(500).json({ message: 'Error al obtener datos filtrados para PDF' });
     }
   }
 };

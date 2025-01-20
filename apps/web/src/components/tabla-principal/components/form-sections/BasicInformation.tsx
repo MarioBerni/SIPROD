@@ -4,15 +4,15 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
+import { TablaPrincipal } from '../../types';
 import {
-  TablaPrincipal,
   Departamento,
   DepartamentoLabel,
   Unidad,
   UnidadLabel,
   TipoOrden,
   TipoOrdenLabel,
-} from '../../types';
+} from '../../types/generated';
 
 interface BasicInformationProps {
   formData: Partial<TablaPrincipal>;
@@ -52,20 +52,31 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
   validationErrors
 }) => {
   const getEnumOptions = <T extends { [key: string]: string }>(
-    enumObj: T,
-    labelObj: { [key: string]: string }
+    enumObj: T | undefined | null,
+    labelObj: { [key: string]: string } | undefined | null
   ): Option[] => {
+    if (!enumObj || !labelObj) {
+      console.warn('Enum o Label object es undefined o null');
+      return [];
+    }
+    
     return Object.entries(enumObj)
       .filter(([key]) => isNaN(Number(key)))
       .map(([key]) => ({
         value: key,
-        label: labelObj[key as keyof typeof labelObj]
+        label: labelObj[key as keyof typeof labelObj] || key
       }));
   };
 
-  const departamentoOptions = getEnumOptions(Departamento, DepartamentoLabel);
-  const unidadOptions = getEnumOptions(Unidad, UnidadLabel);
-  const tipoOrdenOptions = getEnumOptions(TipoOrden, TipoOrdenLabel);
+  const departamentoOptions = Departamento && DepartamentoLabel 
+    ? getEnumOptions(Departamento, DepartamentoLabel)
+    : [];
+  const unidadOptions = Unidad && UnidadLabel 
+    ? getEnumOptions(Unidad, UnidadLabel)
+    : [];
+  const tipoOrdenOptions = TipoOrden && TipoOrdenLabel 
+    ? getEnumOptions(TipoOrden, TipoOrdenLabel)
+    : [];
 
   const findSelectedOption = (value: string | undefined, options: Option[]): Option | null => {
     if (!value) return null;

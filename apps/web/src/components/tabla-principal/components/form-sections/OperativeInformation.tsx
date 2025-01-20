@@ -4,13 +4,13 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
+import { TablaPrincipal } from '../../types';
 import {
-  TablaPrincipal,
   TipoOperativo,
   TipoOperativoLabel,
   TiempoOperativo,
   TiempoOperativoLabel,
-} from '../../types';
+} from '../../types/generated';
 
 interface OperativeInformationProps {
   formData: Partial<TablaPrincipal>;
@@ -50,19 +50,28 @@ export const OperativeInformation: React.FC<OperativeInformationProps> = ({
   validationErrors
 }) => {
   const getEnumOptions = <T extends { [key: string]: string }>(
-    enumObj: T,
-    labelObj: { [key: string]: string }
+    enumObj: T | undefined | null,
+    labelObj: { [key: string]: string } | undefined | null
   ): Option[] => {
+    if (!enumObj || !labelObj) {
+      console.warn('Enum o Label object es undefined o null');
+      return [];
+    }
+
     return Object.entries(enumObj)
       .filter(([key]) => isNaN(Number(key)))
       .map(([key]) => ({
         value: key,
-        label: labelObj[key as keyof typeof labelObj]
+        label: labelObj[key as keyof typeof labelObj] || key
       }));
   };
 
-  const tipoOperativoOptions = getEnumOptions(TipoOperativo, TipoOperativoLabel);
-  const tiempoOperativoOptions = getEnumOptions(TiempoOperativo, TiempoOperativoLabel);
+  const tipoOperativoOptions = TipoOperativo && TipoOperativoLabel 
+    ? getEnumOptions(TipoOperativo, TipoOperativoLabel)
+    : [];
+  const tiempoOperativoOptions = TiempoOperativo && TiempoOperativoLabel 
+    ? getEnumOptions(TiempoOperativo, TiempoOperativoLabel)
+    : [];
 
   const findSelectedOption = (value: string | undefined, options: Option[]): Option | null => {
     if (!value) return null;
