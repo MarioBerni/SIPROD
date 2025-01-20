@@ -143,35 +143,35 @@ model TablaPrincipal {
   departamento          Departamento?
   unidad                Unidad?
   tipoOrden             TipoOrden?       @map("tipo_orden")
-  nroOrden              String?          @map("nro_orden")
-  tipoOperativo         TipoOperativo?   @map("tipo_operativo")
-  tiempoOperativo       TiempoOperativo? @map("tiempo_operativo")
-  nombreOperativo       String?          @map("nombre_operativo")
-  fechaInicio           DateTime?        @map("fecha_inicio")
-  horaInicio            DateTime?        @map("hora_inicio")
-  horaFin               DateTime?        @map("hora_fin")
-  fechaFin              DateTime?        @map("fecha_fin")
-  observacionesOrden    String?          @map("observaciones_orden")
-  seccional             Int[]
-  barrios               String[]
-  moviles               Int?
-  ppssEnMovil           Int?             @map("ppss_en_movil")
-  ssoo                  Int?
-  motos                 Int?
-  motosBitripuladas     Int?             @map("motos_bitripuladas")
-  hipos                 Int?
-  canes                 Int?
-  pieTierra             Int?             @map("pie_tierra")
-  drones                Int?
-  antidisturbioApostado Int?             @map("antidisturbio_apostado")
-  antidisturbioAlerta   Int?             @map("antidisturbio_alerta")
-  geoApostado           Int?             @map("geo_apostado")
-  geoAlerta             Int?             @map("geo_alerta")
-  totalPpss             Int?             @map("total_ppss")
-  createdAt             DateTime         @default(now()) @map("created_at")
-  updatedAt             DateTime         @updatedAt @map("updated_at")
-  createdBy             User             @relation(fields: [createdById], references: [id])
-  createdById           String           @map("created_by_id")
+  nroOrden             String?          @map("nro_orden")
+  tipoOperativo        TipoOperativo?   @map("tipo_operativo")
+  tiempoOperativo      TiempoOperativo? @map("tiempo_operativo")
+  nombreOperativo      String?          @map("nombre_operativo")
+  fechaInicio          DateTime?        @map("fecha_inicio")
+  horaInicio           DateTime?        @map("hora_inicio")
+  horaFin              DateTime?        @map("hora_fin")
+  fechaFin             DateTime?        @map("fecha_fin")
+  observacionesOrden   String?          @map("observaciones_orden")
+  seccional            Int[]
+  barrios              String[]
+  moviles              Int?
+  ppssEnMovil          Int?             @map("ppss_en_movil")
+  ssoo                 Int?
+  motos                Int?
+  motosBitripuladas    Int?             @map("motos_bitripuladas")
+  hipos                Int?
+  canes                Int?
+  pieTierra            Int?             @map("pie_tierra")
+  drones               Int?
+  antidisturbioApostado Int?            @map("antidisturbio_apostado")
+  antidisturbioAlerta  Int?             @map("antidisturbio_alerta")
+  geoApostado          Int?             @map("geo_apostado")
+  geoAlerta            Int?             @map("geo_alerta")
+  totalPpss            Int?             @map("total_ppss")
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+  createdById          String?          @map("created_by_id")
+  createdBy            User?            @relation(fields: [createdById], references: [id])
 
   @@map("tabla_principal")
 }

@@ -6,16 +6,16 @@ import { TABLE_STYLES, COLUMN_WIDTHS, IMAGE_DIMENSIONS, IMAGE_PATHS } from '../.
  */
 export const createTableHeaders = () => {
   return [
-    { content: 'Nombre Operativo' },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: 'Hora\ninicio' },
-    { content: 'Hora\nfin' },
-    { content: 'Secc.' }
+    { content: 'Nombre Operativo', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 2 } },
+    { content: 'Hora\ninicio', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: 'Hora\nfin', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: 'Secc.', styles: TABLE_STYLES.HEADER_TEXT }
   ];
 };
 

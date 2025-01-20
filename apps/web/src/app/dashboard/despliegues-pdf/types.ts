@@ -1,3 +1,5 @@
+import { PDFTableRow } from './types/table.types';
+
 export interface CustomTable {
   id: string;
   title: string;
@@ -17,19 +19,5 @@ export interface FilterFormState {
 }
 
 export type Filters = FilterFormState;
-
-export interface PDFTableRow {
-  nombreOperativo: string;
-  moviles: number;
-  ssoo: number;
-  motos: number;
-  hipos: number;
-  pieTierra: number;
-  totalPpss: number;
-  horaInicio: string;
-  horaFin: string;
-  seccional: string;
-  unidad?: string;
-}
 
 export type PDFTableData = Record<string, PDFTableRow[]>;

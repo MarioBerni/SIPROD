@@ -1,11 +1,12 @@
 import { ExtendedJsPDF } from '../types/pdf.types';
-import { PDFTableRow } from '../types';
+import { PDFTableRow, TableTotals } from '../types/table.types';
 import { PAGE_MARGINS, SPACING, UNIT_TITLES } from '../constants/pdf.constants';
 import { addTableData } from './tableUtils';
-import { TableTotals } from './tableUtils';
 import { COLUMN_WIDTHS, IMAGE_DIMENSIONS, IMAGE_PATHS, TABLE_STYLES } from '../constants/table.constants';
 import { jsPDF } from 'jspdf';
 import { CellDef, UserOptions, Styles } from 'jspdf-autotable';
+import { formatOperativeName } from './textUtils';
+import { sortByOrderFrequency } from './sortUtils';
 
 /**
  * Procesa una unidad individual y agrega su tabla al PDF
@@ -42,9 +43,6 @@ export const processUnit = (
 
   return { newY, totals };
 };
-
-
-
 
 /**
  * Procesa una tabla personalizada y la agrega al PDF
@@ -98,16 +96,16 @@ export const processCustomTable = (
   // Preparar todos los datos con subtítulos de unidad
   const allTableData: (string[] | CellDef[])[] = [];
   const headers: CellDef[] = [
-    { content: 'Nombre Operativo' },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: '', styles: { cellPadding: 2 } },
-    { content: 'Hora\ninicio' },
-    { content: 'Hora\nfin' },
-    { content: 'Secc.' }
+    { content: 'Operativo', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+    { content: 'Hora\ninicio', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: 'Hora\nfin', styles: TABLE_STYLES.HEADER_TEXT },
+    { content: 'Secc.', styles: TABLE_STYLES.HEADER_TEXT }
   ];
 
   // Procesar cada unidad y agregar sus datos
@@ -130,9 +128,17 @@ export const processCustomTable = (
     }]);
 
     // Agregar datos de la unidad
-    unitData.forEach(row => {
+    console.log(`\nOrdenando datos para unidad: ${unit}`);
+    console.log('Datos antes de ordenar:', unitData.map((row: PDFTableRow) => ({
+      nombreOperativo: row.nombreOperativo,
+      tipoOrden: row.tipoOrden,
+      nroOrden: row.nroOrden
+    })));
+    
+    const sortedUnitData = sortByOrderFrequency(unitData);
+    sortedUnitData.forEach(row => {
       allTableData.push([
-        row.nombreOperativo,
+        formatOperativeName(row.nombreOperativo),
         row.moviles.toString(),
         row.ssoo.toString(),
         row.motos.toString(),
@@ -197,57 +203,28 @@ export const processCustomTable = (
   (doc as ExtendedJsPDFWithAutoTable).autoTable({
     head: [headers],
     body: allTableData,
-    startY: currentY,
+    startY: currentY - 2,
     theme: 'striped',
     margin: { left: safeMargin, right: safeMargin },
     styles: TABLE_STYLES.DEFAULT,
     columnStyles: {
-      0: { halign: 'left' as const, cellWidth: COLUMN_WIDTHS.NOMBRE_OPERATIVO },
-      1: { cellWidth: COLUMN_WIDTHS.STANDARD },
-      2: { cellWidth: COLUMN_WIDTHS.STANDARD },
-      3: { cellWidth: COLUMN_WIDTHS.STANDARD },
-      4: { cellWidth: COLUMN_WIDTHS.STANDARD },
-      5: { cellWidth: COLUMN_WIDTHS.STANDARD },
-      6: { cellWidth: COLUMN_WIDTHS.STANDARD },
+      0: { cellWidth: COLUMN_WIDTHS.NOMBRE_OPERATIVO },
       7: { cellWidth: COLUMN_WIDTHS.HORA },
       8: { cellWidth: COLUMN_WIDTHS.HORA },
       9: { cellWidth: COLUMN_WIDTHS.SECCIONAL }
     },
-    didDrawCell: function(data) {
-      // Solo agregar imágenes en el encabezado
-      if (data?.section === 'head' && 
-          data.column?.index !== undefined && 
-          data.column.index >= 1 && 
-          data.column.index <= 6 && 
-          data.cell) {
-        
+    didDrawCell: function (data) {
+      if (data.section === 'head' && data.column.index > 0 && data.column.index < 7) {
+        const { x, y } = data.cell;
         const imageIndex = data.column.index - 1;
-        
-        if (imageIndex >= 0 && imageIndex < IMAGE_PATHS.length) {
-          const imagePath = IMAGE_PATHS[imageIndex];
-          
-          if (typeof data.cell.x === 'number' && 
-              typeof data.cell.y === 'number' && 
-              typeof data.cell.width === 'number' && 
-              typeof data.cell.height === 'number') {
-            
-            const xPos = data.cell.x + (data.cell.width - IMAGE_DIMENSIONS.width) / 2;
-            const yPos = data.cell.y + (data.cell.height - IMAGE_DIMENSIONS.height) / 2;
-            
-            try {
-              doc.addImage(
-                imagePath,
-                'JPEG',
-                xPos,
-                yPos,
-                IMAGE_DIMENSIONS.width,
-                IMAGE_DIMENSIONS.height
-              );
-            } catch (error) {
-              console.warn(`Error al agregar imagen ${imagePath}:`, error);
-            }
-          }
-        }
+        doc.addImage(
+          IMAGE_PATHS[imageIndex],
+          'JPEG',
+          x + (data.cell.width - IMAGE_DIMENSIONS.width) / 2,
+          y + (data.cell.height - IMAGE_DIMENSIONS.height) / 2,
+          IMAGE_DIMENSIONS.width,
+          IMAGE_DIMENSIONS.height
+        );
       }
     }
   });

@@ -23,5 +23,12 @@ export const SPACING = {
   beforeTable: 6,    // Reducido para menor separación antes de las tablas
   afterTable: 10,    // Reducido para menor separación después de las tablas
   beforeTitle: 8,    // Ajustado para menor separación antes de los títulos
-  afterTitle: 6      // Ajustado para menor separación después de los títulos
+  afterTitle: 6,     // Ajustado para menor separación después de los títulos
+  footerHeight: 15   // Altura reservada para el footer
+} as const;
+
+// Constantes para paginación
+export const PAGINATION = {
+  minRowsBeforeBreak: 3, // Mínimo número de filas antes de un salto de página
+  safetyMargin: 20       // Margen de seguridad para evitar sobreposición con el footer
 } as const;

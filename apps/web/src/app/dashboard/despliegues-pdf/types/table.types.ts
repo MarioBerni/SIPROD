@@ -1,9 +1,12 @@
 import { UserOptions } from 'jspdf-autotable';
 
-// Extender el tipo jsPDF para incluir autoTable
+// Extender el tipo jsPDF para incluir autoTable y lastAutoTable
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: UserOptions) => void;
+    lastAutoTable?: {
+      finalY: number;
+    };
   }
 }
 
@@ -45,6 +48,22 @@ export interface CellStyle {
   fontSize?: number;
 }
 
+export interface PDFTableRow {
+  nombreOperativo: string;
+  moviles: number;
+  ssoo: number;
+  motos: number;
+  hipos: number;
+  pieTierra: number;
+  totalPpss: number;
+  horaInicio: string;
+  horaFin: string;
+  seccional: string;
+  tipoOrden?: string;
+  nroOrden?: string;
+  unidad: string;
+}
+
 export interface TableTotals {
   unidad: string;
   moviles: number;
@@ -54,3 +73,10 @@ export interface TableTotals {
   pieTierra: number;
   totalPpss: number;
 }
+
+export type FormattedTableRow = (string | { 
+  content: string; 
+  styles: CellStyle;
+})[];
+
+export type FormattedTableData = FormattedTableRow[];
