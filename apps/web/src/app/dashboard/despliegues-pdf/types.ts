@@ -3,6 +3,7 @@ import { PDFTableRow } from './types/table.types';
 export interface CustomTable {
   id: string;
   title: string;
+  tiempoOperativo: string[]; // Cambiado a array para selección múltiple
   selectedOperativos: string[];
 }
 
@@ -10,8 +11,8 @@ export interface FilterFormState {
   organizarPor: string;
   turnos: string[];
   unidades: string[];
-  tiemposOperativos: string[];
-  nombresOperativos: string[];
+  tiempoOperativo: string[];
+  nombreOperativo: string[];
   customTables: CustomTable[];
   incluirInforme: boolean;
   customGroups: Record<string, string[]>;

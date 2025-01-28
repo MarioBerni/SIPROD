@@ -36,14 +36,14 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
     // Obtener datos filtrados
     console.log('Solicitando datos filtrados con filtros:', {
       unidades: filters.unidades,
-      tiemposOperativos: filters.tiemposOperativos,
-      nombresOperativos: filters.nombresOperativos
+      tiempoOperativo: filters.tiempoOperativo,
+      nombreOperativo: filters.nombreOperativo
     });
 
     const datosFiltrados = await tablaPrincipalApi.getFilteredDataForPDF({
       unidades: filters.unidades,
-      tiemposOperativos: filters.tiemposOperativos,
-      nombresOperativos: filters.nombresOperativos
+      tiempoOperativo: filters.tiempoOperativo,
+      nombreOperativo: filters.nombreOperativo
     });
     console.log('Datos filtrados recibidos:', datosFiltrados);
 

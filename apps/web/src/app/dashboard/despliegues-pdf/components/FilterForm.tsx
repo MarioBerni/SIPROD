@@ -43,24 +43,37 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
   const [loading, setLoading] = useState(true);
   const [options, setOptions] = useState<{
     unidades: string[];
-    tiemposOperativos: string[];
-    nombresOperativos: string[];
+    tiempoOperativo: string[];
+    nombreOperativo: string[];
   }>({
     unidades: [],
-    tiemposOperativos: [],
-    nombresOperativos: []
+    tiempoOperativo: [],
+    nombreOperativo: []
   });
+  const [operativosPorTiempo, setOperativosPorTiempo] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    const fetchOptions = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await tablaPrincipalApi.getFilterOptions();
+        const [filterOptions, operativosData] = await Promise.all([
+          tablaPrincipalApi.getFilterOptions(),
+          tablaPrincipalApi.getOperativosPorTiempo()
+        ]);
+
         setOptions({
-          unidades: data.unidades.map(value => UnidadLabel[value as keyof typeof Unidad]),
-          tiemposOperativos: data.tiemposOperativos.map(value => TiempoOperativoLabel[value as keyof typeof TiempoOperativo]),
-          nombresOperativos: data.nombresOperativos
+          unidades: filterOptions.unidades.map(value => UnidadLabel[value as keyof typeof Unidad]),
+          tiempoOperativo: filterOptions.tiempoOperativo.map(value => TiempoOperativoLabel[value as keyof typeof TiempoOperativo]),
+          nombreOperativo: filterOptions.nombreOperativo
         });
+
+        // Convertir el array de OperativosPorTiempo a un objeto para fácil acceso
+        const operativosMap = operativosData.reduce((acc, { tiempoOperativo, operativos }) => {
+          acc[TiempoOperativoLabel[tiempoOperativo as keyof typeof TiempoOperativo]] = operativos;
+          return acc;
+        }, {} as Record<string, string[]>);
+        
+        setOperativosPorTiempo(operativosMap);
       } catch (error) {
         console.error('Error fetching options:', error);
       } finally {
@@ -68,7 +81,7 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
       }
     };
 
-    fetchOptions();
+    fetchData();
   }, []);
 
   const handleFilterChange = <K extends keyof FilterFormState>(
@@ -102,7 +115,7 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
           [field]: formattedValue,
         };
         onFilterChange(newFilters);
-      } else if (field === 'tiemposOperativos') {
+      } else if (field === 'tiempoOperativo') {
         const formattedValue = newValue.map(value => {
           const entry = Object.entries(TiempoOperativoLabel).find(([key]) => TiempoOperativoLabel[key as keyof typeof TiempoOperativoLabel] === value);
           return entry ? entry[0] : value;
@@ -113,7 +126,7 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
         };
         onFilterChange(newFilters);
       } else {
-        // Para otros arrays (nombresOperativos, turnos)
+        // Para otros arrays (nombreOperativo, turnos)
         const newFilters: FilterFormState = {
           ...filters,
           [field]: newValue,
@@ -134,6 +147,7 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
     const newTable: CustomTable = {
       id: `table-${Date.now()}`,
       title: '',
+      tiempoOperativo: [], // Inicializar como array vacío
       selectedOperativos: []
     };
 
@@ -230,9 +244,9 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
             <Autocomplete
               multiple
               size="small"
-              options={options.tiemposOperativos}
-              value={filters.tiemposOperativos.map(value => TiempoOperativoLabel[value as keyof typeof TiempoOperativo])}
-              onChange={(_, newValue) => handleFilterChange('tiemposOperativos', newValue)}
+              options={options.tiempoOperativo}
+              value={filters.tiempoOperativo.map(value => TiempoOperativoLabel[value as keyof typeof TiempoOperativo])}
+              onChange={(_, newValue) => handleFilterChange('tiempoOperativo', newValue)}
               renderTags={(value, getTagProps) =>
                 value.map((option, index) => {
                   const { key, ...chipProps } = getTagProps({ index });
@@ -273,9 +287,9 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
             <Autocomplete
               multiple
               size="small"
-              options={options.nombresOperativos}
-              value={filters.nombresOperativos}
-              onChange={(_, newValue) => handleFilterChange('nombresOperativos', newValue)}
+              options={options.nombreOperativo}
+              value={filters.nombreOperativo}
+              onChange={(_, newValue) => handleFilterChange('nombreOperativo', newValue)}
               renderTags={(value, getTagProps) =>
                 value.map((option, index) => {
                   const { key, ...chipProps } = getTagProps({ index });
@@ -431,12 +445,69 @@ export default function FilterForm({ filters, onFilterChange }: FilterFormProps)
                 </IconButton>
               </Box>
               
+              <FormControl fullWidth size="small" sx={{ mb: 1.5 }}>
+                <Autocomplete
+                  multiple
+                  size="small"
+                  options={options.tiempoOperativo}
+                  value={table.tiempoOperativo}
+                  onChange={(_, newValue) => handleTableChange(index, 'tiempoOperativo', newValue)}
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => {
+                      const { key, ...chipProps } = getTagProps({ index });
+                      return (
+                        <Chip
+                          key={key}
+                          label={option}
+                          size="small"
+                          {...chipProps}
+                          sx={{
+                            borderRadius: '12px',
+                            '& .MuiChip-deleteIcon': {
+                              color: theme => theme.palette.primary.main,
+                            },
+                          }}
+                        />
+                      );
+                    })
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Tiempos Operativos"
+                      placeholder="Seleccionar tiempos operativos"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '8px',
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </FormControl>
+              
               <Autocomplete
                 multiple
                 size="small"
-                options={options.nombresOperativos}
+                options={options.nombreOperativo.filter(operativo => {
+                  if (table.tiempoOperativo.length === 0) return true;
+                  // Mostrar operativos que pertenezcan a cualquiera de los tiempos operativos seleccionados
+                  return table.tiempoOperativo.some(tiempo => 
+                    operativosPorTiempo[tiempo]?.includes(operativo)
+                  );
+                })}
                 value={table.selectedOperativos}
-                onChange={(_, newValue) => handleTableChange(index, 'selectedOperativos', newValue)}
+                onChange={(_, newValue) => {
+                  // Limpiar operativos seleccionados si no coinciden con los tiempos operativos seleccionados
+                  if (table.tiempoOperativo.length > 0 && 
+                      newValue.some(op => !table.tiempoOperativo.some(tiempo => 
+                        operativosPorTiempo[tiempo]?.includes(op)
+                      ))) {
+                    handleTableChange(index, 'selectedOperativos', []);
+                  } else {
+                    handleTableChange(index, 'selectedOperativos', newValue);
+                  }
+                }}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => {
                     const { key, ...chipProps } = getTagProps({ index });

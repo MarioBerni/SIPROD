@@ -1,6 +1,8 @@
 'use client';
 
 import { Inter } from 'next/font/google';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import theme from '@/theme';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { env } from '@/lib/env.validator';
 import './globals.css';
@@ -16,9 +18,12 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

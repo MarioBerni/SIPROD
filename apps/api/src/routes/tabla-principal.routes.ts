@@ -13,6 +13,13 @@ router.get('/options', tablaPrincipalController.getFilterOptions);
 // Ruta para obtener datos filtrados para PDF
 router.get('/pdf-data', tablaPrincipalController.getFilteredDataForPDF);
 
+// Ruta para obtener operativos por tiempo operativo
+router.get('/operativos-por-tiempo', tablaPrincipalController.getOperativosPorTiempo);
+
+// Rutas para estadísticas
+router.get('/estadisticas/seccional', tablaPrincipalController.getEstadisticasPorSeccional);
+router.get('/estadisticas/barrio', tablaPrincipalController.getEstadisticasPorBarrio);
+
 // Rutas CRUD para la tabla principal
 router.get('/', tablaPrincipalController.getAllRegistros);
 router.get('/:id', tablaPrincipalController.getRegistroById);

@@ -2,10 +2,10 @@ import Cookies from 'js-cookie';
 
 // Configuración por defecto para cookies de autenticación
 const AUTH_COOKIE_CONFIG: Cookies.CookieAttributes = {
-  expires: 1, // 1 día
+  expires: 7, // Aumentar a 7 días
   path: '/',
-  sameSite: 'Strict',
-  secure: true
+  sameSite: 'Lax', // Cambiar a Lax para mejor compatibilidad
+  secure: process.env.NODE_ENV === 'production' // Solo seguro en producción
 };
 
 // Nombres de cookies

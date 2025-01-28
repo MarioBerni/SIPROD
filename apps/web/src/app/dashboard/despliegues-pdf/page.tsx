@@ -13,8 +13,8 @@ export default function DesplieguesPdfPage() {
   const theme = useTheme();
   const [filters, setFilters] = useState<FilterFormState>({
     unidades: [],
-    tiemposOperativos: [],
-    nombresOperativos: [],
+    tiempoOperativo: [],
+    nombreOperativo: [],
     turnos: [],
     organizarPor: '',
     customTables: [],
