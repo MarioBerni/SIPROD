@@ -92,7 +92,8 @@ export const API_ROUTES = {
     UPDATE: (id: string) => `/tabla-principal/${id}`,
     DELETE: (id: string) => `/tabla-principal/${id}`,
     OPTIONS: '/tabla-principal/options',
-    PDF_DATA: '/tabla-principal/pdf-data'
+    PDF_DATA: '/tabla-principal/pdf-data',
+    OPERATIVOS_POR_TIEMPO: '/tabla-principal/operativos-por-tiempo'
   }
 };
 
@@ -306,8 +307,13 @@ export const registrosApi = {
 // Interfaces para las opciones de filtro
 export interface FilterOptions {
   unidades: string[];
-  tiemposOperativos: string[];
-  nombresOperativos: string[];
+  tiempoOperativo: string[];
+  nombreOperativo: string[];
+}
+
+export interface OperativosPorTiempo {
+  tiempoOperativo: string;
+  operativos: string[];
 }
 
 // API de tabla principal
@@ -317,19 +323,30 @@ export const tablaPrincipalApi = {
   // Obtener opciones para los filtros
   async getFilterOptions(): Promise<FilterOptions> {
     try {
-      const response = await api.get(API_ROUTES.TABLA_PRINCIPAL.OPTIONS);
+      const response = await this.instance.get(API_ROUTES.TABLA_PRINCIPAL.OPTIONS);
       return response.data;
     } catch (error) {
       handleApiError(error);
-      return { unidades: [], tiemposOperativos: [], nombresOperativos: [] };
+      return { unidades: [], tiempoOperativo: [], nombreOperativo: [] };
+    }
+  },
+
+  // Obtener operativos por tiempo operativo
+  async getOperativosPorTiempo(): Promise<OperativosPorTiempo[]> {
+    try {
+      const response = await this.instance.get(API_ROUTES.TABLA_PRINCIPAL.OPERATIVOS_POR_TIEMPO);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return Promise.reject(error);
     }
   },
 
   // Obtener datos filtrados para PDF
   getFilteredDataForPDF(filters: { 
     unidades?: string[],
-    tiemposOperativos?: string[],
-    nombresOperativos?: string[],
+    tiempoOperativo?: string[],
+    nombreOperativo?: string[],
     selectedOperativos?: string[] 
   }): Promise<PDFTableData> {
     console.log('API - Enviando filtros:', filters);
@@ -337,11 +354,11 @@ export const tablaPrincipalApi = {
     if (filters.unidades?.length) {
       params.append('unidades', JSON.stringify(filters.unidades));
     }
-    if (filters.tiemposOperativos?.length) {
-      params.append('tiemposOperativos', JSON.stringify(filters.tiemposOperativos));
+    if (filters.tiempoOperativo?.length) {
+      params.append('tiempoOperativo', JSON.stringify(filters.tiempoOperativo));
     }
-    if (filters.nombresOperativos?.length) {
-      params.append('nombresOperativos', JSON.stringify(filters.nombresOperativos));
+    if (filters.nombreOperativo?.length) {
+      params.append('nombreOperativo', JSON.stringify(filters.nombreOperativo));
     }
     if (filters.selectedOperativos?.length) {
       params.append('selectedOperativos', JSON.stringify(filters.selectedOperativos));

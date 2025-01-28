@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth';
 import userRoutes from './user';
 import tablaPrincipalRoutes from './tabla-principal.routes';
+import estadisticasRoutes from './estadisticas.routes';
 
 const router = Router();
 
@@ -22,5 +23,8 @@ router.use('/users', userRoutes);
 
 // Rutas de tabla principal
 router.use('/tabla-principal', tablaPrincipalRoutes);
+
+// Rutas de estadísticas
+router.use('/estadisticas', estadisticasRoutes);
 
 export default router;

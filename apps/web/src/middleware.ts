@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { DEV_CONFIG } from './config/development';
 
 // Rutas que no requieren autenticación
 const PUBLIC_FILE_PATTERNS = [
@@ -24,11 +25,20 @@ const PUBLIC_API_ROUTES = [
 const PROTECTED_ROUTES = [
   '/dashboard',
   '/profile',
-  '/api/users', // Proteger explícitamente la ruta de usuarios
+  '/api/users',
 ];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Bypass de autenticación en desarrollo
+  if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
+    // Solo aplicar el bypass a rutas no-API para evitar problemas con las llamadas al backend
+    if (!pathname.startsWith('/api/')) {
+      return NextResponse.next();
+    }
+  }
+
   const token = request.cookies.get('token')?.value;
 
   // No aplicar middleware a archivos estáticos
@@ -43,18 +53,19 @@ export function middleware(request: NextRequest) {
 
   // Si es una ruta pública, permitir acceso
   if (PUBLIC_ROUTES.includes(pathname)) {
-    // Si hay token y está en login, redirigir al dashboard
-    if (token && pathname === '/login') {
+    // Si hay token y está en la página inicial, redirigir al dashboard
+    if (token && pathname === '/') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return NextResponse.next();
   }
 
-  // Si es una ruta protegida y no hay token, redirigir al login
+  // Si es una ruta protegida y no hay token, redirigir al inicio
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     if (!token) {
-      console.log('Middleware - No token found, redirecting to login');
-      return NextResponse.redirect(new URL('/', request.url));
+      const returnUrl = new URL('/', request.url);
+      returnUrl.searchParams.set('returnUrl', pathname);
+      return NextResponse.redirect(returnUrl);
     }
   }
 
@@ -63,9 +74,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Por defecto, redirigir al login
-  console.log('Middleware - No token found, redirecting to login');
-  return NextResponse.redirect(new URL('/', request.url));
+  // Por defecto, redirigir al inicio con la URL de retorno
+  const returnUrl = new URL('/', request.url);
+  returnUrl.searchParams.set('returnUrl', pathname);
+  return NextResponse.redirect(returnUrl);
 }
 
 // Configurar el matcher para las rutas que queremos proteger

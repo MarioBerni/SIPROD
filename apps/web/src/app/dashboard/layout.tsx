@@ -2,23 +2,23 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { DashboardLayout } from '@/components/layouts/DashboardLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PageTitleProvider, usePageTitle } from '@/contexts/PageTitleContext';
 import { navigationConfig } from '@/config/navigation';
+import { Box } from '@mui/material';
+import { useAuth } from '@/contexts/AuthContext';
+import { redirect } from 'next/navigation';
 
 function findNavItem(pathname: string | null) {
-  // Si pathname es null o undefined, devolver el item del dashboard
   if (!pathname) {
     return navigationConfig[0];
   }
 
-  // Primero buscar coincidencia exacta
   const exactMatch = navigationConfig.find(item => item.href === pathname);
   if (exactMatch) {
     return exactMatch;
   }
 
-  // Si no hay coincidencia exacta, buscar en subitems
   for (const item of navigationConfig) {
     if (item.subItems) {
       const subItem = item.subItems.find(sub => sub.href === pathname);
@@ -28,20 +28,35 @@ function findNavItem(pathname: string | null) {
     }
   }
 
-  // Si no se encuentra, devolver el item del dashboard
   return navigationConfig[0];
 }
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { setPageTitle } = usePageTitle();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const navItem = findNavItem(pathname);
     setPageTitle(navItem.title, navItem.icon);
   }, [pathname, setPageTitle]);
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  // Redirigir a la página de inicio de sesión si no está autenticado
+  if (!isLoading && !isAuthenticated) {
+    redirect('/');
+  }
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  return (
+    <DashboardLayout>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        {children}
+      </Box>
+    </DashboardLayout>
+  );
 }
 
 export default function Layout({
@@ -51,9 +66,7 @@ export default function Layout({
 }) {
   return (
     <PageTitleProvider>
-      <DashboardLayoutContent>
-        {children}
-      </DashboardLayoutContent>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
     </PageTitleProvider>
   );
 }
