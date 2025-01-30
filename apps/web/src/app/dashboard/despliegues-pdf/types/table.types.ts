@@ -59,6 +59,7 @@ export interface PDFTableRow {
   horaInicio: string;
   horaFin: string;
   seccional: string;
+  barrios: string[];
   tipoOrden?: string;
   nroOrden?: string;
   unidad: string;

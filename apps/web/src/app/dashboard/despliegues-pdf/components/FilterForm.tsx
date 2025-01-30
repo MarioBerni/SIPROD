@@ -37,6 +37,7 @@ const ORGANIZACION_OPTIONS = [
   'Nombre Operativo',
   'Turno',
   'Grupos Operativos',
+  'Barrios',
 ] as const;
 
 export default function FilterForm({ filters, onFilterChange }: FilterFormProps) {

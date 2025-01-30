@@ -48,6 +48,7 @@ interface AddRecordModalProps {
   validationErrors?: Record<string, string>;
   mode?: 'add' | 'edit';
   initialData?: TablaPrincipal | null;
+  barriosOptions: string[];
 }
 
 // Definición de colores basados en el theme institucional
@@ -167,8 +168,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
   loading = false,
   validationErrors = {},
   mode = 'add',
-  initialData = null
-}) => {
+  initialData = null}) => {
   // Estado inicial del formulario para modo 'add'
   const emptyFormData = useMemo<Partial<TablaPrincipal>>(() => ({
     departamento: '' as Departamento,
@@ -322,7 +322,7 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
                      (formData.pieTierra || 0) +
                      ((formData.motosBitripuladas || 0) * 2); // Duplicar el valor de motos bitripuladas
 
-    // Limpiar valores vacíos de enums
+    // Limpiar valores vacíos de enums y asegurar que los arrays estén correctamente formateados
     const cleanedData: Partial<TablaPrincipal> = {
       ...formData,
       departamento: formData.departamento || undefined,
@@ -331,11 +331,14 @@ export const AddRecordModal: React.FC<AddRecordModalProps> = ({
       tipoOperativo: formData.tipoOperativo || undefined,
       tiempoOperativo: formData.tiempoOperativo || undefined,
       totalPpss,
-      // Asegurar que los arrays estén inicializados
-      seccional: formData.seccional || [],
-      barrios: formData.barrios || []
+      // Asegurar que los arrays estén inicializados y procesados correctamente
+      seccional: Array.isArray(formData.seccional) ? formData.seccional : [],
+      barrios: Array.isArray(formData.barrios) 
+        ? formData.barrios.map(barrio => barrio.trim()).filter(barrio => barrio !== '')
+        : []
     };
 
+    setInternalValidationErrors({});
     onSubmit(cleanedData);
   };
 

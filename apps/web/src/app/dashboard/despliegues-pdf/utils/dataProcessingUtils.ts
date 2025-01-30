@@ -9,6 +9,27 @@ import { formatOperativeName } from './textUtils';
 import { sortByOrderFrequency } from './sortUtils';
 
 /**
+ * Verifica si hay espacio suficiente para el título y al menos una parte de la tabla
+ */
+const hasSpaceForTitleAndTable = (
+  doc: ExtendedJsPDF,
+  currentY: number,
+  rowCount: number,
+  minRows: number = 2
+): boolean => {
+  const rowHeight = TABLE_STYLES.DEFAULT.minCellHeight || 10;
+  const titleSpace = SPACING.beforeTitle + doc.getFontSize() / doc.internal.scaleFactor + SPACING.afterTitle;
+  const headerHeight = rowHeight * 1.2; // Altura del encabezado de la tabla
+  const minTableSpace = (minRows * rowHeight) + headerHeight;
+  const totalSpaceNeeded = titleSpace + minTableSpace;
+
+  const pageHeight = doc.internal.pageSize.height;
+  const availableSpace = pageHeight - currentY - SPACING.footerHeight - PAGE_MARGINS.bottom;
+
+  return availableSpace >= totalSpaceNeeded;
+};
+
+/**
  * Procesa una unidad individual y agrega su tabla al PDF
  */
 export const processUnit = (
@@ -17,11 +38,9 @@ export const processUnit = (
   datos: PDFTableRow[],
   currentY: number,
   pageWidth: number,
-  pageHeight: number
 ): { newY: number; totals: TableTotals } => {
-  // Verificar si hay espacio suficiente para la tabla
-  const estimatedTableHeight = (datos.length + 1) * 10 + SPACING.beforeTitle + SPACING.afterTitle;
-  if (currentY + estimatedTableHeight > pageHeight - PAGE_MARGINS.bottom) {
+  // Verificar si hay espacio suficiente para título y tabla
+  if (!hasSpaceForTitleAndTable(doc, currentY, datos.length)) {
     doc.addPage();
     currentY = PAGE_MARGINS.top + SPACING.afterHeader;
   }
@@ -45,6 +64,76 @@ export const processUnit = (
 };
 
 /**
+ * Procesa un barrio individual y agrega su tabla al PDF
+ */
+export const processBarrio = (
+  doc: ExtendedJsPDF,
+  barrio: string,
+  datos: PDFTableRow[],
+  currentY: number,
+  pageWidth: number,
+): { newY: number; totals: TableTotals } => {
+  // Verificar si hay espacio suficiente para título y tabla
+  if (!hasSpaceForTitleAndTable(doc, currentY, datos.length)) {
+    doc.addPage();
+    currentY = PAGE_MARGINS.top + SPACING.afterHeader;
+  }
+
+  // Agregar título del barrio centrado
+  currentY += SPACING.beforeTitle;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(51, 51, 51);
+  const titulo = barrio || "Sin barrio asignado";
+  const titleWidth = doc.getStringUnitWidth(titulo) * doc.getFontSize() / doc.internal.scaleFactor;
+  const titleX = (pageWidth - titleWidth) / 2;
+  doc.text(titulo, titleX, currentY);
+  currentY += SPACING.afterTitle;
+
+  // Ordenar datos por totalPpss de mayor a menor
+  const sortedData = [...datos].sort((a, b) => b.totalPpss - a.totalPpss);
+
+  // Agregar la tabla de datos y obtener sus totales
+  const totals = addTableData(doc, sortedData, currentY, titulo);
+  const newY = (doc.previousAutoTable?.finalY || currentY) + SPACING.afterTable;
+
+  return { newY, totals };
+};
+
+/**
+ * Procesa los registros sin barrios asignados
+ */
+export const processUnassignedBarrios = (
+  doc: ExtendedJsPDF,
+  data: PDFTableRow[],
+  currentY: number,
+  pageWidth: number,
+): { newY: number; totals: TableTotals } => {
+  // Verificar si hay espacio suficiente para título y tabla
+  if (!hasSpaceForTitleAndTable(doc, currentY, data.length)) {
+    doc.addPage();
+    currentY = PAGE_MARGINS.top + SPACING.afterHeader;
+  }
+
+  // Agregar título centrado
+  currentY += SPACING.beforeTitle;
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(51, 51, 51);
+  const titulo = "Sin barrios designados";
+  const titleWidth = doc.getStringUnitWidth(titulo) * doc.getFontSize() / doc.internal.scaleFactor;
+  const titleX = (pageWidth - titleWidth) / 2;
+  doc.text(titulo, titleX, currentY);
+  currentY += SPACING.afterTitle;
+
+  // Agregar la tabla de datos y obtener sus totales
+  const totals = addTableData(doc, data, currentY, titulo);
+  const newY = (doc.previousAutoTable?.finalY || currentY) + SPACING.afterTable;
+
+  return { newY, totals };
+};
+
+/**
  * Procesa una tabla personalizada y la agrega al PDF
  */
 export const processCustomTable = (
@@ -53,7 +142,6 @@ export const processCustomTable = (
   data: PDFTableRow[],
   currentY: number,
   pageWidth: number,
-  pageHeight: number
 ): { newY: number; totals: TableTotals } => {
   // Agrupar datos por unidad
   const dataByUnit = data.reduce((acc, row) => {
@@ -68,7 +156,7 @@ export const processCustomTable = (
   // Verificar espacio y agregar nueva página si es necesario
   const estimatedTableHeight = (data.length + Object.keys(dataByUnit).length + 1) * 10 + 
                              SPACING.beforeTitle + SPACING.afterTitle;
-  if (currentY + estimatedTableHeight > pageHeight - PAGE_MARGINS.bottom) {
+  if (currentY + estimatedTableHeight > doc.internal.pageSize.height - PAGE_MARGINS.bottom) {
     doc.addPage();
     currentY = PAGE_MARGINS.top + SPACING.afterHeader;
   }

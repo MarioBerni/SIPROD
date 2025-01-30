@@ -3,10 +3,12 @@ import {
   Chip,
   TextField,
   Autocomplete,
-  Grid
+  Grid,
+  Typography,
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useMemo } from 'react';
+import { styled } from '@mui/material/styles';
 
 // Mapa de relación entre seccionales y barrios
 const seccionalBarriosMap: Record<string, string[]> = {
@@ -37,7 +39,6 @@ const seccionalBarriosMap: Record<string, string[]> = {
   '25': ['Barrio Vista Linda', 'Bella Italia', 'Chacarita de los Padres', 'Punta de Rieles'],
 };
 
-
 // Crear mapa inverso de barrios a seccionales
 const barriosSeccionalMap = Object.entries(seccionalBarriosMap).reduce((acc, [seccional, barrios]) => {
   barrios.forEach(barrio => {
@@ -56,10 +57,8 @@ const seccionalOptions = Object.keys(seccionalBarriosMap)
   .map(String);
 
 // Obtener lista de barrios ordenada alfabéticamente
-const barriosOptions = Array.from(new Set(Object.values(seccionalBarriosMap).flat()))
+export const barriosOptions = Array.from(new Set(Object.values(seccionalBarriosMap).flat()))
   .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
-
-// Función para validar que los barrios correspondan a las seccionales seleccionadas
 
 export interface UbicacionFormProps {
   seccional: number[];
@@ -97,39 +96,41 @@ export const UbicacionForm: FC<UbicacionFormProps> = ({
   const handleSeccionalChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
     const newSeccionales = newValue.map(Number);
     onSeccionalChange(newSeccionales);
-    
-    // Cargar automáticamente todos los barrios correspondientes a las seccionales seleccionadas
-    const newBarrios = new Set<string>();
-    newValue.forEach(sec => {
-      const barriosForSeccional = seccionalBarriosMap[sec] || [];
-      barriosForSeccional.forEach(barrio => newBarrios.add(barrio));
-    });
-    
-    // Convertir a array y ordenar
-    const sortedBarrios = Array.from(newBarrios).sort((a, b) => 
-      a.localeCompare(b, 'es', { sensitivity: 'base' })
-    );
-    
-    onBarriosChange(sortedBarrios);
   };
 
   // Manejar cambio de barrios
-  const handleBarriosChange = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
-    // Obtener todas las seccionales correspondientes a los barrios seleccionados
+  const handleBarriosChange = (
+    _event: SyntheticEvent<Element, Event>,
+    newValue: string[]
+  ) => {
+    // Procesar y limpiar los nuevos valores
+    const processedBarrios = newValue
+      .map(barrio => barrio.trim())
+      .filter(barrio => barrio !== '');
+
+    // Mantener los barrios seleccionados y permitir nuevos valores
+    onBarriosChange(processedBarrios);
+
+    // Si hay barrios predefinidos, actualizar las seccionales correspondientes
     const selectedSeccionales = new Set<string>();
-    newValue.forEach(barrio => {
+    processedBarrios.forEach(barrio => {
       const seccionales = barriosSeccionalMap[barrio] || [];
       seccionales.forEach(s => selectedSeccionales.add(s));
     });
 
-    // Actualizar seccionales
-    const newSeccionales = Array.from(selectedSeccionales)
-      .map(Number)
-      .sort((a, b) => a - b);
-    
-    onSeccionalChange(newSeccionales);
-    onBarriosChange(newValue);
+    // Solo actualizar seccionales si hay barrios predefinidos seleccionados
+    if (selectedSeccionales.size > 0) {
+      const newSeccionales = Array.from(selectedSeccionales)
+        .map(Number)
+        .sort((a, b) => a - b);
+      onSeccionalChange(newSeccionales);
+    }
   };
+
+  // Estilos con emotion
+  const NewBarrioText = styled(Typography)({
+    fontStyle: 'italic'
+  });
 
   return (
     <Grid container spacing={3}>
@@ -145,7 +146,7 @@ export const UbicacionForm: FC<UbicacionFormProps> = ({
               label="Seccional"
               error={!!errors.seccional}
               helperText={errors.seccional}
-              placeholder="Seleccione las seccionales"
+              placeholder="Seleccione las seccionales (opcional)"
             />
           )}
           renderTags={(value: string[], getTagProps) =>
@@ -163,16 +164,62 @@ export const UbicacionForm: FC<UbicacionFormProps> = ({
       <Grid item xs={12} md={6}>
         <Autocomplete
           multiple
+          freeSolo
           options={availableBarrios}
           value={barrios}
           onChange={handleBarriosChange}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              // Prevenir el comportamiento por defecto
+              event.preventDefault();
+              
+              // Obtener el valor actual del input
+              const input = event.target as HTMLInputElement;
+              const newBarrio = input.value.trim();
+              
+              if (newBarrio && !barrios.includes(newBarrio)) {
+                // Agregar el nuevo barrio a la lista
+                handleBarriosChange(
+                  event,
+                  [...barrios, newBarrio]
+                );
+                
+                // Limpiar el input
+                input.value = '';
+              }
+            }
+          }}
+          filterOptions={(options, params) => {
+            const filtered = options.filter(option =>
+              option.toLowerCase().includes(params.inputValue.toLowerCase())
+            );
+
+            // Agregar la opción de crear un nuevo barrio si el valor no existe
+            const inputValue = params.inputValue.trim();
+            if (inputValue !== '' && !options.includes(inputValue) && !barrios.includes(inputValue)) {
+              filtered.push(`${inputValue} (Nuevo)`);
+            }
+
+            return filtered;
+          }}
+          renderOption={(props, option) => (
+            <li {...props}>
+              {option.endsWith(' (Nuevo)') ? (
+                <NewBarrioText>
+                  {option.replace(' (Nuevo)', '')}
+                </NewBarrioText>
+              ) : (
+                option
+              )}
+            </li>
+          )}
           renderInput={(params) => (
             <TextField
               {...params}
               label="Barrios"
               error={!!errors.barrios}
-              helperText={errors.barrios || 'Seleccione los barrios correspondientes a las seccionales'}
-              placeholder="Seleccione los barrios"
+              helperText={errors.barrios || 'Seleccione o ingrese barrios (opcional)'}
+              placeholder="Seleccione o ingrese barrios"
             />
           )}
           renderTags={(value: string[], getTagProps) =>
@@ -180,7 +227,7 @@ export const UbicacionForm: FC<UbicacionFormProps> = ({
               <Chip
                 {...getTagProps({ index })}
                 key={option}
-                label={option}
+                label={option.replace(' (Nuevo)', '')}
                 icon={<LocationOnIcon />}
               />
             ))

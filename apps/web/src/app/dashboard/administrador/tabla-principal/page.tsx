@@ -8,6 +8,7 @@ import { DeleteConfirmationDialog } from '@/components/tabla-principal/component
 import { useTableData } from '@/components/tabla-principal/hooks/useTableData';
 import { useTableColumns } from '@/components/tabla-principal/hooks/useTableColumns';
 import { useResponsiveColumns } from '@/components/tabla-principal/hooks/useResponsiveColumns';
+import { barriosOptions } from '@/components/tabla-principal/components/UbicacionForm';
 
 export default function TablaPrincipalPage() {
   // Hooks personalizados para manejar la lógica
@@ -91,6 +92,7 @@ export default function TablaPrincipalPage() {
         validationErrors={validationErrors}
         mode={editingRecord ? 'edit' : 'add'}
         initialData={editingRecord}
+        barriosOptions={barriosOptions}
       />
 
       {/* Diálogo de confirmación para eliminar */}
