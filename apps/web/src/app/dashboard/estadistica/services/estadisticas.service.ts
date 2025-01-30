@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '@/lib/axios';
 import { Zona, DepartamentosPorZona } from '../types/zona';
 import { Departamento, TiempoOperativo, Unidad } from '@prisma/client';
 
@@ -68,7 +68,14 @@ export interface EstadisticasPorBarrio extends EstadisticaDetallada {
   };
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+
+// Función auxiliar para construir la URL de la API
+const buildApiUrl = (path: string) => {
+  const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${cleanPath}`;
+};
 
 const prepararParametrosFiltro = (filtros: Partial<EstadisticasFiltros>) => {
   // Asegurarnos de que los arrays estén inicializados
@@ -114,7 +121,7 @@ export const obtenerEstadisticasPorHorario = async (filtros: Partial<Estadistica
 
     console.log('Enviando parámetros:', params);
 
-    const response = await axios.get<EstadisticaPorHora[]>(`${API_URL}/estadisticas/horario`, { 
+    const response = await axios.get<EstadisticaPorHora[]>(buildApiUrl('/tabla-principal/estadisticas/horario'), {
       params,
       paramsSerializer: {
         serialize: (params) => {
@@ -158,7 +165,7 @@ export const obtenerEstadisticasPorSeccional = async (filtros: Partial<Estadisti
   try {
     const params = prepararParametrosFiltro(filtros);
 
-    const response = await axios.get<EstadisticasPorSeccional[]>(`${API_URL}/tabla-principal/estadisticas/seccional`, {
+    const response = await axios.get<EstadisticasPorSeccional[]>(buildApiUrl('/tabla-principal/estadisticas/seccional'), {
       params,
       paramsSerializer: {
         serialize: (params) => {
@@ -185,7 +192,7 @@ export const obtenerEstadisticasPorBarrio = async (filtros: Partial<Estadisticas
   try {
     const params = prepararParametrosFiltro(filtros);
 
-    const response = await axios.get<EstadisticasPorBarrio[]>(`${API_URL}/tabla-principal/estadisticas/barrio`, {
+    const response = await axios.get<EstadisticasPorBarrio[]>(buildApiUrl('/tabla-principal/estadisticas/barrio'), {
       params,
       paramsSerializer: {
         serialize: (params) => {

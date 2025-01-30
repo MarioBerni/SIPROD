@@ -14,7 +14,17 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  login: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  logout: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -23,6 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = useCallback(async () => {
     try {
+      if (typeof window === 'undefined') {
+        // En el servidor, no intentamos autenticar
+        setIsLoading(false);
+        return;
+      }
+
       // En desarrollo, usar usuario simulado si está habilitado
       if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
         setUser(DEV_CONFIG.mockUser);
@@ -50,51 +66,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         clearAuthCookies();
         setUser(null);
-        router.push('/');
       }
     } catch (error) {
-      console.error('checkAuth - Error:', error);
-      clearAuthCookies();
+      console.error('Error checking auth:', error);
       setUser(null);
-      router.push('/');
+      clearAuthCookies();
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     checkAuth();
-    // En desarrollo, no necesitamos el intervalo de verificación
-    if (!DEV_CONFIG.bypassAuth || process.env.NODE_ENV !== 'development') {
-      const interval = setInterval(checkAuth, 30 * 60 * 1000);
-      return () => clearInterval(interval);
-    }
   }, [checkAuth]);
 
   const login = async (correo: string, password: string) => {
     try {
       setIsLoading(true);
-
-      // En desarrollo, simular login exitoso
-      if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
-        setUser(DEV_CONFIG.mockUser);
-        setCookie(COOKIE_NAMES.TOKEN, DEV_CONFIG.mockToken);
-        router.push('/dashboard');
-        return;
-      }
-
-      const response = await authApi.login(correo, password);
+      const { token, user } = await authApi.login(correo, password);
       
-      if (response.success && response.token) {
-        setCookie(COOKIE_NAMES.TOKEN, response.token);
-        setUser(response.user);
-        router.push('/dashboard');
-      } else {
-        throw new Error(response.message || 'Error de autenticación');
-      }
+      setCookie(COOKIE_NAMES.TOKEN, token, {
+        expires: 7,
+        sameSite: 'Lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      setUser(user);
+      router.push('/dashboard');
     } catch (error) {
-      console.error('Error en login:', error);
-      clearAuthCookies();
+      console.error('Login error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -104,40 +104,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       setIsLoading(true);
-      
-      // En desarrollo, solo limpiar el estado
-      if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
-        clearAuthCookies();
-        setUser(null);
-        router.push('/');
-        return;
-      }
-
       await authApi.logout();
       clearAuthCookies();
       setUser(null);
       router.push('/');
     } catch (error) {
-      console.error('Error en logout:', error);
-      clearAuthCookies();
-      setUser(null);
-      router.push('/');
+      console.error('Logout error:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider 
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};

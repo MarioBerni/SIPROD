@@ -53,6 +53,7 @@ interface PDFFormattedRegistro {
   horaInicio: string;
   horaFin: string;
   seccional: string;
+  barrios: string[];
   tipoOrden?: string;
   nroOrden?: string;
 }
@@ -364,6 +365,7 @@ export const tablaPrincipalController = {
           horaInicio: true,
           horaFin: true,
           seccional: true,
+          barrios: true,  // Agregamos el campo barrios
           unidad: true,
           tipoOrden: true,
           nroOrden: true
@@ -409,6 +411,7 @@ export const tablaPrincipalController = {
               hourCycle: 'h23'
             }) : '',
             seccional: registro.seccional ? registro.seccional.join(', ') : '',
+            barrios: registro.barrios ? registro.barrios : [],  // Agregamos el campo barrios al objeto formateado
             tipoOrden: registro.tipoOrden || undefined,
             nroOrden: registro.nroOrden || undefined
           });

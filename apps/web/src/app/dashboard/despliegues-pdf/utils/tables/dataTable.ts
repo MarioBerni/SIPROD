@@ -1,9 +1,10 @@
 import { jsPDF } from 'jspdf';
 import { PDFTableRow, FormattedTableData } from '../../types/table.types';
 import { TABLE_STYLES, COLUMN_WIDTHS, IMAGE_DIMENSIONS, IMAGE_PATHS } from '../../constants/table.constants';
-import { SPACING, PAGINATION, PAGE_MARGINS } from '../../constants/pdf.constants';
+import { SPACING, PAGE_MARGINS } from '../../constants/pdf.constants';
 import { formatOperativeName } from '../textUtils';
 import { sortByOrderFrequency } from '../sortUtils';
+import { CellHookData, UserOptions } from 'jspdf-autotable';
 
 export interface TableTotals {
   unidad: string;
@@ -31,16 +32,6 @@ const calculateTotals = (data: PDFTableRow[]): Omit<TableTotals, 'unidad'> => {
   });
 };
 
-/**
- * Divide los datos en chunks que caben en una página
- */
-const splitDataIntoPages = (data: FormattedTableData, rowsPerPage: number): FormattedTableData[] => {
-  const pages: FormattedTableData[] = [];
-  for (let i = 0; i < data.length; i += rowsPerPage) {
-    pages.push(data.slice(i, i + rowsPerPage));
-  }
-  return pages;
-};
 
 /**
  * Prepara los datos de la tabla con el formato correcto
@@ -70,89 +61,101 @@ const prepareTableData = (data: PDFTableRow[]): FormattedTableData => {
   ]);
 };
 
+
 /**
- * Calcula cuántas filas caben en una página
+ * Calcula el espacio disponible en la página actual
  */
-const calculateRowsPerPage = (doc: jsPDF, startY: number): number => {
+const calculateAvailableSpace = (doc: jsPDF, currentY: number): number => {
   const pageHeight = doc.internal.pageSize.height;
-  const availableHeight = pageHeight - startY - SPACING.footerHeight - PAGINATION.safetyMargin;
-  return Math.floor(availableHeight / TABLE_STYLES.DEFAULT.minCellHeight);
+  return pageHeight - currentY - SPACING.footerHeight - PAGE_MARGINS.bottom;
+};
+
+/**
+ * Determina cuántas filas pueden caber en el espacio disponible
+ */
+const calculateFittingRows = (
+  availableSpace: number,
+  rowHeight: number,
+  includeHeader: boolean = true,
+  includeTotals: boolean = false,
+  minRows: number = 2
+): number => {
+  const headerSpace = includeHeader ? (rowHeight * 1.2) : 0;
+  const totalsSpace = includeTotals ? rowHeight : 0;
+  const spaceForRows = availableSpace - headerSpace - totalsSpace;
+  
+  // Si no hay suficiente espacio ni para el encabezado, retornar 0
+  if (spaceForRows <= 0) {
+    return 0;
+  }
+  
+  // Calcular número máximo de filas que caben
+  const maxRows = Math.floor(spaceForRows / rowHeight);
+  
+  // Si no caben al menos las filas mínimas, retornar 0 para forzar nueva página
+  if (maxRows < minRows) {
+    return 0;
+  }
+  
+  return maxRows;
 };
 
 /**
  * Agrega los datos de la tabla al PDF
  */
 export const addTableData = (doc: jsPDF, data: PDFTableRow[], startY: number, titulo: string): TableTotals => {
-  // Calcular dimensiones de la tabla
+  const rowHeight = TABLE_STYLES.DEFAULT.minCellHeight || 10;
   const tableWidth = COLUMN_WIDTHS.NOMBRE_OPERATIVO + 
     (COLUMN_WIDTHS.STANDARD * 6) + 
     (COLUMN_WIDTHS.HORA * 2) + 
     COLUMN_WIDTHS.SECCIONAL;
   const pageWidth = doc.internal.pageSize.width;
-  const safeMargin = Math.max((pageWidth - tableWidth) / 2, 10);
+  const safeMargin = Math.max((pageWidth - tableWidth) / 2, PAGE_MARGINS.left);
 
-  // Calcular totales
+  // Calcular totales y preparar datos
   const totales = calculateTotals(data);
-
-  // Preparar datos de la tabla
   const tableData = prepareTableData(data);
-
-  // Calcular cuántas filas caben por página
-  const rowsPerPage = calculateRowsPerPage(doc, startY);
-
-  // Dividir los datos en páginas
-  const dataPages = splitDataIntoPages(tableData, rowsPerPage);
-
-  // Variable para rastrear la posición Y actual
+  
   let currentY = startY;
+  let remainingData = [...tableData];
+  let isFirstChunk = true;
 
-  // Dibujar cada página de la tabla
-  for (let i = 0; i < dataPages.length; i++) {
-    const pageData = dataPages[i];
-    const isLastPage = i === dataPages.length - 1;
+  while (remainingData.length > 0) {
+    // Calcular espacio disponible
+    const availableSpace = calculateAvailableSpace(doc, currentY);
+    
+    // Determinar si este será el último chunk
+    const isLastChunk = remainingData.length <= calculateFittingRows(availableSpace, rowHeight, isFirstChunk, true);
+    
+    // Calcular cuántas filas caben en este chunk
+    const fittingRows = calculateFittingRows(
+      availableSpace,
+      rowHeight,
+      isFirstChunk,
+      isLastChunk,
+      2
+    );
 
-    // Si no es la primera página, agregar una nueva y actualizar currentY
-    if (i > 0) {
+    // Si no hay espacio suficiente, crear nueva página
+    if (fittingRows === 0) {
       doc.addPage();
       currentY = PAGE_MARGINS.top + SPACING.afterHeader;
+      continue;
     }
 
-    // Preparar datos de la tabla para esta página
-    const pageTableData = isLastPage ? 
-      [...pageData, [
-        { content: 'TOTAL', styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.moviles.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.ssoo.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.motos.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.hipos.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.pieTierra.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: totales.totalPpss.toString(), styles: TABLE_STYLES.TOTAL_CELL },
-        { content: '', styles: TABLE_STYLES.EMPTY_CELL },
-        { content: '', styles: TABLE_STYLES.EMPTY_CELL },
-        { content: '', styles: TABLE_STYLES.EMPTY_CELL }
-      ]] : pageData;
+    // Extraer datos para este chunk
+    const chunkData = remainingData.slice(0, fittingRows);
+    remainingData = remainingData.slice(fittingRows);
 
-    // Configurar y dibujar la tabla para esta página
-    doc.autoTable({
-      head: [
-        [
-          { content: 'Operativo', styles: TABLE_STYLES.HEADER_TEXT },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
-          { content: 'Hora Inicio', styles: TABLE_STYLES.HEADER_TEXT },
-          { content: 'Hora Fin', styles: TABLE_STYLES.HEADER_TEXT },
-          { content: 'Seccional', styles: TABLE_STYLES.HEADER_TEXT }
-        ]
-      ],
-      body: pageTableData,
-      startY: currentY - 2,
-      theme: 'striped',
+    // Configurar la tabla para este chunk
+    const tableConfig: UserOptions = {
+      startY: currentY,
+      theme: 'striped' as const,
       margin: { left: safeMargin, right: safeMargin },
-      styles: TABLE_STYLES.DEFAULT,
+      styles: {
+        ...TABLE_STYLES.DEFAULT,
+        minCellHeight: rowHeight
+      },
       columnStyles: {
         0: { halign: 'left' as const, cellWidth: COLUMN_WIDTHS.NOMBRE_OPERATIVO },
         1: { cellWidth: COLUMN_WIDTHS.STANDARD },
@@ -165,9 +168,38 @@ export const addTableData = (doc: jsPDF, data: PDFTableRow[], startY: number, ti
         8: { cellWidth: COLUMN_WIDTHS.HORA },
         9: { cellWidth: COLUMN_WIDTHS.SECCIONAL }
       },
-      didDrawCell: function(data) {
-        // Solo agregar imágenes si estamos en la fila de encabezado y tenemos una columna válida
-        if (data?.section === 'head' && 
+      // Solo incluir encabezado en el primer chunk
+      head: isFirstChunk ? [
+        [
+          { content: 'Operativo', styles: TABLE_STYLES.HEADER_TEXT },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
+          { content: 'Hora Inicio', styles: TABLE_STYLES.HEADER_TEXT },
+          { content: 'Hora Fin', styles: TABLE_STYLES.HEADER_TEXT },
+          { content: 'Seccional', styles: TABLE_STYLES.HEADER_TEXT }
+        ]
+      ] : [],
+      // Incluir totales solo en el último chunk
+      body: isLastChunk ? 
+        [...chunkData, [
+          { content: 'TOTAL', styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.moviles.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.ssoo.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.motos.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.hipos.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.pieTierra.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: totales.totalPpss.toString(), styles: TABLE_STYLES.TOTAL_CELL },
+          { content: '', styles: TABLE_STYLES.EMPTY_CELL },
+          { content: '', styles: TABLE_STYLES.EMPTY_CELL },
+          { content: '', styles: TABLE_STYLES.EMPTY_CELL }
+        ]] : chunkData,
+      didDrawCell: function(data: CellHookData) {
+        // Agregar íconos solo en el encabezado del primer chunk
+        if (isFirstChunk && data?.section === 'head' && 
             data.column?.index !== undefined && 
             data.column.index >= 1 && 
             data.column.index <= 6 && 
@@ -175,11 +207,9 @@ export const addTableData = (doc: jsPDF, data: PDFTableRow[], startY: number, ti
           
           const imageIndex = data.column.index - 1;
           
-          // Verificar que el índice esté dentro del rango de imágenes
           if (imageIndex >= 0 && imageIndex < IMAGE_PATHS.length) {
             const imagePath = IMAGE_PATHS[imageIndex];
             
-            // Solo proceder si tenemos coordenadas válidas
             if (typeof data.cell.x === 'number' && 
                 typeof data.cell.y === 'number' && 
                 typeof data.cell.width === 'number' && 
@@ -204,14 +234,16 @@ export const addTableData = (doc: jsPDF, data: PDFTableRow[], startY: number, ti
           }
         }
       }
-    });
+    };
 
-    // Actualizar currentY para la siguiente iteración si es necesario
-    if (!isLastPage) {
-      const table = doc.lastAutoTable;
-      if (table) {
-        currentY = table.finalY + SPACING.afterTable;
-      }
+    // Dibujar la tabla
+    doc.autoTable(tableConfig);
+
+    // Actualizar estado para la siguiente iteración
+    const table = doc.lastAutoTable;
+    if (table) {
+      currentY = table.finalY + (remainingData.length > 0 ? SPACING.afterTable : 0);
+      isFirstChunk = false;
     }
   }
 

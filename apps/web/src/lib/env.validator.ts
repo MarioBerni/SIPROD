@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Schema de validación para variables de entorno del frontend
 const envSchema = z.object({
   // API y Autenticación
-  NEXT_PUBLIC_API_URL: z.string().startsWith('/'),
+  NEXT_PUBLIC_API_URL: z.string().url().or(z.string().startsWith('/')),
   NEXT_PUBLIC_JWT_SECRET: z.string().min(32),
 
   // Configuración de Next.js

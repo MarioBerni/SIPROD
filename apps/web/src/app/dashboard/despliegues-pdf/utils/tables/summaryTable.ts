@@ -71,7 +71,7 @@ const splitDataIntoPages = (data: FormattedTableData, rowsPerPage: number): Form
 /**
  * Agrega la tabla resumen al PDF
  */
-export const addSummaryTable = (doc: jsPDF, tableTotals: TableTotals[], startY: number): void => {
+export const addSummaryTable = (doc: jsPDF, tableTotals: TableTotals[], startY: number, organizarPor?: string): void => {
   // Calcular dimensiones de la tabla
   const tableWidth = COLUMN_WIDTHS.NOMBRE_OPERATIVO + (COLUMN_WIDTHS.STANDARD * 6);
   const pageWidth = doc.internal.pageSize.width;
@@ -126,7 +126,7 @@ export const addSummaryTable = (doc: jsPDF, tableTotals: TableTotals[], startY: 
     // Preparar encabezados
     const headers = [
       [
-        { content: 'Unidades', styles: TABLE_STYLES.HEADER_TEXT },
+        { content: organizarPor === 'Barrios' ? 'Barrios' : 'Unidades', styles: TABLE_STYLES.HEADER_TEXT },
         { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
         { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
         { content: '', styles: { ...TABLE_STYLES.HEADER_ICON, cellPadding: 3 } },
