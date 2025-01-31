@@ -16,8 +16,8 @@ import GraficaEstadistica from './components/GraficaEstadistica';
 import EstadisticaHeader from './components/EstadisticaHeader';
 import TablaEstadisticasAccordion from './components/TablaEstadisticasAccordion';
 import GraficasDistribucion from './components/GraficasDistribucion';
+import { EstadisticasFiltros } from './types/filtros';
 import { 
-  EstadisticasFiltros, 
   obtenerEstadisticasPorHorario,
   obtenerEstadisticasPorSeccional,
   obtenerEstadisticasPorBarrio,

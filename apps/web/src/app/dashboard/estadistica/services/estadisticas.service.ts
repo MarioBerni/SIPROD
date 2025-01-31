@@ -1,17 +1,6 @@
-import axios from '@/lib/axios';
-import { Zona, DepartamentosPorZona } from '../types/zona';
+import { api } from '@/lib/fetch';
 import { Departamento, TiempoOperativo, Unidad } from '@prisma/client';
-
-export interface EstadisticasFiltros {
-  zona: Zona[];
-  unidad: Unidad[];
-  tiempoOperativo: TiempoOperativo[];
-  departamento?: Departamento;
-  fechaInicio?: Date;
-  fechaFin?: Date;
-  mostrarSeccionales: boolean;
-  mostrarBarrios: boolean;
-}
+import { EstadisticasFiltros } from '../types/filtros';
 
 export interface Detalle {
   tipoOperativo: string | null;
@@ -45,15 +34,6 @@ export interface EstadisticaDetallada {
   detalles: DetalleRegistro[];
 }
 
-export interface EstadisticaPorHora {
-  hora: number;
-  totalPpss: number;
-  totalMoviles: number;
-  totalMotos: number;
-  totalHipos: number;
-  detalles: Detalle[];
-}
-
 export interface EstadisticasPorSeccional extends EstadisticaDetallada {
   resumen: {
     valor: number;
@@ -68,149 +48,92 @@ export interface EstadisticasPorBarrio extends EstadisticaDetallada {
   };
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+export interface EstadisticaPorHora {
+  hora: number;
+  totalPpss: number;
+  totalMoviles: number;
+  totalMotos: number;
+  totalHipos: number;
+  detalles: Detalle[];
+}
 
-// Función auxiliar para construir la URL de la API
-const buildApiUrl = (path: string) => {
-  const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${baseUrl}${cleanPath}`;
-};
+interface FiltrosQueryParams {
+  zona?: string[];
+  unidad?: string[];
+  tiempoOperativo?: string[];
+  departamento?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  [key: string]: string | string[] | undefined;
+}
 
-const prepararParametrosFiltro = (filtros: Partial<EstadisticasFiltros>) => {
-  // Asegurarnos de que los arrays estén inicializados
-  const filtrosCompletos: EstadisticasFiltros = {
-    zona: [],
-    unidad: [],
-    tiempoOperativo: [],
-    mostrarSeccionales: false,
-    mostrarBarrios: false,
-    ...filtros
-  };
+const prepararParametrosFiltro = (filtros: Partial<EstadisticasFiltros>): FiltrosQueryParams => {
+  const params: FiltrosQueryParams = {};
 
-  const params: Record<string, string | string[]> = {};
-
-  if (filtrosCompletos.zona?.length) {
-    const departamentos = filtrosCompletos.zona.flatMap(zona => DepartamentosPorZona[zona]);
-    params.departamentos = departamentos;
+  if (filtros.zona?.length) {
+    params.zona = filtros.zona;
+  }
+  if (filtros.unidad?.length) {
+    params.unidad = filtros.unidad;
+  }
+  if (filtros.tiempoOperativo?.length) {
+    params.tiempoOperativo = filtros.tiempoOperativo;
+  }
+  if (filtros.departamento) {
+    params.departamento = filtros.departamento;
+  }
+  if (filtros.fechaInicio) {
+    params.fechaInicio = filtros.fechaInicio.toISOString();
+  }
+  if (filtros.fechaFin) {
+    params.fechaFin = filtros.fechaFin.toISOString();
   }
 
-  if (filtrosCompletos.unidad?.length) {
-    params.unidad = filtrosCompletos.unidad;
-  }
-
-  if (filtrosCompletos.tiempoOperativo?.length) {
-    params.tiempoOperativo = filtrosCompletos.tiempoOperativo;
-  }
-
-  if (filtrosCompletos.fechaInicio) {
-    params.fechaInicio = filtrosCompletos.fechaInicio.toISOString();
-  }
-
-  if (filtrosCompletos.fechaFin) {
-    params.fechaFin = filtrosCompletos.fechaFin.toISOString();
-  }
-
-  console.log('Parámetros preparados:', params);
   return params;
-};
-
-export const obtenerEstadisticasPorHorario = async (filtros: Partial<EstadisticasFiltros> = {}): Promise<EstadisticaPorHora[]> => {
-  try {
-    const params = prepararParametrosFiltro(filtros);
-
-    console.log('Enviando parámetros:', params);
-
-    const response = await axios.get<EstadisticaPorHora[]>(buildApiUrl('/tabla-principal/estadisticas/horario'), {
-      params,
-      paramsSerializer: {
-        serialize: (params) => {
-          const searchParams = new URLSearchParams();
-          Object.entries(params).forEach(([key, value]) => {
-            if (Array.isArray(value)) {
-              value.forEach(v => searchParams.append(key, v));
-            } else {
-              searchParams.append(key, value);
-            }
-          });
-          return searchParams.toString();
-        }
-      }
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error en obtenerEstadisticasPorHorario:', error);
-    throw error;
-  }
 };
 
 export const obtenerResumenEstadisticas = async (filtros: EstadisticasFiltros) => {
   try {
-    const response = await axios.get(`${API_URL}/estadisticas/resumen`, {
-      params: {
-        ...filtros,
-        fechaInicio: filtros.fechaInicio?.toISOString(),
-        fechaFin: filtros.fechaFin?.toISOString(),
-      },
-    });
-    return response.data;
+    const params = prepararParametrosFiltro(filtros);
+    return await api.get('/estadisticas/resumen', { params });
   } catch (error) {
     console.error('Error en obtenerResumenEstadisticas:', error);
     throw error;
   }
 };
 
-export const obtenerEstadisticasPorSeccional = async (filtros: Partial<EstadisticasFiltros> = {}): Promise<EstadisticasPorSeccional[]> => {
+export const obtenerEstadisticasPorBarrio = async (
+  filtros: Partial<EstadisticasFiltros> = {}
+): Promise<EstadisticasPorBarrio[]> => {
   try {
     const params = prepararParametrosFiltro(filtros);
+    return await api.get<EstadisticasPorBarrio[]>('/estadisticas/barrio', { params });
+  } catch (error) {
+    console.error('Error en obtenerEstadisticasPorBarrio:', error);
+    throw error;
+  }
+};
 
-    const response = await axios.get<EstadisticasPorSeccional[]>(buildApiUrl('/tabla-principal/estadisticas/seccional'), {
-      params,
-      paramsSerializer: {
-        serialize: (params) => {
-          const searchParams = new URLSearchParams();
-          Object.entries(params).forEach(([key, value]) => {
-            if (Array.isArray(value)) {
-              value.forEach(v => searchParams.append(key, v));
-            } else {
-              searchParams.append(key, String(value));
-            }
-          });
-          return searchParams.toString();
-        }
-      }
-    });
-    return response.data;
+export const obtenerEstadisticasPorSeccional = async (
+  filtros: Partial<EstadisticasFiltros> = {}
+): Promise<EstadisticasPorSeccional[]> => {
+  try {
+    const params = prepararParametrosFiltro(filtros);
+    return await api.get<EstadisticasPorSeccional[]>('/estadisticas/seccional', { params });
   } catch (error) {
     console.error('Error en obtenerEstadisticasPorSeccional:', error);
     throw error;
   }
 };
 
-export const obtenerEstadisticasPorBarrio = async (filtros: Partial<EstadisticasFiltros> = {}): Promise<EstadisticasPorBarrio[]> => {
+export const obtenerEstadisticasPorHorario = async (
+  filtros: Partial<EstadisticasFiltros> = {}
+): Promise<EstadisticaPorHora[]> => {
   try {
     const params = prepararParametrosFiltro(filtros);
-
-    const response = await axios.get<EstadisticasPorBarrio[]>(buildApiUrl('/tabla-principal/estadisticas/barrio'), {
-      params,
-      paramsSerializer: {
-        serialize: (params) => {
-          const searchParams = new URLSearchParams();
-          Object.entries(params).forEach(([key, value]) => {
-            if (Array.isArray(value)) {
-              value.forEach(v => searchParams.append(key, v));
-            } else {
-              searchParams.append(key, String(value));
-            }
-          });
-          return searchParams.toString();
-        }
-      }
-    });
-    return response.data;
+    return await api.get<EstadisticaPorHora[]>('/estadisticas/horario', { params });
   } catch (error) {
-    console.error('Error en obtenerEstadisticasPorBarrio:', error);
+    console.error('Error en obtenerEstadisticasPorHorario:', error);
     throw error;
   }
 };
