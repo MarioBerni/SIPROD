@@ -11,12 +11,7 @@ const PUBLIC_FILE_PATTERNS = [
 
 // Rutas públicas (no requieren autenticación)
 const PUBLIC_ROUTES = [
-  '/',  // landing page
-  '/login',
-];
-
-// Rutas de API que no requieren autenticación
-const PUBLIC_API_ROUTES = [
+  '/',  // página de login (raíz)
   '/api/auth/login',
   '/api/auth/logout',
 ];
@@ -33,63 +28,42 @@ export function middleware(request: NextRequest) {
 
   // Bypass de autenticación en desarrollo
   if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
-    // Solo aplicar el bypass a rutas no-API para evitar problemas con las llamadas al backend
     if (!pathname.startsWith('/api/')) {
       return NextResponse.next();
     }
   }
-
-  const token = request.cookies.get('token')?.value;
 
   // No aplicar middleware a archivos estáticos
   if (PUBLIC_FILE_PATTERNS.some(pattern => pattern.test(pathname))) {
     return NextResponse.next();
   }
 
-  // Si es una ruta pública de API, permitir acceso
-  if (PUBLIC_API_ROUTES.some(route => pathname.startsWith(route))) {
-    return NextResponse.next();
-  }
-
   // Si es una ruta pública, permitir acceso
   if (PUBLIC_ROUTES.includes(pathname)) {
-    // Si hay token y está en la página inicial, redirigir al dashboard
-    if (token && pathname === '/') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
     return NextResponse.next();
   }
 
-  // Si es una ruta protegida y no hay token, redirigir al inicio
-  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      const returnUrl = new URL('/', request.url);
-      returnUrl.searchParams.set('returnUrl', pathname);
-      return NextResponse.redirect(returnUrl);
-    }
+  const token = request.cookies.get('token')?.value;
+
+  // Si hay token y el usuario intenta acceder a la página de login, redirigir al dashboard
+  if (token && pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Si hay token en la cookie, permitir acceso
-  if (token) {
-    return NextResponse.next();
+  // Si no hay token y la ruta requiere autenticación
+  if (!token && PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Por defecto, redirigir al inicio con la URL de retorno
-  const returnUrl = new URL('/', request.url);
-  returnUrl.searchParams.set('returnUrl', pathname);
-  return NextResponse.redirect(returnUrl);
+  return NextResponse.next();
 }
 
 // Configurar el matcher para las rutas que queremos proteger
 export const config = {
   matcher: [
-    /*
-     * Coincide con todas las rutas excepto:
-     * 1. /_next (archivos Next.js)
-     * 2. /_static (archivos estáticos)
-     * 3. /_vercel (archivos internos de Vercel)
-     * 4. Archivos con extensión (.jpg, .png, etc.)
-     */
-    '/((?!_next|_static|_vercel|[\\w-]+\\.\\w+).*)',
+    '/',
+    '/dashboard/:path*',
+    '/profile/:path*',
+    '/api/:path*',
   ],
 };
