@@ -35,6 +35,7 @@ interface DetalleConsolidado {
   hipos: number;
   totalPpss: number;
   valores: (number | string)[];
+  operativos: Set<string>;
 }
 
 const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
@@ -60,72 +61,49 @@ const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
   };
 
   const detallesConsolidados = useMemo(() => {
-    const consolidadosPorGrupo = datos.map(dato => {
-      const consolidadosGrupo = new Map<string, DetalleConsolidado>();
-      
-      dato.detalles.forEach(detalle => {
-        const nombreOperativo = detalle.nombreOperativo || 'Sin nombre';
-        
-        if (!consolidadosGrupo.has(nombreOperativo)) {
-          consolidadosGrupo.set(nombreOperativo, {
-            nombreOperativo,
-            moviles: 0,
-            motos: 0,
-            hipos: 0,
-            totalPpss: 0,
-            valores: Array.isArray(dato.valor) ? dato.valor : [dato.valor]
-          });
-        }
-
-        const consolidado = consolidadosGrupo.get(nombreOperativo)!;
-        consolidado.moviles = (detalle.moviles || 0);
-        consolidado.motos = (detalle.motos || 0);
-        consolidado.hipos = (detalle.hipos || 0);
-        consolidado.totalPpss = (detalle.totalPpss || 0);
-
-        // Agregar valores de seccional o barrios si existen
-        if (tipo === 'seccional' && detalle.seccional) {
-          detalle.seccional.forEach(sec => {
-            if (!consolidado.valores.includes(sec)) {
-              consolidado.valores.push(sec);
-            }
-          });
-        } else if (tipo === 'barrio' && detalle.barrios) {
-          detalle.barrios.forEach(barrio => {
-            if (!consolidado.valores.includes(barrio)) {
-              consolidado.valores.push(barrio);
-            }
-          });
-        }
-      });
-
-      return Array.from(consolidadosGrupo.values());
-    });
-
-    const consolidadosFinal = new Map<string, DetalleConsolidado>();
+    const consolidadosPorValor = new Map<string | number, DetalleConsolidado>();
     
-    consolidadosPorGrupo.flat().forEach(detalle => {
-      if (!consolidadosFinal.has(detalle.nombreOperativo)) {
-        consolidadosFinal.set(detalle.nombreOperativo, {
-          ...detalle,
-          valores: []
-        });
-      }
+    datos.forEach(dato => {
+      dato.detalles.forEach(detalle => {
+        const valores = tipo === 'seccional' ? detalle.seccional : detalle.barrios;
+        if (!valores || valores.length === 0) return;
+        
+        valores.forEach(valor => {
+          const valorKey = String(valor);
+          if (!consolidadosPorValor.has(valorKey)) {
+            consolidadosPorValor.set(valorKey, {
+              nombreOperativo: '',
+              moviles: 0,
+              motos: 0,
+              hipos: 0,
+              totalPpss: 0,
+              valores: [valor],
+              operativos: new Set<string>()
+            });
+          }
 
-      const consolidado = consolidadosFinal.get(detalle.nombreOperativo)!;
-      consolidado.moviles = Math.max(consolidado.moviles, detalle.moviles);
-      consolidado.motos = Math.max(consolidado.motos, detalle.motos);
-      consolidado.hipos = Math.max(consolidado.hipos, detalle.hipos);
-      consolidado.totalPpss = Math.max(consolidado.totalPpss, detalle.totalPpss);
-      
-      detalle.valores.forEach(valor => {
-        if (!consolidado.valores.includes(valor)) {
-          consolidado.valores.push(valor);
-        }
+          const consolidado = consolidadosPorValor.get(valorKey)!;
+          consolidado.moviles += (detalle.moviles || 0);
+          consolidado.motos += (detalle.motos || 0);
+          consolidado.hipos += (detalle.hipos || 0);
+          consolidado.totalPpss += (detalle.totalPpss || 0);
+          
+          if (detalle.nombreOperativo) {
+            consolidado.operativos.add(detalle.nombreOperativo);
+          }
+        });
       });
     });
 
-    return Array.from(consolidadosFinal.values());
+    // Convertir el Map a array y formatear los nombres de operativos
+    return Array.from(consolidadosPorValor.values()).map(consolidado => {
+      const nombresOperativos = Array.from(consolidado.operativos).sort().join(', ');
+      return {
+        ...consolidado,
+        nombreOperativo: nombresOperativos || 'Sin nombre',
+        operativos: consolidado.operativos // Mantener el Set para futuros usos si es necesario
+      };
+    });
   }, [datos, tipo]);
 
   const getColumnTitle = () => {

@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { Zona, ZonaLabel } from '../types/zona';
 import { TiempoOperativo, Unidad } from '@prisma/client';
-import { EstadisticasFiltros } from '../services/estadisticas.service';
+import { EstadisticasFiltros } from '../types/filtros';
 
 interface Props {
   filtros: EstadisticasFiltros;
