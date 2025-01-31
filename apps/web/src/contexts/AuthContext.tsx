@@ -34,12 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = useCallback(async () => {
     try {
       if (typeof window === 'undefined') {
-        // En el servidor, no intentamos autenticar
         setIsLoading(false);
         return;
       }
 
-      // En desarrollo, usar usuario simulado si está habilitado
       if (DEV_CONFIG.bypassAuth && process.env.NODE_ENV === 'development') {
         setUser(DEV_CONFIG.mockUser);
         setIsLoading(false);
@@ -51,6 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!token) {
         setUser(null);
         setIsLoading(false);
+        // Solo redirigir a la raíz si estamos en una ruta protegida
+        if (window.location.pathname.startsWith('/dashboard') || 
+            window.location.pathname.startsWith('/profile')) {
+          router.push('/');
+        }
         return;
       }
 
@@ -60,21 +63,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
         setCookie(COOKIE_NAMES.TOKEN, token, {
           expires: 7,
-          sameSite: 'Lax',
+          path: '/',
+          domain: process.env.NODE_ENV === 'production' ? 'siprod.uy' : undefined,
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
           secure: process.env.NODE_ENV === 'production'
         });
+        
+        // Si estamos en la página de login y el token es válido, redirigir al dashboard
+        if (window.location.pathname === '/') {
+          router.push('/dashboard');
+        }
       } else {
         clearAuthCookies();
         setUser(null);
+        // Solo redirigir a la raíz si estamos en una ruta protegida
+        if (window.location.pathname.startsWith('/dashboard') || 
+            window.location.pathname.startsWith('/profile')) {
+          router.push('/');
+        }
       }
     } catch (error) {
       console.error('Error checking auth:', error);
       setUser(null);
       clearAuthCookies();
+      // Solo redirigir a la raíz si estamos en una ruta protegida
+      if (window.location.pathname.startsWith('/dashboard') || 
+          window.location.pathname.startsWith('/profile')) {
+        router.push('/');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     checkAuth();
@@ -87,7 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setCookie(COOKIE_NAMES.TOKEN, token, {
         expires: 7,
-        sameSite: 'Lax',
+        path: '/',
+        domain: process.env.NODE_ENV === 'production' ? 'siprod.uy' : undefined,
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
         secure: process.env.NODE_ENV === 'production'
       });
       
