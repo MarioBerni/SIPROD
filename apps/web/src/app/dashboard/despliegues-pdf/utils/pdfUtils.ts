@@ -50,6 +50,26 @@ export const generateSimplePDF = async (filters: FilterFormState): Promise<void>
     // Iniciar desde el margen superior de la primera página
     addHeaderAndFooter(doc);
     let currentY = PAGE_MARGINS.top + SPACING.afterHeader;
+
+    // Agregar descripción si existe
+    if (filters.descripcion && filters.descripcion.trim() !== '') {
+      currentY += 5; // Espacio para la descripción
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Descripción del Informe:', PAGE_MARGINS.left, currentY);
+      currentY += 4;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      
+      // Dividir la descripción en líneas para que quepa en el ancho de la página
+      const maxWidth = pageWidth - PAGE_MARGINS.left - PAGE_MARGINS.right;
+      const lines = doc.splitTextToSize(filters.descripcion.trim(), maxWidth);
+      
+      doc.text(lines, PAGE_MARGINS.left, currentY);
+      currentY += (lines.length * 4) + 1;
+    }
+
     const allTotals: TableTotals[] = [];
 
     if (filters.organizarPor === 'Barrios') {

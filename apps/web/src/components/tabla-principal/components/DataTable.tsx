@@ -1,4 +1,4 @@
-import { alpha, Box, CircularProgress, Typography } from '@mui/material';
+import { alpha, Box, Typography } from '@mui/material';
 import { 
   DataGrid, 
   GridToolbar, 
@@ -17,6 +17,7 @@ import { UseResponsiveColumnsReturn } from '../hooks/useResponsiveColumns';
 import { useTheme } from '@mui/material';
 import { useCallback, useMemo, useState } from 'react';
 import { styled } from '@mui/material/styles';
+import { Spinner } from '@/components/ui/Spinner';
 
 // Operadores personalizados para filtros
 const customStringOperators: GridFilterOperator[] = getGridStringOperators().map(operator => ({
@@ -353,24 +354,7 @@ export const DataTable = ({
 
   return (
     <TableContainer>
-      {loading && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            zIndex: 1,
-          }}
-        >
-          <CircularProgress color="primary" />
-        </Box>
-      )}
+      {loading && <Spinner transparent size="large" />}
       
       <StyledDataGrid
         rows={memoizedRows}
@@ -384,24 +368,7 @@ export const DataTable = ({
         loading={loading}
         slots={{
           toolbar: GridToolbar,
-          loadingOverlay: () => (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                zIndex: 1,
-              }}
-            >
-              <CircularProgress color="primary" />
-            </Box>
-          ),
+          loadingOverlay: () => null,
           noRowsOverlay: () => (
             <Box
               sx={{

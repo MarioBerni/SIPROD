@@ -130,7 +130,14 @@ export const Drawer = ({
         component={hasChildren ? 'div' : Link}
         href={hasChildren ? undefined : item.path}
         selected={isSelected}
-        onClick={hasChildren ? () => handleSubmenuClick(item.text) : undefined}
+        onClick={hasChildren 
+          ? () => handleSubmenuClick(item.text) 
+          : () => {
+              if (variant === 'temporary') {
+                onClose();
+              }
+            }
+        }
         sx={{
           pl: collapsed ? 2 : level * 3 + 2,
           py: 1.5,

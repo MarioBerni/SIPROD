@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -16,44 +15,82 @@ import {
   Container,
   useTheme,
   alpha,
-  Link as MuiLink,
   InputAdornment,
   IconButton,
+  Snackbar,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Typewriter } from '@/components/ui/typewriter';
+import { styled } from '@mui/material/styles';
+import { ForgotPasswordDialog } from './forgot-password-dialog';
+import { useLoading } from '@/hooks/useLoading';
 
 interface LoginFormData {
   correo: string;
   password: string;
 }
 
+const StyledTypewriter = styled(Typewriter)`
+  background: ${({ theme }) => `linear-gradient(135deg, 
+    ${theme.palette.text.secondary} 0%,
+    ${alpha(theme.palette.text.primary, 0.8)} 50%,
+    ${theme.palette.text.secondary} 100%
+  )`};
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 500;
+`;
+
 export function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
   const theme = useTheme();
+  const { withLoading } = useLoading();
   const [formData, setFormData] = useState<LoginFormData>({
     correo: '',
     password: '',
   });
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
-      await login(formData.correo, formData.password);
-      console.log('Login - Redirigiendo a dashboard');
-      router.push('/dashboard');
+      await withLoading(login(formData.correo, formData.password));
+      setSnackbar({
+        open: true,
+        message: '¡Inicio de sesión exitoso! Redirigiendo...',
+        severity: 'success',
+      });
+      
+      // Esperar 1.5 segundos antes de redirigir para mostrar el mensaje de éxito
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Error al iniciar sesión');
-      }
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -121,7 +158,7 @@ export function LoginForm() {
           '&::after': {
             content: '""',
             position: 'absolute',
-            top: '50%',
+            top: '65%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '100%',
@@ -178,36 +215,23 @@ export function LoginForm() {
               </Box>
               
               {/* Descripción */}
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: theme.palette.text.secondary,
-                  maxWidth: '85%',
-                  mx: 'auto',
-                  fontWeight: 500,
-                  lineHeight: 1.4,
-                  fontSize: '0.95rem',
-                }}
-              >
-                Sistema de Información de Patrullajes y Recursos Operativos Digitales
-              </Typography>
+              <Box sx={{ 
+                height: 48, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                mb: 2,
+              }}>
+                <StyledTypewriter
+                  text="Sistema de Información de Patrullajes y Recursos Operativos Digitales"
+                  delay={40}
+                  className="text-sm text-center leading-tight max-w-[85%] mx-auto opacity-0 transition-opacity duration-500"
+                  onComplete={() => {}}
+                />
+              </Box>
             </Box>
           
             <form onSubmit={handleSubmit}>
-              {error && (
-                <Alert 
-                  severity="error" 
-                  sx={{ 
-                    mb: 3,
-                    '& .MuiAlert-message': {
-                      width: '100%'
-                    }
-                  }}
-                >
-                  {error}
-                </Alert>
-              )}
-              
               <Box sx={{ mb: 2.5 }}>
                 <TextField
                   fullWidth
@@ -266,46 +290,79 @@ export function LoginForm() {
                 />
               </Box>
 
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={loading}
-                sx={{ 
-                  py: 1.2,
-                  bgcolor: theme.palette.primary.main,
-                  '&:hover': {
-                    bgcolor: theme.palette.primary.dark,
-                    boxShadow: theme.shadows[8],
-                  },
-                  fontWeight: 600,
-                  boxShadow: theme.shadows[4],
-                  mb: 2,
-                }}
-              >
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-              </Button>
-
-              <Box sx={{ textAlign: 'center' }}>
-                <MuiLink
-                  component={Link}
-                  href="/recuperar-password"
-                  variant="body2"
+              <Box sx={{ width: '100%', mt: 2 }}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={loading}
                   sx={{
-                    color: theme.palette.primary.main,
-                    textDecoration: 'none',
+                    mt: 1,
+                    mb: 2,
+                    height: '48px',
+                    backgroundColor: theme => theme.palette.primary.main,
                     '&:hover': {
-                      textDecoration: 'underline',
+                      backgroundColor: theme => theme.palette.primary.dark,
                     },
                   }}
                 >
-                  ¿Olvidaste la contraseña?
-                </MuiLink>
+                  {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                </Button>
+
+                <Box sx={{ 
+                  textAlign: 'center',
+                  mt: 1
+                }}>
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    onClick={() => setForgotPasswordOpen(true)}
+                    sx={{
+                      color: theme => theme.palette.primary.main,
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    ¿Olvidaste la contraseña?
+                  </Typography>
+                </Box>
               </Box>
             </form>
           </Box>
         </CardContent>
       </Card>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ 
+            width: '100%',
+            backgroundColor: theme => snackbar.severity === 'success' 
+              ? theme.palette.success.main 
+              : theme.palette.error.main,
+            color: 'white',
+            '& .MuiAlert-icon': {
+              color: 'white'
+            }
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      <ForgotPasswordDialog
+        open={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
     </Container>
   );
 }

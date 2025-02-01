@@ -129,7 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authApi.logout();
       clearAuthCookies();
       setUser(null);
-      router.push('/');
+      // Asegurarnos de que la redirección sea a la raíz y forzar un refresh de la página
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

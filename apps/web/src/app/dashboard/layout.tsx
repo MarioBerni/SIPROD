@@ -52,7 +52,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <DashboardLayout>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 1 }}>
         {children}
       </Box>
     </DashboardLayout>

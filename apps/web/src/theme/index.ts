@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+import { getLayoutStyles } from '@/styles/layoutStyles';
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -98,6 +99,63 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          padding: 0,
+        },
+      },
+    },
+    MuiGrid: {
+      styleOverrides: {
+        root: {
+          margin: 0,
+          width: '100%',
+        },
+        container: {
+          margin: 0,
+          width: '100%',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          padding: '8px',
+          '&:last-child': {
+            paddingBottom: '8px',
+          },
+          '@media (min-width:600px)': {
+            padding: '16px',
+            '&:last-child': {
+              paddingBottom: '16px',
+            },
+          },
+        },
+      },
+    },
+    MuiList: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          ...getLayoutStyles(theme).list,
+        }),
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          ...getLayoutStyles(theme).dialog,
+        }),
+      },
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -111,14 +169,6 @@ const theme = createTheme({
         paper: {
           background: 'linear-gradient(180deg, #1565C0 0%, #1976D2 100%)',
           color: '#fff',
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
         },
       },
     },
