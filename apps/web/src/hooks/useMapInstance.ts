@@ -1,22 +1,62 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { polygons } from '@/data/polygonData';
 
 // Token de Mapbox
-const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFyaW9pbmdlMjM1IiwiYSI6ImNtMWtxbDg0MjAweGIybm9ndGdubTJha3MifQ.4pfkpdiAmmwNLhdNBIzuJA';
-
-// Colores para los polígonos
-const getPolygonStyle = (compromiso: string) => {
-  if (compromiso === 'Meta  N.º 7 Patrullajes en puntos críticos') {
-    return {
-      fillColor: '#ff6b6b',  // Rojo claro
-      borderColor: '#e03131' // Rojo oscuro
-    };
+if (typeof window !== 'undefined' && !mapboxgl.accessToken) {
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+  
+  if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
+    console.error('Error: NEXT_PUBLIC_MAPBOX_TOKEN no está definido en las variables de entorno');
   }
-  return {
-    fillColor: '#088',    // Color por defecto
-    borderColor: '#000000' // Borde por defecto
-  };
+}
+
+// Colores para los polígonos según el tipo de compromiso
+const POLYGON_STYLES = {
+  'Meta  N.º 7 Patrullajes en puntos críticos': {
+    fillColor: '#ff6b6b',
+    borderColor: '#e03131',
+    fillOpacity: 0.5
+  },
+  'Meta  N.º 4 Violencia Doméstica': {
+    fillColor: '#4dabf7',
+    borderColor: '#1971c2',
+    fillOpacity: 0.5
+  },
+  'Meta  N.º 2 Hurtos y Rapiñas': {
+    fillColor: '#51cf66',
+    borderColor: '#2f9e44',
+    fillOpacity: 0.5
+  },
+  default: {
+    fillColor: '#868e96',
+    borderColor: '#495057',
+    fillOpacity: 0.5
+  }
+};
+
+const getPolygonStyle = (compromiso: string) => {
+  return POLYGON_STYLES[compromiso as keyof typeof POLYGON_STYLES] || POLYGON_STYLES.default;
+};
+
+// Función para actualizar el estilo de un polígono
+const updatePolygonStyle = (
+  mapInstance: mapboxgl.Map,
+  polygonId: string,
+  isSelected: boolean,
+  style: typeof POLYGON_STYLES[keyof typeof POLYGON_STYLES]
+) => {
+  const opacity = isSelected ? 0.8 : style.fillOpacity;
+  const fillColor = isSelected ? style.fillColor : style.fillColor;
+  
+  if (mapInstance.getLayer(`polygon-fill-${polygonId}`)) {
+    mapInstance.setPaintProperty(`polygon-fill-${polygonId}`, 'fill-opacity', opacity);
+    mapInstance.setPaintProperty(`polygon-fill-${polygonId}`, 'fill-color', fillColor);
+  }
+  
+  if (mapInstance.getLayer(`polygon-border-${polygonId}`)) {
+    mapInstance.setPaintProperty(`polygon-border-${polygonId}`, 'line-color', style.borderColor);
+  }
 };
 
 interface UseMapInstanceProps {
@@ -52,17 +92,17 @@ const createInitializeLayers = (onPolygonClick: (name: string) => void) =>
       });
 
       mapInstance.addLayer({
-        id: `polygon-layer-${index}`,
+        id: `polygon-fill-${index}`,
         type: 'fill',
         source: `polygon-${index}`,
         paint: {
           'fill-color': getPolygonStyle(polygon.compromiso).fillColor,
-          'fill-opacity': 0.5
+          'fill-opacity': getPolygonStyle(polygon.compromiso).fillOpacity
         }
       });
 
       mapInstance.addLayer({
-        id: `polygon-border-layer-${index}`,
+        id: `polygon-border-${index}`,
         type: 'line',
         source: `polygon-${index}`,
         paint: {
@@ -71,7 +111,7 @@ const createInitializeLayers = (onPolygonClick: (name: string) => void) =>
         }
       });
 
-      mapInstance.on('click', `polygon-layer-${index}`, () => {
+      mapInstance.on('click', `polygon-fill-${index}`, () => {
         onPolygonClick(polygon.name);
       });
     });
@@ -91,32 +131,43 @@ export function useMapInstance({
   const layersInitialized = useRef(false);
 
   // Crear la función de inicialización de capas
-  const initializeLayers = useCallback(
-    (mapInstance: mapboxgl.Map) => {
-      createInitializeLayers(onPolygonClick)(mapInstance, layersInitialized);
-    },
-    [onPolygonClick]
-  );
 
   // Inicializar mapa - solo una vez
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Establecer el token de Mapbox
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-56.1950, -34.8500],
-      zoom: 12.5
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [-56.1645, -34.9011], // Montevideo, Uruguay
+      zoom: 11,
+      minZoom: 9,
+      maxZoom: 18,
+      dragRotate: false,
+      attributionControl: true,
     });
 
-    const mapInstance = map.current;
+    // Agregar controles de navegación
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    map.current.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
-    mapInstance.on('load', () => {
-      mapLoaded.current = true;
-      initializeLayers(mapInstance);
+    // Manejar errores del mapa
+    map.current.on('error', (e) => {
+      console.error('Error en el mapa:', e.error);
+    });
+
+    // Crear la función de inicialización con el callback
+    const initLayers = createInitializeLayers(onPolygonClick);
+
+    // Esperar a que el mapa cargue antes de inicializar las capas
+    map.current.on('load', () => {
+      // Llamar a la función con los parámetros correctos
+      initLayers(map.current!, layersInitialized);
+      
+      // Ajustar el mapa cuando cambie el tamaño de la ventana
+      window.addEventListener('resize', () => {
+        map.current?.resize();
+      });
     });
 
     return () => {
@@ -127,7 +178,7 @@ export function useMapInstance({
         map.current = null;
       }
     };
-  }, [mapContainer, initializeLayers]);
+  }, [mapContainer, onPolygonClick]);
 
   // Actualizar visibilidad de los polígonos cuando cambien los filtros
   useEffect(() => {
@@ -135,22 +186,12 @@ export function useMapInstance({
     if (!mapInstance || !mapLoaded.current) return;
 
     polygons.forEach((polygon, index) => {
-      const isVisible = selectedCompromisos.includes(polygon.compromiso) &&
+      const isSelected = selectedCompromisos.includes(polygon.compromiso) &&
         (selectedOrdenes.length === 0 || selectedOrdenes.includes(polygon.orden)) &&
         (selectedPolygons.length === 0 || selectedPolygons.includes(polygon.name));
 
-      if (mapInstance.getLayer(`polygon-layer-${index}`)) {
-        mapInstance.setLayoutProperty(
-          `polygon-layer-${index}`,
-          'visibility',
-          isVisible ? 'visible' : 'none'
-        );
-        mapInstance.setLayoutProperty(
-          `polygon-border-layer-${index}`,
-          'visibility',
-          isVisible ? 'visible' : 'none'
-        );
-      }
+      const style = getPolygonStyle(polygon.compromiso);
+      updatePolygonStyle(mapInstance, `${index}`, isSelected, style);
     });
   }, [selectedCompromisos, selectedOrdenes, selectedPolygons]);
 

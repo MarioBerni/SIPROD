@@ -99,11 +99,57 @@ server {
 }
 ```
 
-### SSL/TLS
+### Cloudflare y SSL
+
+#### 1. Integración con Cloudflare
+Se realizó la migración de nameservers de Netuy a Cloudflare:
+- tricia.ns.cloudflare.com
+- vin.ns.cloudflare.com
+
+Se ha configurado el proxy y caché de Cloudflare para optimizar rendimiento y seguridad.
+
+#### 2. Configuración de DNS
+Registros establecidos en Cloudflare:
+
+| Tipo  | Nombre        | Valor          |
+|-------|---------------|----------------|
+| A     | siprod.uy     | 179.27.203.208 |
+| CNAME | www.siprod.uy | siprod.uy      |
+
+Estado: Resolviendo correctamente en los servidores de Cloudflare.
+
+#### 3. Certificado SSL
+- Proveedor: Google Trust Services
+- Validez: 31 de enero 2025 - 1 de mayo 2025
+- Modo SSL en Cloudflare: Full (Strict)
+- Redirección HTTP a HTTPS: Activada
+
+#### 4. Comprobaciones de Seguridad
+
+##### Verificar Certificado SSL
 ```bash
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d siprod.uy -d www.siprod.uy
+echo | openssl s_client -connect siprod.uy:443 -servername siprod.uy 2>/dev/null | openssl x509 -noout -issuer -subject -dates
 ```
+Resultado esperado:
+```
+issuer=C = US, O = Google Trust Services
+subject=CN = siprod.uy
+notBefore=Jan 31 21:12:38 2025 GMT
+notAfter=May 1 22:11:26 2025 GMT
+```
+
+##### Verificar Redirección HTTP a HTTPS
+```bash
+curl -I http://siprod.uy
+```
+Resultado esperado: `301 Moved Permanently → Location: https://siprod.uy/`
+
+##### Comprobar Resolución DNS
+```bash
+nslookup siprod.uy 8.8.8.8
+dig siprod.uy +short
+```
+IP esperada: 172.67.160.99 y 104.21.66.133 (Cloudflare)
 
 ### Node.js y Dependencias
 ```bash

@@ -107,7 +107,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Box
           sx={{
             flexGrow: 1,
-            p: 3,
+            p: 0,
             mt: '64px',
             overflow: 'auto',
             bgcolor: 'background.default',

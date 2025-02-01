@@ -17,6 +17,7 @@ export interface FilterFormState {
   incluirInforme: boolean;
   customGroups: Record<string, string[]>;
   groupTitles: Record<string, string>;
+  descripcion: string;
 }
 
 export type Filters = FilterFormState;

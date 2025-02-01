@@ -83,22 +83,69 @@ export default function DashboardPage() {
   };
 
   return (
-    <Container maxWidth={false} sx={{ py: 3 }}>
-      <Grid container spacing={3}>
+    <Container 
+      maxWidth={false} 
+      sx={{ 
+        py: { xs: 1.5, sm: 2, md: 3 }, 
+        px: { xs: 1, sm: 2, md: 3 }, 
+      }}
+    >
+      <Grid 
+        container 
+        spacing={{ xs: 1.5, sm: 2, md: 3 }} 
+      >
         {/* Estadísticas principales */}
         {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid 
+            item 
+            xs={12} 
+            sm={6} 
+            md={3} 
+            key={index}
+            sx={{
+              '& .MuiCard-root': {
+                height: '100%',
+                '& .MuiCardContent-root': {
+                  padding: { xs: 1.5, sm: 2 }, 
+                }
+              }
+            }}
+          >
             <StatCard {...stat} />
           </Grid>
         ))}
 
         {/* Barra de progreso */}
-        <Grid item xs={12} md={6}>
+        <Grid 
+          item 
+          xs={12} 
+          md={6}
+          sx={{
+            '& .MuiCard-root': {
+              height: '100%',
+              '& .MuiCardContent-root': {
+                padding: { xs: 1.5, sm: 2 }, 
+              }
+            }
+          }}
+        >
           <ProgressSection data={progressData} />
         </Grid>
 
         {/* Gráfica semanal */}
-        <Grid item xs={12} md={6}>
+        <Grid 
+          item 
+          xs={12} 
+          md={6}
+          sx={{
+            '& .MuiCard-root': {
+              height: '100%',
+              '& .MuiCardContent-root': {
+                padding: { xs: 1.5, sm: 2 }, 
+              }
+            }
+          }}
+        >
           <WeeklyChart data={weeklyData} />
         </Grid>
       </Grid>

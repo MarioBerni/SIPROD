@@ -20,9 +20,11 @@ export default function DesplieguesPdfPage() {
     customTables: [],
     incluirInforme: false,
     customGroups: {},
-    groupTitles: {}
+    groupTitles: {},
+    descripcion: ''
   });
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showDescripcion, setShowDescripcion] = useState(false);
 
   useEffect(() => {
     setPageTitle('Despliegues PDF', PdfIcon);
@@ -30,6 +32,14 @@ export default function DesplieguesPdfPage() {
 
   const handleFilterChange = (newFilters: FilterFormState) => {
     setFilters(newFilters);
+  };
+
+  const handleToggleDescripcion = () => {
+    setShowDescripcion(!showDescripcion);
+    if (showDescripcion) {
+      // Si estamos ocultando la descripción, la limpiamos
+      setFilters(prev => ({ ...prev, descripcion: '' }));
+    }
   };
 
   const handleGeneratePDF = async () => {
@@ -97,6 +107,45 @@ export default function DesplieguesPdfPage() {
             filters={filters}
             onFilterChange={handleFilterChange}
           />
+
+          <Box sx={{ mt: 3, mb: 2 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleToggleDescripcion}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 1.5,
+              }}
+            >
+              {showDescripcion ? 'Ocultar descripción' : 'Agregar descripción'}
+            </Button>
+            
+            {showDescripcion && (
+              <Box 
+                component="textarea"
+                sx={{
+                  width: '100%',
+                  mt: 2,
+                  p: 2,
+                  minHeight: '100px',
+                  borderRadius: 1,
+                  border: `1px solid ${theme.palette.divider}`,
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  fontSize: '0.875rem',
+                  '&:focus': {
+                    outline: 'none',
+                    borderColor: theme.palette.primary.main,
+                    boxShadow: `0 0 0 2px ${theme.palette.primary.main}25`,
+                  },
+                }}
+                placeholder="Ingrese una descripción para el informe..."
+                value={filters.descripcion}
+                onChange={(e) => setFilters(prev => ({ ...prev, descripcion: e.target.value }))}
+              />
+            )}
+          </Box>
 
           <Box 
             sx={{ 

@@ -6,7 +6,22 @@ export const mapStyles = {
     height: '100%',
     position: 'relative',
     borderRadius: 1,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    '& .mapboxgl-map': {
+      width: '100%',
+      height: '100%'
+    },
+    '& .mapboxgl-ctrl-top-left': {
+      top: '1rem'
+    },
+    '& .mapboxgl-ctrl-bottom-left': {
+      bottom: '1rem'
+    },
+    '& .mapboxgl-ctrl-group': {
+      borderRadius: '8px',
+      overflow: 'hidden',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    }
   } as SxProps<Theme>,
 
   sidebar: {
@@ -20,14 +35,16 @@ export const mapStyles = {
     },
     height: '100%',
     backgroundColor: 'background.paper',
-    transition: 'transform 0.3s ease-in-out',
-    boxShadow: 3,
+    transition: 'all 0.3s ease-in-out',
+    boxShadow: '0 0 20px rgba(0,0,0,0.1)',
     zIndex: 1000,
     display: 'flex',
     flexDirection: 'column',
     visibility: (open: boolean) => open ? 'visible' : 'hidden',
     transform: (open: boolean) => open ? 'translateX(0)' : 'translateX(100%)',
-    opacity: (open: boolean) => open ? 1 : 0
+    opacity: (open: boolean) => open ? 1 : 0,
+    backdropFilter: 'blur(8px)',
+    borderLeft: '1px solid rgba(0,0,0,0.1)'
   } as SxProps<Theme>,
 
   sidebarHeader: {

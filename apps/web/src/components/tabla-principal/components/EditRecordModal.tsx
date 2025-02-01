@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Grid } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid } from '@mui/material';
 import { TablaPrincipal } from '../types';
 import { 
   BasicInformation,
@@ -12,6 +12,7 @@ import {
 import { useFormik, FormikHelpers } from 'formik';
 import { validationSchema } from '../validation';
 import React, { useCallback } from 'react';
+import { Spinner } from '@/components/ui/Spinner';
 
 interface EditRecordModalProps {
   open: boolean;
@@ -160,7 +161,7 @@ export function EditRecordModal({
             disabled={loading || formik.isSubmitting}
             startIcon={
               (loading || formik.isSubmitting) && (
-                <CircularProgress size={20} color="inherit" />
+                <Spinner fullScreen={false} size="small" />
               )
             }
           >

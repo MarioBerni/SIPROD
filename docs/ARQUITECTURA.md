@@ -69,20 +69,419 @@ La aplicación utiliza varios contextos para manejar el estado global. Es import
    - Mantener los contextos lo más cerca posible de donde se usan
    - No usar contextos en componentes del servidor
 
-### Estructura de Archivos
+### Estructura de Archivos y carptas
 ```
-src/
-├── app/
-│   ├── layout.tsx           # RootLayout (servidor)
-│   └── ...
-├── components/
-│   ├── layouts/
-│   │   └── ClientLayout.tsx # Providers del cliente
-│   └── ...
-└── contexts/
-    ├── AuthContext.tsx      # Contexto de autenticación
-    └── PageTitleContext.tsx # Contexto de título de página
-```
+Directory structure:
+└── marioberni-siprod/
+    ├── README.md
+    ├── commitlint.config.js
+    ├── deploy.sh
+    ├── ecosystem.config.js
+    ├── package.json
+    ├── pnpm-lock.yaml
+    ├── pnpm-workspace.yaml
+    ├── tsconfig.json
+    ├── turbo.json
+    ├── .env.example
+    ├── .eslintignore
+    ├── .eslintrc.js
+    ├── .npmrc
+    ├── .prettierrc
+    ├── apps/
+    │   ├── api/
+    │   │   ├── drizzle.config.ts
+    │   │   ├── ecosystem.config.js
+    │   │   ├── jest.config.js
+    │   │   ├── jest.setup.js
+    │   │   ├── package.json
+    │   │   ├── tsconfig.json
+    │   │   ├── .eslintignore
+    │   │   ├── .eslintrc.js
+    │   │   ├── backend/
+    │   │   │   ├── package-lock.json
+    │   │   │   └── package.json
+    │   │   ├── prisma/
+    │   │   │   ├── schema.prisma
+    │   │   │   ├── seed.ts
+    │   │   │   ├── tsconfig.json
+    │   │   │   └── migrations/
+    │   │   │       ├── migration_lock.toml
+    │   │   │       ├── 20250114050012_init/
+    │   │   │       │   └── migration.sql
+    │   │   │       ├── 20250114184852_make_fields_optional/
+    │   │   │       │   └── migration.sql
+    │   │   │       ├── 20250117135424_init/
+    │   │   │       │   └── migration.sql
+    │   │   │       ├── 20250120140519_add_escalafon_jefes_with_hora/
+    │   │   │       │   └── migration.sql
+    │   │   │       └── 20250120140806_add_escalafon_jefes_with_hora/
+    │   │   │           └── migration.sql
+    │   │   ├── scripts/
+    │   │   │   └── test-db.ts
+    │   │   └── src/
+    │   │       ├── app.ts
+    │   │       ├── index.ts
+    │   │       ├── config/
+    │   │       │   ├── env.validator.ts
+    │   │       │   └── index.ts
+    │   │       ├── controllers/
+    │   │       │   ├── auth.controller.ts
+    │   │       │   ├── estadisticas.controller.ts
+    │   │       │   ├── tabla-principal.controller.ts
+    │   │       │   └── user.controller.ts
+    │   │       ├── db/
+    │   │       │   ├── config.ts
+    │   │       │   ├── index.ts
+    │   │       │   ├── schema.ts
+    │   │       │   └── schema/
+    │   │       │       ├── index.ts
+    │   │       │       └── users.ts
+    │   │       ├── lib/
+    │   │       │   └── prisma.ts
+    │   │       ├── middleware/
+    │   │       │   ├── auth.middleware.ts
+    │   │       │   ├── error.ts
+    │   │       │   ├── metrics.ts
+    │   │       │   ├── performance.ts
+    │   │       │   ├── security.ts
+    │   │       │   └── validate.middleware.ts
+    │   │       ├── middlewares/
+    │   │       │   └── auth.middleware.ts
+    │   │       ├── routes/
+    │   │       │   ├── auth.ts
+    │   │       │   ├── estadisticas.routes.ts
+    │   │       │   ├── index.ts
+    │   │       │   ├── tabla-principal.routes.ts
+    │   │       │   ├── user.routes.ts
+    │   │       │   └── user.ts
+    │   │       ├── scripts/
+    │   │       │   └── seed.ts
+    │   │       ├── test/
+    │   │       │   ├── auth.test.ts
+    │   │       │   └── setup.ts
+    │   │       ├── tests/
+    │   │       │   └── health.test.ts
+    │   │       ├── types/
+    │   │       │   ├── error.ts
+    │   │       │   ├── express.d.ts
+    │   │       │   └── express/
+    │   │       │       └── index.d.ts
+    │   │       ├── utils/
+    │   │       │   ├── auth.ts
+    │   │       │   ├── cache.ts
+    │   │       │   ├── errors.ts
+    │   │       │   ├── jwt.utils.ts
+    │   │       │   └── logger.ts
+    │   │       └── validators/
+    │   │           └── auth.ts
+    │   └── web/
+    │       ├── bundle-analysis.html
+    │       ├── ecosystem.config.js
+    │       ├── jest.config.cjs
+    │       ├── jest.setup.cjs
+    │       ├── jest.setup.ts
+    │       ├── next-env.d.ts
+    │       ├── next.config.js
+    │       ├── next.config.mjs
+    │       ├── package.json
+    │       ├── tsconfig.json
+    │       ├── tsconfig.node.json
+    │       ├── .eslintignore
+    │       ├── .eslintrc.cjs
+    │       ├── public/
+    │       │   ├── robots.txt
+    │       │   ├── .gitkeep
+    │       │   └── images/
+    │       │       └── logo-gr.webp
+    │       ├── scripts/
+    │       │   └── generateEnumTypes.ts
+    │       └── src/
+    │           ├── middleware.ts
+    │           ├── app/
+    │           │   ├── error.tsx
+    │           │   ├── globals.css
+    │           │   ├── layout.js
+    │           │   ├── layout.tsx
+    │           │   ├── loading.tsx
+    │           │   ├── not-found.tsx
+    │           │   ├── page.tsx
+    │           │   ├── (auth)/
+    │           │   │   └── layout.tsx
+    │           │   ├── api/
+    │           │   │   └── registros/
+    │           │   │       ├── route.ts
+    │           │   │       └── [id]/
+    │           │   │           └── route.ts
+    │           │   └── dashboard/
+    │           │       ├── layout.tsx
+    │           │       ├── page.tsx
+    │           │       ├── administrador/
+    │           │       │   ├── mapas/
+    │           │       │   │   └── page.tsx
+    │           │       │   ├── tabla-principal/
+    │           │       │   │   ├── metadata.ts
+    │           │       │   │   └── page.tsx
+    │           │       │   └── usuarios/
+    │           │       │       └── page.tsx
+    │           │       ├── despliegues-pdf/
+    │           │       │   ├── page.tsx
+    │           │       │   ├── types.ts
+    │           │       │   ├── components/
+    │           │       │   │   └── FilterForm.tsx
+    │           │       │   ├── constants/
+    │           │       │   │   ├── pdf.constants.ts
+    │           │       │   │   └── table.constants.ts
+    │           │       │   ├── types/
+    │           │       │   │   ├── pdf.types.ts
+    │           │       │   │   └── table.types.ts
+    │           │       │   └── utils/
+    │           │       │       ├── constants.ts
+    │           │       │       ├── dataProcessingUtils.ts
+    │           │       │       ├── documentUtils.ts
+    │           │       │       ├── headerUtils.ts
+    │           │       │       ├── pdfHelpers.ts
+    │           │       │       ├── pdfUtils.ts
+    │           │       │       ├── sortUtils.ts
+    │           │       │       ├── tableUtils.ts
+    │           │       │       ├── textUtils.ts
+    │           │       │       ├── types.ts
+    │           │       │       ├── charts/
+    │           │       │       │   └── barChart.ts
+    │           │       │       └── tables/
+    │           │       │           ├── dataTable.ts
+    │           │       │           ├── headerTable.ts
+    │           │       │           └── summaryTable.ts
+    │           │       ├── direccion-1/
+    │           │       │   └── page.tsx
+    │           │       ├── escalafon-jefes/
+    │           │       │   ├── CalendarTable.tsx
+    │           │       │   ├── DirectionAutocomplete.tsx
+    │           │       │   ├── ExportDialog.tsx
+    │           │       │   ├── MobileAssignmentCard.tsx
+    │           │       │   ├── OfficerEditDialog.tsx
+    │           │       │   ├── exportUtils.ts
+    │           │       │   ├── options.ts
+    │           │       │   ├── page.tsx
+    │           │       │   ├── types.ts
+    │           │       │   ├── components/
+    │           │       │   │   ├── OfficerForm.tsx
+    │           │       │   │   └── OfficerList.tsx
+    │           │       │   └── types/
+    │           │       │       └── officer.types.ts
+    │           │       ├── estadistica/
+    │           │       │   ├── page.tsx
+    │           │       │   ├── components/
+    │           │       │   │   ├── DetallesHora.tsx
+    │           │       │   │   ├── EstadisticaHeader.tsx
+    │           │       │   │   ├── FiltrosEstadistica.tsx
+    │           │       │   │   ├── GraficaEstadistica.tsx
+    │           │       │   │   ├── GraficaPorHorario.tsx
+    │           │       │   │   ├── GraficasDistribucion.tsx
+    │           │       │   │   ├── ListaDetalles.tsx
+    │           │       │   │   ├── TablaDetalles.tsx
+    │           │       │   │   ├── TablaEstadisticasAccordion.tsx
+    │           │       │   │   └── TablaResumenHorario.tsx
+    │           │       │   ├── services/
+    │           │       │   │   └── estadisticas.service.ts
+    │           │       │   └── types/
+    │           │       │       ├── estadisticas.ts
+    │           │       │       ├── filtros.ts
+    │           │       │       └── zona.ts
+    │           │       └── profile/
+    │           │           └── page.tsx
+    │           ├── components/
+    │           │   ├── Header.tsx
+    │           │   ├── auth/
+    │           │   │   └── LoginForm.tsx
+    │           │   ├── common/
+    │           │   │   └── BaseDialog.tsx
+    │           │   ├── dashboard/
+    │           │   │   ├── ProgressSection.tsx
+    │           │   │   ├── ResourceCard.tsx
+    │           │   │   ├── StatCard.tsx
+    │           │   │   └── WeeklyChart.tsx
+    │           │   ├── dialogs/
+    │           │   │   └── HelpDialog.tsx
+    │           │   ├── direction/
+    │           │   │   └── DirectionDashboard.tsx
+    │           │   ├── features/
+    │           │   │   ├── auth/
+    │           │   │   │   └── login-form.tsx
+    │           │   │   └── dashboard/
+    │           │   │       └── StatCard.tsx
+    │           │   ├── layout/
+    │           │   │   ├── BackgroundPattern.tsx
+    │           │   │   ├── DashboardLayout.tsx
+    │           │   │   ├── Drawer.tsx
+    │           │   │   └── Navbar.tsx
+    │           │   ├── layouts/
+    │           │   │   ├── ClientLayout.tsx
+    │           │   │   ├── DashboardLayout.tsx
+    │           │   │   ├── DashboardNavbar.tsx
+    │           │   │   ├── DashboardSidebar.tsx
+    │           │   │   ├── MainLayout.tsx
+    │           │   │   ├── Navbar.tsx
+    │           │   │   └── header.tsx
+    │           │   ├── maps/
+    │           │   │   ├── MapControls.tsx
+    │           │   │   └── VertexContextMenu.tsx
+    │           │   ├── providers/
+    │           │   │   └── ThemeRegistry.tsx
+    │           │   ├── tabla-principal/
+    │           │   │   ├── components/
+    │           │   │   │   ├── AddRecordModal.tsx
+    │           │   │   │   ├── DataTable.tsx
+    │           │   │   │   ├── DeleteConfirmationDialog.tsx
+    │           │   │   │   ├── EditRecordModal.tsx
+    │           │   │   │   ├── FormSection.tsx
+    │           │   │   │   ├── TableHeader.tsx
+    │           │   │   │   ├── UbicacionForm.tsx
+    │           │   │   │   └── form-sections/
+    │           │   │   │       ├── BasicInformation.tsx
+    │           │   │   │       ├── DateTimeInformation.tsx
+    │           │   │   │       ├── LocationDetails.tsx
+    │           │   │   │       ├── Observations.tsx
+    │           │   │   │       ├── OperativeInformation.tsx
+    │           │   │   │       ├── ResourceInformation.tsx
+    │           │   │   │       ├── UbicacionSection.tsx
+    │           │   │   │       ├── index.ts
+    │           │   │   │       └── styles/
+    │           │   │   │           └── FormFieldStyles.tsx
+    │           │   │   ├── hooks/
+    │           │   │   │   ├── useResponsiveColumns.ts
+    │           │   │   │   ├── useTableColumns.tsx
+    │           │   │   │   └── useTableData.ts
+    │           │   │   ├── types/
+    │           │   │   │   ├── generated.ts
+    │           │   │   │   └── index.ts
+    │           │   │   └── validation/
+    │           │   │       └── index.ts
+    │           │   └── ui/
+    │           │       ├── button.tsx
+    │           │       ├── card.tsx
+    │           │       ├── input.tsx
+    │           │       └── label.tsx
+    │           ├── config/
+    │           │   ├── development.ts
+    │           │   └── navigation.tsx
+    │           ├── contexts/
+    │           │   ├── AuthContext.tsx
+    │           │   └── PageTitleContext.tsx
+    │           ├── data/
+    │           │   └── polygonData.ts
+    │           ├── hooks/
+    │           │   ├── useMapControls.ts
+    │           │   ├── useMapDrawing.tsx
+    │           │   └── useMapInstance.ts
+    │           ├── lib/
+    │           │   ├── api.ts
+    │           │   ├── auth.ts
+    │           │   ├── cookies.ts
+    │           │   ├── createEmotionCache.ts
+    │           │   ├── env.validator.ts
+    │           │   ├── fetch.ts
+    │           │   ├── serverAuth.ts
+    │           │   └── utils.ts
+    │           ├── services/
+    │           │   └── auth.ts
+    │           ├── styles/
+    │           │   ├── MapStyles.ts
+    │           │   └── theme.ts
+    │           ├── tests/
+    │           │   └── components/
+    │           │       └── Header.test.tsx
+    │           ├── theme/
+    │           │   ├── index.ts
+    │           │   └── theme.ts
+    │           ├── types/
+    │           │   ├── date-fns.d.ts
+    │           │   ├── index.ts
+    │           │   ├── map.ts
+    │           │   └── user.ts
+    │           └── utils/
+    │               ├── colorUtils.ts
+    │               ├── error-handling.ts
+    │               └── imageOptimization.tsx
+    ├── docs/
+    │   ├── README.md
+    │   ├── API.md
+    │   ├── ARQUITECTURA.md
+    │   ├── DESARROLLO.md
+    │   ├── NUEVO_SERVIDOR.md
+    │   ├── OPERACIONES.md
+    │   └── TESTING.md
+    ├── nginx/
+    │   ├── README.md
+    │   └── siprod.conf
+    ├── packages/
+    │   ├── backend/
+    │   │   └── Dockerfile.dev
+    │   ├── config/
+    │   │   ├── eslint.js
+    │   │   ├── index.d.ts
+    │   │   ├── index.js
+    │   │   ├── package.json
+    │   │   ├── eslint/
+    │   │   │   ├── node.js
+    │   │   │   ├── .eslintrc.d.ts
+    │   │   │   └── .eslintrc.js
+    │   │   └── tsconfig/
+    │   │       ├── base.json
+    │   │       └── nextjs.json
+    │   ├── tsconfig/
+    │   │   ├── api.json
+    │   │   ├── base.json
+    │   │   ├── library.json
+    │   │   ├── nextjs.json
+    │   │   ├── package.json
+    │   │   └── base/
+    │   │       └── tsconfig.json
+    │   ├── ui/
+    │   │   ├── package.json
+    │   │   ├── tsconfig.json
+    │   │   ├── .eslintignore
+    │   │   ├── .eslintrc.json
+    │   │   └── src/
+    │   │       ├── index.d.ts
+    │   │       ├── index.js
+    │   │       ├── index.tsx
+    │   │       └── components/
+    │   │           ├── index.d.ts
+    │   │           ├── index.js
+    │   │           ├── index.ts
+    │   │           ├── dashboard/
+    │   │           │   └── DashboardStats.tsx
+    │   │           ├── layouts/
+    │   │           │   ├── DashboardLayout.tsx
+    │   │           │   └── index.ts
+    │   │           ├── navigation/
+    │   │           │   └── Navbar.tsx
+    │   │           └── providers/
+    │   │               ├── AnalyticsProvider.tsx
+    │   │               └── ThemeProvider.tsx
+    │   └── utils/
+    │       ├── package.json
+    │       ├── tsconfig.json
+    │       ├── .eslintignore
+    │       ├── .eslintrc.js
+    │       └── src/
+    │           ├── index.d.ts
+    │           ├── index.js
+    │           └── index.ts
+    ├── scripts/
+    │   ├── dev.js
+    │   ├── package.json
+    │   └── setup-monorepo.ps1
+    ├── src/
+    │   ├── api/
+    │   │   └── api.ts
+    │   ├── context/
+    │   │   └── AuthContext.tsx
+    │   └── utils/
+    │       └── cookies.ts
+    └── .husky/
+        └── pre-commit
+
 
 ## Notas Importantes
 
@@ -100,3 +499,6 @@ src/
    - Minimizar el uso de contextos cuando sea posible
    - Considerar prop drilling para pocos niveles de componentes
    - Usar React.memo() para prevenir re-renders innecesarios
+
+
+
