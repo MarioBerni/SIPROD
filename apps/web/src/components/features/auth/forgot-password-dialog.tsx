@@ -87,7 +87,7 @@ export function ForgotPasswordDialog({ open, onClose }: ForgotPasswordDialogProp
         pb: 1,
         pt: 3,
       }}>
-        <Typography variant="h5" component="h2" fontWeight={600}>
+        <Typography variant="h5" component="div" fontWeight={600}>
           Recuperar Contraseña
         </Typography>
       </DialogTitle>

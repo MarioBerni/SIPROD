@@ -29,12 +29,12 @@ interface Props {
 }
 
 interface DetalleConsolidado {
+  valor: number | string;
   nombreOperativo: string;
   moviles: number;
   motos: number;
   hipos: number;
   totalPpss: number;
-  valores: (number | string)[];
   operativos: Set<string>;
 }
 
@@ -63,30 +63,37 @@ const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
   const detallesConsolidados = useMemo(() => {
     const consolidadosPorValor = new Map<string | number, DetalleConsolidado>();
     
+    // Procesar cada registro
     datos.forEach(dato => {
       dato.detalles.forEach(detalle => {
         const valores = tipo === 'seccional' ? detalle.seccional : detalle.barrios;
         if (!valores || valores.length === 0) return;
         
+        // Expandir el registro por cada valor (seccional o barrio)
         valores.forEach(valor => {
           const valorKey = String(valor);
+          
+          // Inicializar el consolidado si no existe
           if (!consolidadosPorValor.has(valorKey)) {
             consolidadosPorValor.set(valorKey, {
+              valor,
               nombreOperativo: '',
               moviles: 0,
               motos: 0,
               hipos: 0,
               totalPpss: 0,
-              valores: [valor],
               operativos: new Set<string>()
             });
           }
 
           const consolidado = consolidadosPorValor.get(valorKey)!;
-          consolidado.moviles += (detalle.moviles || 0);
-          consolidado.motos += (detalle.motos || 0);
-          consolidado.hipos += (detalle.hipos || 0);
-          consolidado.totalPpss += (detalle.totalPpss || 0);
+          
+          // Distribuir los recursos proporcionalmente según el número de valores
+          const factorDistribucion = 1 / valores.length;
+          consolidado.moviles += (detalle.moviles || 0) * factorDistribucion;
+          consolidado.motos += (detalle.motos || 0) * factorDistribucion;
+          consolidado.hipos += (detalle.hipos || 0) * factorDistribucion;
+          consolidado.totalPpss += (detalle.totalPpss || 0) * factorDistribucion;
           
           if (detalle.nombreOperativo) {
             consolidado.operativos.add(detalle.nombreOperativo);
@@ -95,43 +102,30 @@ const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
       });
     });
 
-    // Convertir el Map a array y formatear los nombres de operativos
-    return Array.from(consolidadosPorValor.values()).map(consolidado => {
-      const nombresOperativos = Array.from(consolidado.operativos).sort().join(', ');
-      return {
+    // Convertir el Map a array y formatear los datos
+    return Array.from(consolidadosPorValor.entries())
+      .map(([, consolidado]) => ({
         ...consolidado,
-        nombreOperativo: nombresOperativos || 'Sin nombre',
-        operativos: consolidado.operativos // Mantener el Set para futuros usos si es necesario
-      };
-    });
+        // Redondear los valores numéricos
+        moviles: Math.round(consolidado.moviles),
+        motos: Math.round(consolidado.motos),
+        hipos: Math.round(consolidado.hipos),
+        totalPpss: Math.round(consolidado.totalPpss),
+        nombreOperativo: Array.from(consolidado.operativos).sort().join(', ')
+      }))
+      .sort((a, b) => {
+        // Ordenar por valor (seccional o barrio)
+        if (typeof a.valor === 'number' && typeof b.valor === 'number') {
+          return a.valor - b.valor;
+        }
+        return String(a.valor).localeCompare(String(b.valor));
+      });
   }, [datos, tipo]);
 
   const getColumnTitle = () => {
     return tipo === 'seccional' ? 'Seccional' : 'Barrio';
   };
 
-  const renderValores = (valores: (number | string)[]) => {
-    const sortedValues = [...valores].sort((a, b) => {
-      if (typeof a === 'number' && typeof b === 'number') {
-        return a - b;
-      }
-      return String(a).localeCompare(String(b));
-    });
-
-    const displayText = sortedValues.join(', ');
-    
-    if (displayText.length > 50) {
-      return (
-        <Tooltip title={displayText} arrow placement="top">
-          <Typography variant="body2" noWrap>
-            {displayText.substring(0, 47) + '...'}
-          </Typography>
-        </Tooltip>
-      );
-    }
-    
-    return displayText;
-  };
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -149,8 +143,8 @@ const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
         <Table size="small" sx={tableStyles}>
           <TableHead>
             <TableRow>
-              <TableCell>Operativo</TableCell>
               <TableCell>{getColumnTitle()}</TableCell>
+              <TableCell>Operativos</TableCell>
               <TableCell align="right">Móviles</TableCell>
               <TableCell align="right">Motos</TableCell>
               <TableCell align="right">Hipos</TableCell>
@@ -158,14 +152,16 @@ const ListaDetalles: React.FC<Props> = ({ datos, tipo }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {detallesConsolidados.map((detalle, index) => (
-              <TableRow key={`${detalle.nombreOperativo}-${index}`}>
+            {detallesConsolidados.map((detalle) => (
+              <TableRow key={detalle.valor}>
+                <TableCell>{detalle.valor}</TableCell>
                 <TableCell>
-                  <Typography variant="body2" fontWeight="medium">
-                    {detalle.nombreOperativo}
-                  </Typography>
+                  <Tooltip title={detalle.nombreOperativo} arrow placement="top">
+                    <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+                      {detalle.nombreOperativo}
+                    </Typography>
+                  </Tooltip>
                 </TableCell>
-                <TableCell>{renderValores(detalle.valores)}</TableCell>
                 <TableCell align="right">{detalle.moviles}</TableCell>
                 <TableCell align="right">{detalle.motos}</TableCell>
                 <TableCell align="right">{detalle.hipos}</TableCell>

@@ -1,6 +1,7 @@
+'use client';
 import { ReactNode } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Container, Toolbar } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import { Navbar } from './Navbar';
 
 interface MainLayoutProps {
@@ -11,15 +12,27 @@ const MainContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   minHeight: '100vh',
-  backgroundColor: theme.palette.background.default,
+  width: '100%',
+  background: `linear-gradient(135deg, 
+    ${theme.palette.background.default} 0%,
+    ${theme.palette.primary.light}10 25%,
+    ${theme.palette.background.default} 50%,
+    ${theme.palette.primary.light}05 75%,
+    ${theme.palette.background.default} 100%
+  )`,
+  backgroundAttachment: 'fixed',
 }));
 
-const StyledContainer = styled(Container)(({ theme }) => ({
-  flexGrow: 1,
-  marginTop: theme.spacing(4),
-  marginBottom: theme.spacing(4),
-  [theme.breakpoints.up('lg')]: {
-    maxWidth: theme.breakpoints.values.lg,
+const StyledContainer = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  maxWidth: theme.breakpoints.values.lg,
+  margin: '0 auto',
+  padding: theme.spacing(3),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(2),
   },
 }));
 
@@ -28,7 +41,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     <MainContainer>
       <Navbar />
       <Toolbar /> {/* Espaciador para el navbar fijo */}
-      <StyledContainer maxWidth="lg">
+      <StyledContainer>
         {children}
       </StyledContainer>
     </MainContainer>

@@ -1,284 +1,211 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Box, Typography, Grid, Card, CardContent, useMediaQuery, useTheme, Button, IconButton } from '@mui/material';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { es } from 'date-fns/locale';
-import { format } from 'date-fns';
-import { DireccionOption, direccionOptions, direccionGeoOptions } from './options';
-import { DirectionAutocomplete } from './DirectionAutocomplete';
-import { CalendarTable } from './CalendarTable';
-import { CalendarAssignment } from './types';
-import { MobileAssignmentCard } from './MobileAssignmentCard';
-import { ExportDialog } from './ExportDialog';
-import { exportToImage } from './exportUtils';
-import { OfficerEditDialog, Officer } from './OfficerEditDialog';
-import EditIcon from '@mui/icons-material/Edit';
+import { useState, useEffect } from 'react';
+import { Box, Grid, Typography, alpha, Paper } from '@mui/material';
+import { Assignment as AssignmentIcon } from '@mui/icons-material';
+import { usePageTitle } from '@/contexts/PageTitleContext';
+import { AssignmentDayDialog } from './components/dialog/AssignmentDayDialog';
+import { EscalafonCalendar } from './components/calendar/EscalafonCalendar';
+import { OfficerStatusAlerts } from './components/alerts/OfficerStatusAlerts';
+import { mockOfficers } from './data/mockData';
+import { Assignment } from './types';
+import { AssignmentFormData } from './components/dialog/types';
+import { CalendarEvent } from './components/calendar/types';
 
-export default function EscalafonJefesPage() {
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-  const [direccionI, setDireccionI] = useState<DireccionOption | null>(null);
-  const [direccionII, setDireccionII] = useState<DireccionOption | null>(null);
-  const [assignments, setAssignments] = useState<Record<string, CalendarAssignment>>({});
-  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
-  const [isOfficerDialogOpen, setIsOfficerDialogOpen] = useState(false);
-  const [officerType, setOfficerType] = useState<'direccionI' | 'direccionII'>('direccionI');
-  const [officers, setOfficers] = useState<Record<'direccionI' | 'direccionII', Officer[]>>({
-    direccionI: [],
-    direccionII: []
-  });
+// Estadísticas del escalafón
+const stats = [
+  {
+    title: 'Total Personal',
+    value: mockOfficers.length.toString(),
+    icon: '👥',
+  },
+  {
+    title: 'Activos',
+    value: mockOfficers.filter(o => o.estado === 'activo').length.toString(),
+    icon: '✅',
+  },
+  {
+    title: 'En Servicio',
+    value: '12',
+    icon: '🔄',
+  },
+  {
+    title: 'Licencias',
+    value: mockOfficers.filter(o => o.estado === 'licencia').length.toString(),
+    icon: '📋',
+  },
+];
 
-  const handleConfirm = useCallback(() => {
-    if (direccionI && direccionII) {
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      setAssignments(prev => ({
-        ...prev,
-        [dateKey]: {
-          date: selectedDate,
-          direccionI,
-          direccionII,
-        },
-      }));
-      setDireccionI(null);
-      setDireccionII(null);
-    }
-  }, [selectedDate, direccionI, direccionII]);
+export default function EscalafonPage() {
+  const { setPageTitle } = usePageTitle();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
-  const handleCancel = () => {
-    setDireccionI(null);
-    setDireccionII(null);
-  };
+  useEffect(() => {
+    setPageTitle('Escalafón Jefes', AssignmentIcon);
+  }, [setPageTitle]);
+
+  const calendarEvents: CalendarEvent[] = assignments.map((assignment) => ({
+    id: assignment.id,
+    title: `Asignación: ${assignment.type}`,
+    start: new Date(assignment.startDate),
+    end: new Date(assignment.endDate),
+    type: assignment.type,
+    officerId: assignment.officerId,
+    description: assignment.description,
+  }));
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    const dateKey = format(date, 'yyyy-MM-dd');
-    const assignment = assignments[dateKey];
-    if (assignment) {
-      setDireccionI(assignment.direccionI);
-      setDireccionII(assignment.direccionII);
-    } else {
-      setDireccionI(null);
-      setDireccionII(null);
-    }
+    setIsAssignmentDialogOpen(true);
   };
 
-  const handleExport = async (month: number, year: number) => {
-    try {
-      await exportToImage('calendar-table', { month, year });
-    } catch (error) {
-      console.error('Error al exportar:', error);
-      // Aquí podrías mostrar un mensaje de error al usuario
-    }
+  const handleDialogClose = () => {
+    setIsAssignmentDialogOpen(false);
+    setSelectedDate(null);
   };
 
-  const handleSaveOfficers = (updatedOfficers: Officer[]) => {
-    setOfficers(prev => ({
-      ...prev,
-      [officerType]: updatedOfficers
-    }));
+  const handleAssignmentCreate = (data: AssignmentFormData) => {
+    const newAssignment: Assignment = {
+      id: Date.now().toString(),
+      officerId: data.officerId,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      type: data.type,
+      status: 'asignado',
+      description: data.description,
+    };
 
-    // Actualizar las opciones de dirección
-    const updatedOptions = updatedOfficers.map(officer => ({
-      id: parseInt(officer.id),
-      label: `${officer.grado} ${officer.nombre} ${officer.apellido}`
-    }));
-
-    if (officerType === 'direccionI') {
-      direccionOptions.length = 0;
-      direccionOptions.push(...updatedOptions);
-    } else {
-      direccionGeoOptions.length = 0;
-      direccionGeoOptions.push(...updatedOptions);
-    }
-  };
-
-  const handleEditOfficers = (type: 'direccionI' | 'direccionII') => {
-    setOfficerType(type);
-    setIsOfficerDialogOpen(true);
+    setAssignments((prev) => [...prev, newAssignment]);
+    handleDialogClose();
   };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            mb: 2 
-          }}>
-            <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold' }}>
-              Escalafón Jefes día
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => setIsExportDialogOpen(true)}
-              sx={{ 
-                bgcolor: 'primary.main',
-                color: 'background.paper',
-                fontWeight: 'bold',
-                display: { xs: 'none', md: 'flex' },
-                '&:hover': {
-                  bgcolor: 'primary.dark'
-                }
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+          Escalafón Jefes
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Gestión de asignaciones y servicios del personal
+        </Typography>
+      </Box>
+
+      {/* Stats Cards */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {stats.map((stat, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+                boxShadow: (theme) => `0 2px 14px ${alpha(theme.palette.primary.dark, 0.06)}`,
+                border: '1px solid',
+                borderColor: (theme) => alpha(theme.palette.divider, 0.08),
               }}
             >
-              Exportar
-            </Button>
-          </Box>
-        </Grid>
-
-        {/* Calendario y Selección */}
-        <Grid item xs={12} md={4}>
-          {/* Calendario */}
-          <Card sx={{ mb: 3, display: { xs: 'block', md: 'block' } }}>
-            <CardContent>
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                <DateCalendar
-                  value={selectedDate}
-                  onChange={(newValue: Date | null) => {
-                    if (newValue) {
-                      handleDateSelect(newValue);
-                      setCurrentMonth(newValue);
-                    }
-                  }}
-                  onMonthChange={(newMonth: Date) => {
-                    setCurrentMonth(newMonth);
-                  }}
-                  sx={{ width: '100%' }}
-                />
-              </LocalizationProvider>
-            </CardContent>
-          </Card>
-
-          {/* Selección de Direcciones */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Box sx={{ position: 'relative', mb: 2 }}>
-                <IconButton 
-                  sx={{ 
-                    position: 'absolute', 
-                    right: -8, 
-                    top: -8,
-                    color: 'primary.main'
-                  }}
-                  onClick={() => handleEditOfficers(direccionI ? 'direccionI' : 'direccionII')}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Box>
-              <DirectionAutocomplete
-                title="Dirección I"
-                color="primary"
-                value={direccionI}
-                onChange={setDireccionI}
-                options={direccionOptions}
-              />
-              <Box sx={{ mt: 2 }}>
-                <DirectionAutocomplete
-                  title="Dirección II y GEO"
-                  color="primary"
-                  value={direccionII}
-                  onChange={setDireccionII}
-                  options={direccionGeoOptions}
-                />
-              </Box>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
-                <Button 
-                  onClick={handleCancel} 
-                  color="primary" 
-                  variant="outlined"
-                  sx={{ 
-                    borderWidth: 2,
-                    '&:hover': { borderWidth: 2 },
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box
+                  sx={{
+                    width: 42,
+                    height: 42,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 1.5,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
                     color: 'primary.main',
-                    borderColor: 'primary.main'
+                    fontSize: '1.5rem',
                   }}
                 >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleConfirm}
-                  color="primary"
-                  variant="contained"
-                  disabled={!direccionI || !direccionII}
-                  sx={{ 
-                    fontWeight: 'bold',
-                    px: 3,
-                    bgcolor: 'primary.main',
-                    color: 'background.paper'
-                  }}
-                >
-                  Confirmar
-                </Button>
+                  {stat.icon}
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.5 }}>
+                    {stat.title}
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                    {stat.value}
+                  </Typography>
+                </Box>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Tabla de Calendario (Solo en Desktop) */}
-        {isDesktop && (
-          <Grid item md={8}>
-            <CalendarTable
-              currentMonth={currentMonth}
-              assignments={assignments}
-              selectedDate={selectedDate}
-              onDateSelect={handleDateSelect}
-            />
+            </Paper>
           </Grid>
-        )}
-        
-        {/* Mobile Assignment Card */}
-        {!isDesktop && (
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
-              <MobileAssignmentCard
-                selectedDate={selectedDate}
-                direccionI={assignments[format(selectedDate, 'yyyy-MM-dd')]?.direccionI}
-                direccionII={assignments[format(selectedDate, 'yyyy-MM-dd')]?.direccionII}
-              />
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={() => setIsExportDialogOpen(true)}
-                sx={{ 
-                  bgcolor: 'primary.main',
-                  color: 'background.paper',
-                  fontWeight: 'bold',
-                  display: { xs: 'flex', md: 'none' },
-                  mt: 2,
-                  mb: 4,
-                  py: 1.5,
-                  '&:hover': {
-                    bgcolor: 'primary.dark'
-                  }
-                }}
-              >
-                Exportar
-              </Button>
-            </Box>
-          </Grid>
-        )}
+        ))}
       </Grid>
 
-      <ExportDialog
-        open={isExportDialogOpen}
-        onClose={() => setIsExportDialogOpen(false)}
-        onExport={handleExport}
-      />
-      <OfficerEditDialog
-        open={isOfficerDialogOpen}
-        onClose={() => setIsOfficerDialogOpen(false)}
-        officers={officers[officerType]}
-        onSave={handleSaveOfficers}
-        title={officerType === 'direccionI' ? 'Editar Dirección I' : 'Editar Dirección II y GEO'}
-      />
+      {/* Main Content */}
+      <Grid container spacing={3}>
+        {/* Calendar Section */}
+        <Grid item xs={12} lg={8}>
+          <Paper 
+            elevation={0}
+            sx={{ 
+              p: 2,
+              height: { xs: 500, sm: 600, md: 680 }, 
+              borderRadius: 2,
+              bgcolor: 'background.paper',
+              boxShadow: (theme) => `0 2px 14px ${alpha(theme.palette.primary.dark, 0.06)}`,
+              border: '1px solid',
+              borderColor: (theme) => alpha(theme.palette.divider, 0.08),
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
+            }}
+          >
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                Calendario de Asignaciones
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <EscalafonCalendar 
+                onDateSelect={handleDateSelect}
+                events={calendarEvents}
+                selectedDate={selectedDate}
+              />
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Status Section */}
+        <Grid item xs={12} lg={4}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              bgcolor: 'background.paper',
+              boxShadow: (theme) => `0 2px 14px ${alpha(theme.palette.primary.dark, 0.06)}`,
+              border: '1px solid',
+              borderColor: (theme) => alpha(theme.palette.divider, 0.08),
+            }}
+          >
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                Estado del Personal
+              </Typography>
+            </Box>
+            <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+              <OfficerStatusAlerts officers={mockOfficers} />
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {selectedDate && (
+        <AssignmentDayDialog
+          open={isAssignmentDialogOpen}
+          onClose={handleDialogClose}
+          selectedDate={selectedDate}
+          onCreateAssignment={handleAssignmentCreate}
+          officers={mockOfficers}
+        />
+      )}
     </Box>
   );
 }

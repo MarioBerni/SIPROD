@@ -1,14 +1,6 @@
 'use client';
 
 import { Box, Grid, useTheme } from '@mui/material';
-import {
-  Assignment as AssignmentIcon,
-  Today as TodayIcon,
-  CheckCircle as CheckCircleIcon,
-  History as HistoryIcon,
-  Warning as WarningIcon,
-  Block as BlockIcon,
-} from '@mui/icons-material';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { ProgressSection } from '@/components/dashboard/ProgressSection';
 import { WeeklyChart } from '@/components/dashboard/WeeklyChart';
@@ -33,58 +25,49 @@ export function DirectionDashboard() {
 
   const stats = [
     {
-      icon: AssignmentIcon,
       title: 'Despliegues sin cargar',
-      count: 5,
-      color: 'error' as const,
-      subtitle: 'Pendientes de completar',
+      value: '5',
+      icon: 'assignment',
+      trend: '+2',
+      trendLabel: 'vs ayer'
     },
     {
-      icon: TodayIcon,
       title: 'Despliegues para hoy',
-      count: 15,
-      color: 'warning' as const,
-      subtitle: 'Programados para el día',
+      value: '15',
+      icon: 'today',
+      trend: '+5',
+      trendLabel: 'vs ayer'
     },
     {
-      icon: CheckCircleIcon,
       title: 'Despliegues cargados hoy',
-      count: 12,
-      color: 'success' as const,
-      subtitle: 'Completados del día',
+      value: '12',
+      icon: 'check_circle',
+      trend: '+8',
+      trendLabel: 'vs ayer'
     },
     {
-      icon: HistoryIcon,
       title: 'Historial de Despliegues',
-      count: 248,
-      color: 'primary' as const,
-      subtitle: 'Total acumulado',
+      value: '248',
+      icon: 'history',
+      trend: '+15%',
+      trendLabel: 'vs mes anterior'
     },
   ];
 
-  const progressData = {
-    cargados: {
+  const progressData = [
+    {
       label: 'Despliegues Cargados',
-      value: 12,
-      total: 15,
-      color: theme.palette.success.main,
-      icon: CheckCircleIcon,
+      value: 80, // (12/15) * 100
     },
-    sinEfecto: {
+    {
       label: 'Sin Efecto',
-      value: 2,
-      total: 15,
-      color: theme.palette.warning.main,
-      icon: WarningIcon,
+      value: 13, // (2/15) * 100
     },
-    libres: {
+    {
       label: 'Libres',
-      value: 1,
-      total: 15,
-      color: theme.palette.error.main,
-      icon: BlockIcon,
+      value: 7, // (1/15) * 100
     },
-  };
+  ];
 
   return (
     <Box sx={baseStyles.pageContainer}>
@@ -100,16 +83,12 @@ export function DirectionDashboard() {
 
         {/* Barra de progreso */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.progressSection}>
-            <ProgressSection data={progressData} />
-          </Box>
+          <ProgressSection data={progressData} />
         </Grid>
 
-        {/* Gráfica semanal */}
+        {/* Gráfico semanal */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.weeklyChart}>
-            <WeeklyChart data={weeklyData} />
-          </Box>
+          <WeeklyChart data={weeklyData} />
         </Grid>
       </Grid>
     </Box>

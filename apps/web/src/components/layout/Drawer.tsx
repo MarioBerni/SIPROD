@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Collapse, Drawer as MuiDrawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography, alpha, styled, SxProps, Theme } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -40,14 +42,14 @@ const menuItems: MenuItem[] = [
     path: '/dashboard',
   },
   {
+    text: 'Mapas',
+    icon: <MapIcon />,
+    path: '/dashboard/mapas',
+  },
+  {
     text: 'Administración',
     icon: <AdminPanelSettingsIcon />,
     children: [
-      {
-        text: 'Mapas',
-        icon: <MapIcon />,
-        path: '/dashboard/administrador/mapas',
-      },
       {
         text: 'Tabla Principal',
         icon: <TableChartIcon />,
@@ -81,9 +83,9 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/estadistica',
   },
   {
-    text: 'Perfil',
+    text: 'Mis Servicios',
     icon: <PersonIcon />,
-    path: '/dashboard/perfil',
+    path: '/dashboard/mis-servicios',
   },
 ];
 

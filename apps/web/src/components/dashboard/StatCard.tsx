@@ -1,104 +1,99 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  useTheme,
-  alpha,
-} from '@mui/material';
-import { SvgIconComponent } from '@mui/icons-material';
+import { FC } from 'react';
+import { Box, Typography, useTheme, alpha } from '@mui/material';
+import { TrendingUp, TrendingDown } from '@mui/icons-material';
 
 interface StatCardProps {
-  icon: SvgIconComponent;
   title: string;
-  count: number;
-  color?: 'primary' | 'secondary' | 'warning' | 'success' | 'error';
-  subtitle?: string;
+  value: string;
+  icon: string;
+  trend: string;
+  trendLabel: string;
 }
 
-export function StatCard({ 
-  icon: Icon, 
-  title, 
-  count, 
-  color = 'primary',
-  subtitle 
-}: StatCardProps) {
+export const StatCard: FC<StatCardProps> = ({
+  title,
+  value,
+  icon,
+  trend,
+  trendLabel,
+}) => {
   const theme = useTheme();
+  const isTrendUp = trend.startsWith('+');
 
   return (
-    <Card
+    <Box
       sx={{
-        height: '100%',
-        backgroundColor: alpha(theme.palette.background.paper, 0.9),
-        transition: theme.transitions.create(['transform', 'box-shadow'], {
-          duration: theme.transitions.duration.shorter,
-        }),
+        p: 2.5,
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        boxShadow: theme.shadows[1],
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: theme.shadows[4],
+          boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.15)}`,
         },
       }}
     >
-      <CardContent sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
         <Box
           sx={{
+            width: 48,
+            height: 48,
             display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 1.5,
+            bgcolor: alpha(theme.palette.primary.main, 0.12),
+            color: theme.palette.primary.main,
+            fontSize: '24px',
           }}
         >
-          <Box sx={{ flex: 1 }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: { xs: '1rem', sm: '1.1rem' },
-                fontWeight: 600,
-                mb: 0.5,
-                color: theme.palette.text.primary,
-              }}
-            >
-              {title}
-            </Typography>
-            {subtitle && (
-              <Typography
-                variant="body2"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  mb: 1,
-                }}
-              >
-                {subtitle}
-              </Typography>
-            )}
-            <Typography
-              variant="h4"
-              sx={{
-                fontSize: { xs: '1.75rem', sm: '2rem' },
-                fontWeight: 700,
-                color: theme.palette[color].main,
-              }}
-            >
-              {count}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              p: 1,
-              borderRadius: 2,
-              backgroundColor: alpha(theme.palette[color].main, 0.1),
-            }}
-          >
-            <Icon
-              sx={{
-                fontSize: 32,
-                color: theme.palette[color].main,
-              }}
-            />
-          </Box>
+          {icon}
         </Box>
-      </CardContent>
-    </Card>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+          {title}
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, mb: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1 }}>
+          {value}
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5,
+          color: isTrendUp ? 'success.main' : 'error.main',
+        }}
+      >
+        {isTrendUp ? (
+          <TrendingUp sx={{ fontSize: 20 }} />
+        ) : (
+          <TrendingDown sx={{ fontSize: 20 }} />
+        )}
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
+          {trend}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            ml: 1,
+          }}
+        >
+          {trendLabel}
+        </Typography>
+      </Box>
+    </Box>
   );
-}
+};

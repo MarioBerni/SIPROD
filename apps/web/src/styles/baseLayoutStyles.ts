@@ -39,6 +39,7 @@ export const getBaseLayoutStyles = (theme: Theme) => ({
       minHeight: `calc(100vh - ${NAVBAR_HEIGHT.mobile}px)`,
     },
     overflow: 'auto',
+    background: 'linear-gradient(135deg, #F5F7FA 0%, #ffffff 100%)',
   },
   main: {
     flex: 1,

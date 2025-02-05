@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { ReactNode, useState } from 'react';
 import { Drawer } from './Drawer';
