@@ -63,7 +63,7 @@ const theme = createTheme({
       900: '#0f172a',
     },
     background: {
-      default: '#f8fafc',
+      default: 'linear-gradient(135deg, #c6c6c6 0%, #e3e2e2 100%)',
       paper: '#ffffff',
     },
     text: {

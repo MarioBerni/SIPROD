@@ -222,7 +222,14 @@ Directory structure:
     │           │       │   │   ├── metadata.ts
     │           │       │   │   └── page.tsx
     │           │       │   └── usuarios/
-    │           │       │       └── page.tsx
+    │           │       │       ├── page.tsx
+    │           │       │       ├── types.ts
+    │           │       │       ├── utils.ts
+    │           │       │       ├── components/
+    │           │       │       │   ├── UserDialog.tsx
+    │           │       │       │   └── UsersTable.tsx
+    │           │       │       └── hooks/
+    │           │       │           └── useUsers.ts
     │           │       ├── despliegues-pdf/
     │           │       │   ├── page.tsx
     │           │       │   ├── types.ts
@@ -291,8 +298,6 @@ Directory structure:
     │           │           └── page.tsx
     │           ├── components/
     │           │   ├── Header.tsx
-    │           │   ├── auth/
-    │           │   │   └── LoginForm.tsx
     │           │   ├── common/
     │           │   │   └── BaseDialog.tsx
     │           │   ├── dashboard/
@@ -306,6 +311,7 @@ Directory structure:
     │           │   │   └── DirectionDashboard.tsx
     │           │   ├── features/
     │           │   │   ├── auth/
+    │           │   │   │   ├── forgot-password-dialog.tsx
     │           │   │   │   └── login-form.tsx
     │           │   │   └── dashboard/
     │           │   │       └── StatCard.tsx
@@ -360,7 +366,11 @@ Directory structure:
     │           │       ├── button.tsx
     │           │       ├── card.tsx
     │           │       ├── input.tsx
-    │           │       └── label.tsx
+    │           │       ├── label.tsx
+    │           │       ├── typewriter.tsx
+    │           │       └── Spinner/
+    │           │           ├── index.tsx
+    │           │           └── styles.ts
     │           ├── config/
     │           │   ├── development.ts
     │           │   └── navigation.tsx
@@ -370,6 +380,7 @@ Directory structure:
     │           ├── data/
     │           │   └── polygonData.ts
     │           ├── hooks/
+    │           │   ├── useLoading.ts
     │           │   ├── useMapControls.ts
     │           │   ├── useMapDrawing.tsx
     │           │   └── useMapInstance.ts
@@ -380,12 +391,18 @@ Directory structure:
     │           │   ├── createEmotionCache.ts
     │           │   ├── env.validator.ts
     │           │   ├── fetch.ts
+    │           │   ├── fetchApi.ts
     │           │   ├── serverAuth.ts
     │           │   └── utils.ts
+    │           ├── providers/
+    │           │   └── LoadingProvider.tsx
     │           ├── services/
     │           │   └── auth.ts
     │           ├── styles/
     │           │   ├── MapStyles.ts
+    │           │   ├── baseLayoutStyles.ts
+    │           │   ├── dashboardStyles.ts
+    │           │   ├── layoutStyles.ts
     │           │   └── theme.ts
     │           ├── tests/
     │           │   └── components/
@@ -408,8 +425,7 @@ Directory structure:
     │   ├── ARQUITECTURA.md
     │   ├── DESARROLLO.md
     │   ├── NUEVO_SERVIDOR.md
-    │   ├── OPERACIONES.md
-    │   └── TESTING.md
+    │   └── OPERACIONES.md
     ├── nginx/
     │   ├── README.md
     │   └── siprod.conf
@@ -481,6 +497,7 @@ Directory structure:
     │       └── cookies.ts
     └── .husky/
         └── pre-commit
+
 
 
 ## Notas Importantes

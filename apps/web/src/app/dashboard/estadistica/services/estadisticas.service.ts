@@ -62,8 +62,6 @@ interface FiltrosQueryParams {
   unidad?: string[];
   tiempoOperativo?: string[];
   departamento?: string;
-  fechaInicio?: string;
-  fechaFin?: string;
   [key: string]: string | string[] | undefined;
 }
 
@@ -81,12 +79,6 @@ const prepararParametrosFiltro = (filtros: Partial<EstadisticasFiltros>): Filtro
   }
   if (filtros.departamento) {
     params.departamento = filtros.departamento;
-  }
-  if (filtros.fechaInicio) {
-    params.fechaInicio = filtros.fechaInicio.toISOString();
-  }
-  if (filtros.fechaFin) {
-    params.fechaFin = filtros.fechaFin.toISOString();
   }
 
   return params;

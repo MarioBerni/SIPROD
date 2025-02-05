@@ -2,11 +2,27 @@
 
 import * as React from 'react';
 import { Card as MuiCard, CardContent as MuiCardContent, CardHeader as MuiCardHeader, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 
 const StyledCard = styled(MuiCard)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1]
+  boxShadow: theme.shadows[1],
+  background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+  color: theme.palette.primary.contrastText,
+  '& .MuiCardHeader-root': {
+    color: theme.palette.primary.contrastText,
+    '& .MuiCardHeader-subheader': {
+      color: alpha(theme.palette.primary.contrastText, 0.7),
+    },
+  },
+  '& .MuiCardContent-root': {
+    '& .MuiTypography-root': {
+      color: theme.palette.primary.contrastText,
+    },
+    '& .MuiTypography-secondary': {
+      color: alpha(theme.palette.primary.contrastText, 0.7),
+    },
+  },
 }));
 
 const Card = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof MuiCard>>(

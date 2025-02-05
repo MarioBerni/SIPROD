@@ -47,7 +47,7 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
     role: payload.role
   })
     .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('24h')
+    .setExpirationTime('30d')
     .sign(JWT_SECRET);
   
   logger.info('Token generado exitosamente');

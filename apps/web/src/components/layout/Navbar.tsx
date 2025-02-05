@@ -1,3 +1,5 @@
+'use client';
+
 import { AppBar, Avatar, Badge, Box, IconButton, InputBase, Stack, Toolbar, Typography, alpha, styled, SxProps, Theme, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';

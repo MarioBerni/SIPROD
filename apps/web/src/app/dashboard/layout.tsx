@@ -52,7 +52,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <DashboardLayout>
-      <Box component="main" sx={{ flexGrow: 1, p: 1 }}>
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1, 
+          p: 1,
+          background: 'linear-gradient(135deg, #c6c6c6 0%, #e3e2e2 100%)',
+          minHeight: '100vh'
+        }}
+      >
         {children}
       </Box>
     </DashboardLayout>

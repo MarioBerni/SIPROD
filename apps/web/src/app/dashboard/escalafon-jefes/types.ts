@@ -1,30 +1,31 @@
-import { DireccionOption } from './options';
+import { SvgIconComponent } from '@mui/icons-material';
 
-export interface DayScheduleCardProps {
-  selectedDate: Date;
-  direccionI: DireccionOption | null;
-  direccionII: DireccionOption | null;
-  onConfirm: () => void;
-  onCancel: () => void;
+export interface Officer {
+  id: string;
+  nombre: string;
+  apellido: string;
+  grado: string;
+  legajo: string;
+  estado: 'activo' | 'licencia' | 'comision' | 'otros' | 'curso';
+  ultimaAsignacion?: string;
 }
 
-export interface DirectionAutocompleteProps {
-  title: string;
-  color: 'primary' | 'secondary';
-  value: DireccionOption | null;
-  onChange: (value: DireccionOption | null) => void;
-  options: DireccionOption[];
+export interface Assignment {
+  id: string;
+  officerId: string;
+  startDate: string;
+  endDate: string;
+  type: 'direccionI' | 'direccionII' | 'geo';
+  status: 'asignado' | 'pendiente' | 'finalizado';
+  description?: string;
 }
 
-export interface CalendarAssignment {
-  date: Date;
-  direccionI: DireccionOption;
-  direccionII: DireccionOption;
+export interface AssignmentWithOfficer extends Assignment {
+  officer: Officer;
 }
 
-export interface CalendarTableProps {
-  currentMonth: Date;
-  assignments: Record<string, CalendarAssignment>;
-  selectedDate: Date;
-  onDateSelect: (date: Date) => void;
+export interface DirectionCategory {
+  label: string;
+  value: 'direccionI' | 'direccionII' | 'geo';
+  icon: SvgIconComponent;
 }
