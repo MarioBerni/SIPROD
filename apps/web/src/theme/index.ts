@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme } from '@mui/material/styles';
 import { getLayoutStyles } from '@/styles/layoutStyles';
 
 declare module '@mui/material/styles' {
@@ -23,6 +23,13 @@ declare module '@mui/material/styles' {
 }
 
 const theme = createTheme({
+  gradients: {
+    primary: 'linear-gradient(195deg, rgb(73, 163, 241), rgb(26, 115, 232))',
+    secondary: 'linear-gradient(195deg, rgb(66, 66, 74), rgb(25, 25, 25))',
+    navbar: 'linear-gradient(195deg, rgb(73, 163, 241), rgb(26, 115, 232))',
+    drawer: 'linear-gradient(195deg, rgb(73, 163, 241), rgb(26, 115, 232))',
+    background: 'linear-gradient(195deg, rgb(66, 66, 74), rgb(25, 25, 25))'
+  },
   palette: {
     primary: {
       main: '#1565C0',
@@ -144,16 +151,22 @@ const theme = createTheme({
     },
     MuiList: {
       styleOverrides: {
-        root: ({ theme }) => ({
-          ...getLayoutStyles(theme).list,
-        }),
+        root: ({ theme: baseTheme }) => {
+          const theme = baseTheme as Theme;
+          return {
+            ...getLayoutStyles(theme).list,
+          };
+        },
       },
     },
     MuiDialog: {
       styleOverrides: {
-        root: ({ theme }) => ({
-          ...getLayoutStyles(theme).dialog,
-        }),
+        root: ({ theme: baseTheme }) => {
+          const theme = baseTheme as Theme;
+          return {
+            ...getLayoutStyles(theme).dialog,
+          };
+        },
       },
     },
     MuiAppBar: {

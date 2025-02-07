@@ -1,16 +1,16 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLicenseManagement } from '../dialog/hooks/useLicenseManagement';
-import { useCourseManagement } from '../dialog/hooks/useCourseManagement';
-import { useDutyDayManagement } from '../dialog/hooks/useDutyDayManagement';
+import { useLicenseManagement } from './useLicenseManagement';
+import { useCourseManagement } from './useCourseManagement';
+import { useDutyDayManagement } from './useDutyDayManagement';
 
 export interface ServiceCounts {
   licencia: number;
   cursos: number;
   jefeDia: number;
-  control222: number;
   opEspeciales: number;
+  control222: number;
   otros: number;
 }
 

@@ -1,7 +1,12 @@
 import { Grid, TextField, Autocomplete } from '@mui/material';
 import { FormikProps } from 'formik';
-import { TablaPrincipal } from '../../types';
 import React from 'react';
+
+interface TablaPrincipal {
+  seccional: number[];
+  barrios: string[];
+  // ... otros campos
+}
 
 interface UbicacionSectionProps {
   formik: FormikProps<Partial<TablaPrincipal>>;
@@ -12,10 +17,10 @@ export function UbicacionSection({ formik, validationErrors = {} }: UbicacionSec
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Autocomplete
+        <Autocomplete<number, true>
           multiple
           id="seccional"
-          options={[]} // TODO: Agregar opciones de seccionales
+          options={[1, 2, 3]} // Opciones de ejemplo, reemplazar con las reales
           value={formik.values.seccional || []}
           onChange={(_, newValue) => {
             formik.setFieldValue('seccional', newValue);
@@ -34,7 +39,7 @@ export function UbicacionSection({ formik, validationErrors = {} }: UbicacionSec
         />
       </Grid>
       <Grid item xs={12}>
-        <Autocomplete
+        <Autocomplete<string, true>
           multiple
           id="barrios"
           options={[]} // TODO: Agregar opciones de barrios

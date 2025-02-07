@@ -14,7 +14,12 @@ const StyledLabel = styled(FormLabel)(({ theme }) => ({
   }
 }));
 
-const Label = React.forwardRef<HTMLLabelElement, React.ComponentProps<typeof FormLabel>>(
+interface LabelProps extends Omit<React.ComponentProps<typeof FormLabel>, 'ref'> {
+  htmlFor?: string;
+  children?: React.ReactNode;
+}
+
+const Label: React.FC<LabelProps> = React.forwardRef<HTMLLabelElement, LabelProps>(
   (props, ref) => (
     <StyledLabel ref={ref} {...props} />
   )

@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { DateInputs } from './DateInputs';
+import { DateInputs } from '../common/DateInputs';
 import { License } from '../types';
 
 interface LicenseItemProps {
@@ -35,6 +35,13 @@ export const LicenseItem: FC<LicenseItemProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const handleFieldChange = (field: string, value: string | Date) =>
+    setEditLicense(
+      editLicense
+        ? { ...editLicense, [field]: value }
+        : null
+    );
+
   return (
     <ListItem
       sx={{
@@ -48,13 +55,7 @@ export const LicenseItem: FC<LicenseItemProps> = ({
         <DateInputs
           startDate={editLicense?.startDate || ''}
           endDate={editLicense?.endDate || ''}
-          onChange={(field, value) =>
-            setEditLicense(
-              editLicense
-                ? { ...editLicense, [field]: value }
-                : null
-            )
-          }
+          onChange={handleFieldChange}
           actions={
             <>
               <IconButton onClick={onSaveEdit} className="edit-button">

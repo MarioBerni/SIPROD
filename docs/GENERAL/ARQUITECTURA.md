@@ -261,20 +261,34 @@ Directory structure:
     │           │       ├── direccion-1/
     │           │       │   └── page.tsx
     │           │       ├── escalafon-jefes/
-    │           │       │   ├── CalendarTable.tsx
-    │           │       │   ├── DirectionAutocomplete.tsx
-    │           │       │   ├── ExportDialog.tsx
-    │           │       │   ├── MobileAssignmentCard.tsx
-    │           │       │   ├── OfficerEditDialog.tsx
-    │           │       │   ├── exportUtils.ts
-    │           │       │   ├── options.ts
     │           │       │   ├── page.tsx
     │           │       │   ├── types.ts
     │           │       │   ├── components/
-    │           │       │   │   ├── OfficerForm.tsx
-    │           │       │   │   └── OfficerList.tsx
-    │           │       │   └── types/
-    │           │       │       └── officer.types.ts
+    │           │       │   │   ├── ActiveAssignmentsCard.tsx
+    │           │       │   │   ├── alerts/
+    │           │       │   │   │   └── OfficerStatusAlerts.tsx
+    │           │       │   │   ├── calendar/
+    │           │       │   │   │   ├── CalendarDay.tsx
+    │           │       │   │   │   ├── CalendarEventList.tsx
+    │           │       │   │   │   ├── CalendarHeader.tsx
+    │           │       │   │   │   ├── CalendarWeekHeader.tsx
+    │           │       │   │   │   ├── EscalafonCalendar.tsx
+    │           │       │   │   │   ├── types.ts
+    │           │       │   │   │   └── utils.ts
+    │           │       │   │   ├── dialog/
+    │           │       │   │   │   ├── AssignmentDayDialog.tsx
+    │           │       │   │   │   ├── AssignmentDialog.tsx
+    │           │       │   │   │   ├── types.ts
+    │           │       │   │   │   ├── components/
+    │           │       │   │   │   │   └── AssignmentForm.tsx
+    │           │       │   │   │   ├── hooks/
+    │           │       │   │   │   │   └── useAssignmentForm.ts
+    │           │       │   │   │   └── styles/
+    │           │       │   │   │       └── dialogStyles.ts
+    │           │       │   │   └── suggestions/
+    │           │       │   │       └── OfficerSuggestions.tsx
+    │           │       │   └── data/
+    │           │       │       └── mockData.ts
     │           │       ├── estadistica/
     │           │       │   ├── page.tsx
     │           │       │   ├── components/
@@ -294,6 +308,10 @@ Directory structure:
     │           │       │       ├── estadisticas.ts
     │           │       │       ├── filtros.ts
     │           │       │       └── zona.ts
+    │           │       ├── mapas/
+    │           │       │   └── page.tsx
+    │           │       ├── mis-servicios/
+    │           │       │   └── page.tsx
     │           │       └── profile/
     │           │           └── page.tsx
     │           ├── components/
@@ -312,7 +330,12 @@ Directory structure:
     │           │   ├── features/
     │           │   │   ├── auth/
     │           │   │   │   ├── forgot-password-dialog.tsx
-    │           │   │   │   └── login-form.tsx
+    │           │   │   │   ├── login-form.tsx
+    │           │   │   │   └── components/
+    │           │   │   │       ├── LoginContainer.tsx
+    │           │   │   │       ├── LoginForm.tsx
+    │           │   │   │       ├── LoginHeader.tsx
+    │           │   │   │       └── index.ts
     │           │   │   └── dashboard/
     │           │   │       └── StatCard.tsx
     │           │   ├── layout/
@@ -329,10 +352,51 @@ Directory structure:
     │           │   │   ├── Navbar.tsx
     │           │   │   └── header.tsx
     │           │   ├── maps/
+    │           │   │   ├── DrawingControls.tsx
     │           │   │   ├── MapControls.tsx
+    │           │   │   ├── MapView.tsx
     │           │   │   └── VertexContextMenu.tsx
     │           │   ├── providers/
+    │           │   │   ├── Providers.tsx
     │           │   │   └── ThemeRegistry.tsx
+    │           │   ├── services/
+    │           │   │   ├── ActiveServicesCard.tsx
+    │           │   │   ├── ServiceCalendar.tsx
+    │           │   │   ├── types.ts
+    │           │   │   ├── calendar/
+    │           │   │   │   ├── CalendarDay.tsx
+    │           │   │   │   ├── CalendarDayNew.tsx
+    │           │   │   │   ├── CalendarEventList.tsx
+    │           │   │   │   ├── CalendarHeader.tsx
+    │           │   │   │   ├── CalendarHeaderNew.tsx
+    │           │   │   │   ├── CalendarWeekHeader.tsx
+    │           │   │   │   ├── types.ts
+    │           │   │   │   └── utils.ts
+    │           │   │   ├── dialog/
+    │           │   │   │   ├── ServiceDayDialog.tsx
+    │           │   │   │   ├── types.ts
+    │           │   │   │   ├── components/
+    │           │   │   │   │   ├── AddLicenseButton.tsx
+    │           │   │   │   │   ├── Control222Item.tsx
+    │           │   │   │   │   ├── Control222List.tsx
+    │           │   │   │   │   ├── CourseItem.tsx
+    │           │   │   │   │   ├── CourseList.tsx
+    │           │   │   │   │   ├── DateInputs.tsx
+    │           │   │   │   │   ├── DutyDayItem.tsx
+    │           │   │   │   │   ├── DutyDayList.tsx
+    │           │   │   │   │   ├── DutyRequestForm.tsx
+    │           │   │   │   │   ├── LicenseItem.tsx
+    │           │   │   │   │   └── LicenseList.tsx
+    │           │   │   │   ├── hooks/
+    │           │   │   │   │   ├── useCourseManagement.tsx
+    │           │   │   │   │   ├── useDutyDayManagement.tsx
+    │           │   │   │   │   └── useLicenseManagement.tsx
+    │           │   │   │   └── styles/
+    │           │   │   │       └── StyledDialog.tsx
+    │           │   │   └── hooks/
+    │           │   │       ├── useCalendarEvents.ts
+    │           │   │       ├── useCalendarEvents.tsx
+    │           │   │       └── useServiceCounts.tsx
     │           │   ├── tabla-principal/
     │           │   │   ├── components/
     │           │   │   │   ├── AddRecordModal.tsx
@@ -383,7 +447,10 @@ Directory structure:
     │           │   ├── useLoading.ts
     │           │   ├── useMapControls.ts
     │           │   ├── useMapDrawing.tsx
-    │           │   └── useMapInstance.ts
+    │           │   ├── useMapInstance.ts
+    │           │   └── map/
+    │           │       ├── useMapDrawing.ts
+    │           │       └── useMapInstance.ts
     │           ├── lib/
     │           │   ├── api.ts
     │           │   ├── auth.ts
@@ -420,12 +487,9 @@ Directory structure:
     │               ├── error-handling.ts
     │               └── imageOptimization.tsx
     ├── docs/
-    │   ├── README.md
-    │   ├── API.md
     │   ├── ARQUITECTURA.md
     │   ├── DESARROLLO.md
-    │   ├── NUEVO_SERVIDOR.md
-    │   └── OPERACIONES.md
+    │   └── NUEVO_SERVIDOR.md
     ├── nginx/
     │   ├── README.md
     │   └── siprod.conf

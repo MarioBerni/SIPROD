@@ -8,6 +8,7 @@ export interface CalendarEvent {
   type: ServiceType;
   title: string;
   description?: string;
+  startDate: Date;
   icon: OverridableComponent<SvgIconTypeMap<Record<string, unknown>, "svg">> & { muiName: string };
 }
 
