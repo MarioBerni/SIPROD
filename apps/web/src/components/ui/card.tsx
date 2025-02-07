@@ -41,7 +41,12 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof 
 );
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef<HTMLHeadingElement, React.ComponentProps<typeof Typography>>(
+interface CardTitleProps extends Omit<React.ComponentProps<typeof Typography>, 'ref'> {
+  children?: React.ReactNode;
+  component?: React.ElementType;
+}
+
+const CardTitle: React.FC<CardTitleProps> = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ children, ...props }, ref) => (
     <Typography ref={ref} variant="h5" component="h3" {...props}>
       {children}

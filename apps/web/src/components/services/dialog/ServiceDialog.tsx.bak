@@ -1,0 +1,177 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Grid,
+  Typography,
+  Box,
+  Chip
+} from '@mui/material';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { Service, ServiceType, ServiceStatus, getServiceColor, getStatusColor, getStatusText } from '@/data/__mocks__/servicesMock';
+
+interface ServiceDialogProps {
+  open: boolean;
+  onClose: () => void;
+  service?: Service;
+  mode: 'create' | 'view' | 'edit';
+  onSubmit: (service: Partial<Service>) => void;
+}
+
+const serviceTypes: { value: ServiceType; label: string }[] = [
+  { value: '222', label: 'Servicio 222' },
+  { value: 'JEFE_DIA', label: 'Jefe de Día' },
+  { value: 'CURSO', label: 'Curso' },
+  { value: 'LICENCIA', label: 'Licencia' },
+];
+
+export const ServiceDialog = ({ open, onClose, service, mode, onSubmit }: ServiceDialogProps) => {
+  const [formData, setFormData] = useState<Partial<Service>>(
+    service || {
+      type: '222',
+      status: 'PENDIENTE',
+      title: '',
+      description: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      location: '',
+    }
+  );
+
+  const handleChange = (field: keyof Service, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    onSubmit(formData);
+    onClose();
+  };
+
+  const isViewMode = mode === 'view';
+  const isCreateMode = mode === 'create';
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        {isCreateMode ? 'Nuevo Servicio' : isViewMode ? 'Detalles del Servicio' : 'Editar Servicio'}
+      </DialogTitle>
+      <DialogContent>
+        <Grid container spacing={3} sx={{ mt: 1 }}>
+          {!isCreateMode && (
+            <Grid item xs={12}>
+              <Box display="flex" gap={1} alignItems="center">
+                <Chip
+                  label={getStatusText(formData.status as ServiceStatus)}
+                  sx={{
+                    bgcolor: getStatusColor(formData.status as ServiceStatus),
+                    color: 'white',
+                  }}
+                />
+                <Typography variant="body2" color="text.secondary">
+                  Asignado por: {formData.assignedBy || 'No especificado'}
+                </Typography>
+              </Box>
+            </Grid>
+          )}
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              select
+              fullWidth
+              label="Tipo de Servicio"
+              value={formData.type}
+              onChange={(e) => handleChange('type', e.target.value)}
+              disabled={!isCreateMode}
+            >
+              {serviceTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Ubicación"
+              value={formData.location || ''}
+              onChange={(e) => handleChange('location', e.target.value)}
+              disabled={isViewMode}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Título"
+              value={formData.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              disabled={isViewMode}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Descripción"
+              value={formData.description}
+              onChange={(e) => handleChange('description', e.target.value)}
+              multiline
+              rows={3}
+              disabled={isViewMode}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <DateTimePicker
+              label="Fecha de Inicio"
+              value={formData.startDate}
+              onChange={(newValue) => handleChange('startDate', newValue)}
+              disabled={isViewMode}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <DateTimePicker
+              label="Fecha de Fin"
+              value={formData.endDate}
+              onChange={(newValue) => handleChange('endDate', newValue)}
+              disabled={isViewMode}
+            />
+          </Grid>
+
+          {formData.rejectionReason && (
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Motivo de Rechazo"
+                value={formData.rejectionReason}
+                multiline
+                rows={2}
+                disabled
+              />
+            </Grid>
+          )}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>
+          {isViewMode ? 'Cerrar' : 'Cancelar'}
+        </Button>
+        {!isViewMode && (
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            {isCreateMode ? 'Crear' : 'Guardar'}
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
+};

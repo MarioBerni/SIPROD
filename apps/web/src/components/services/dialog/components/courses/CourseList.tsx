@@ -6,7 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { CourseItem } from './CourseItem';
 import { DateInputs } from './DateInputs';
-import { AddLicenseButton } from './AddLicenseButton';
+import { AddCourseButton } from './AddCourseButton';
 import { Course } from '../types';
 
 interface CourseListProps {
@@ -94,7 +94,7 @@ export const CourseList: FC<CourseListProps> = ({
           </Stack>
         </Box>
       ) : (
-        <AddLicenseButton onClick={onAdd} />
+        <AddCourseButton onClick={onAdd} />
       )}
     </>
   );
