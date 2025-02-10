@@ -1,21 +1,15 @@
 'use client';
 
 import { Box, Grid } from '@mui/material';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { JefeDiaCard } from '@/components/dashboard/JefeDiaCard';
-import { DatosDespliegueCard } from '@/components/dashboard/DatosDespliegueCard';
-import { DesplieguesCard } from '@/components/dashboard/DesplieguesCard';
+import { RecursosActualesCard } from '@/components/dashboard/RecursosActualesCard';
+import { ResultadosOperativosCard } from '@/components/dashboard/ResultadosOperativosCard';
 import { NivelPatrullajeCard } from '@/components/dashboard/NivelPatrullajeCard';
-import { RecursosHoraChart } from '@/components/dashboard/RecursosHoraChart';
 import { MapaPatrullaje } from '@/components/dashboard/MapaPatrullaje';
+import { TablaOperativosCard } from '@/components/dashboard/TablaOperativosCard';
 import { useEffect, useState } from 'react';
+import { RecursosActuales, ResultadoOperativo } from '@/types/dashboard';
 
 // Tipos de datos
-interface JefeInfo {
-  nombre: string;
-  grado: string;
-}
-
 interface BarrioInfo {
   nombre: string;
   porcentaje: number;
@@ -29,49 +23,326 @@ interface RecursoData {
   efectivos: number;
 }
 
-interface DespliegueInfo {
-  id: string;
-  titulo: string;
-  estado: 'activo' | 'pendiente' | 'completado';
-  tipo: string;
-  hora: string;
-  ubicacion: string;
-  recursos: {
-    moviles: number;
-    motos: number;
-    hipo?: number;
-    efectivos: number;
-  }
+interface OperativoData {
+  operativo: string;
+  moviles: number;
+  ssoo: number;
+  motos: number;
+  hipos: number;
+  pieTierra: number;
+  totalFFPP: number;
+  horaInicio: string;
+  horaFin: string;
+  seccional: string;
 }
 
 export default function DashboardPage() {
   // Estados para los datos de cada componente
-  const [jefesActuales, setJefesActuales] = useState<{ jefeDir1?: JefeInfo; jefeDir2?: JefeInfo }>({});
-  const [jefesMañana, setJefesMañana] = useState<{ principal?: JefeInfo; secundario?: JefeInfo }>({});
-  const [datosDespliegue, setDatosDespliegue] = useState({
-    moviles: 0,
-    motos: 0,
-    hipo: 0,
-    efectivos: 0
+  const [recursosActuales] = useState<RecursosActuales>({
+    moviles: { cantidad: 45, icono: 'car' },
+    motos: { cantidad: 30, icono: 'motorcycle' },
+    hipos: { cantidad: 8, icono: 'horse' },
+    pieTierra: { cantidad: 120, icono: 'walk' },
+    choqueApostado: { cantidad: 15, icono: 'police' },
+    choqueAlerta: { cantidad: 10, icono: 'alert' },
+    totalEfectivos: 228
   });
+
+  const [resultadosOperativos] = useState<ResultadoOperativo>({
+    puntosControl: 25,
+    registros: {
+      personas: 150,
+      autos: 80,
+      motos: 45
+    },
+    incautaciones: {
+      autos: 3,
+      motos: 5
+    },
+    incautacionArmas: {
+      fuego: 2,
+      blanca: 8,
+      cartucho: 15
+    },
+    incautacionSustancias: {
+      cocaina: 0.5,
+      pastaBase: 1.2,
+      vegetal: 3.5
+    }
+  });
+
   const [nivelPatrullaje, setNivelPatrullaje] = useState<BarrioInfo[]>([]);
   const [recursosHora, setRecursosHora] = useState<RecursoData[]>([]);
-  const [desplieguesActuales, setDesplieguesActuales] = useState<DespliegueInfo[]>([]);
-  const [desplieguesProximos, setDesplieguesProximos] = useState<DespliegueInfo[]>([]);
   
+  const [operativosActuales] = useState<OperativoData[]>([
+    {
+      operativo: "Operativo - II ZONA - BOIX Y MERINO",
+      moviles: 2,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 5,
+      horaInicio: "10:00",
+      horaFin: "22:00",
+      seccional: "15"
+    },
+    {
+      operativo: "Operativo - II ZONA - CERRO Y CERRO NORTE",
+      moviles: 4,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 11,
+      horaInicio: "10:00",
+      horaFin: "22:00",
+      seccional: "24"
+    },
+    {
+      operativo: "Operativo - II ZONA - MARCONI",
+      moviles: 2,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 6,
+      horaInicio: "09:00",
+      horaFin: "21:00",
+      seccional: "17"
+    },
+    {
+      operativo: "Operativo - II ZONA - VILLA ESPAÑOLA Y PEREZ CASTELLANOS",
+      moviles: 1,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 3,
+      horaInicio: "23:00",
+      horaFin: "10:00",
+      seccional: "13"
+    },
+    {
+      operativo: "Operativo - II ZONA - MARCONI",
+      moviles: 2,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 6,
+      horaInicio: "22:00",
+      horaFin: "10:00",
+      seccional: "17"
+    },
+    {
+      operativo: "Operativo - II ZONA - BOIX Y MERINO",
+      moviles: 2,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 5,
+      horaInicio: "23:00",
+      horaFin: "10:00",
+      seccional: "15"
+    },
+    {
+      operativo: "Operativo - CEIBO III CARRASCO (HIPO)",
+      moviles: 0,
+      ssoo: 0,
+      motos: 0,
+      hipos: 2,
+      pieTierra: 0,
+      totalFFPP: 4,
+      horaInicio: "18:00",
+      horaFin: "03:00",
+      seccional: "14"
+    },
+    {
+      operativo: "Operativo - CEIBO III- AROCENA",
+      moviles: 0,
+      ssoo: 0,
+      motos: 2,
+      hipos: 0,
+      pieTierra: 4,
+      totalFFPP: 16,
+      horaInicio: "16:00",
+      horaFin: "24:00",
+      seccional: "14"
+    },
+    {
+      operativo: "Operativo - CEIBO III-PARQUE BATLLE",
+      moviles: 1,
+      ssoo: 1,
+      motos: 2,
+      hipos: 0,
+      pieTierra: 8,
+      totalFFPP: 14,
+      horaInicio: "21:00",
+      horaFin: "05:00",
+      seccional: "9"
+    },
+    {
+      operativo: "Operativo - CEIBO III-PARQUE BATLLE",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 8,
+      totalFFPP: 18,
+      horaInicio: "16:00",
+      horaFin: "24:00",
+      seccional: "9"
+    },
+    {
+      operativo: "Patrullaje - HIPO CLUB DE GOLF",
+      moviles: 0,
+      ssoo: 0,
+      motos: 0,
+      hipos: 2,
+      pieTierra: 0,
+      totalFFPP: 2,
+      horaInicio: "11:00",
+      horaFin: "14:00",
+      seccional: "5"
+    },
+    {
+      operativo: "Patrullaje - HIPO POR RAMBLA",
+      moviles: 0,
+      ssoo: 0,
+      motos: 0,
+      hipos: 4,
+      pieTierra: 0,
+      totalFFPP: 4,
+      horaInicio: "17:00",
+      horaFin: "24:00",
+      seccional: "11"
+    },
+    {
+      operativo: "Patrullaje - ANTEL ARENA, DNGR Y HP",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 3,
+      horaInicio: "02:00",
+      horaFin: "10:00",
+      seccional: "13"
+    },
+    {
+      operativo: "Patrullaje - ACOSTA Y LARA",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 4,
+      horaInicio: "19:00",
+      horaFin: "05:00",
+      seccional: "14"
+    },
+    {
+      operativo: "Patrullaje - BARRIO LA CHANCHA",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 3,
+      horaInicio: "23:00",
+      horaFin: "05:00",
+      seccional: "18"
+    },
+    {
+      operativo: "Operativo - PREVENCION PICADAS (INTERCAMBIADOR BELLONI E INSTRUCCIONES)",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 2,
+      horaInicio: "01:00",
+      horaFin: "06:00",
+      seccional: "16"
+    },
+    {
+      operativo: "Operativo - CIUDAD DEL PLATA",
+      moviles: 2,
+      ssoo: 1,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 5,
+      horaInicio: "23:00",
+      horaFin: "10:00",
+      seccional: ""
+    },
+    {
+      operativo: "Patrullaje - EN PASO DE CARASCO",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 0,
+      totalFFPP: 4,
+      horaInicio: "19:00",
+      horaFin: "03:00",
+      seccional: "14"
+    },
+    {
+      operativo: "Patrullaje - AVENIDA VARELA",
+      moviles: 0,
+      ssoo: 0,
+      motos: 0,
+      hipos: 0,
+      pieTierra: 1,
+      totalFFPP: 1,
+      horaInicio: "10:00",
+      horaFin: "22:00",
+      seccional: "13"
+    },
+    {
+      operativo: "Operativo - PLAZAS (Vie, Sab, Dom)",
+      moviles: 0,
+      ssoo: 0,
+      motos: 0,
+      hipos: 4,
+      pieTierra: 0,
+      totalFFPP: 4,
+      horaInicio: "17:00",
+      horaFin: "24:00",
+      seccional: "5, 9, 10"
+    },
+    {
+      operativo: "Operativo - ANDRÓMEDA VII DNGR",
+      moviles: 1,
+      ssoo: 0,
+      motos: 0,
+      hipos: 2,
+      pieTierra: 0,
+      totalFFPP: 8,
+      horaInicio: "18:00",
+      horaFin: "01:00",
+      seccional: "14"
+    }
+  ]);
   // Estados de carga y error
   const [loading, setLoading] = useState({
-    jefes: true,
-    patrullaje: true,
     recursos: true,
-    despliegues: true,
+    patrullaje: true
   });
+
   const [error, setError] = useState({
-    jefes: '',
-    patrullaje: '',
     recursos: '',
-    despliegues: '',
+    patrullaje: ''
   });
+
+  const handleDetalleRecursoClick = (tipo: string) => {
+    console.log(`Mostrar detalle de: ${tipo}`);
+    // Implementar lógica de detalle
+  };
 
   // Efecto para cargar los datos
   useEffect(() => {
@@ -79,24 +350,6 @@ export default function DashboardPage() {
       try {
         // Simular tiempo de carga
         setTimeout(() => {
-          // Datos de ejemplo
-          setJefesActuales({
-            jefeDir1: { nombre: 'Juan Pérez', grado: 'Comisario' },
-            jefeDir2: { nombre: 'María González', grado: 'Subcomisario' },
-          });
-          
-          setJefesMañana({
-            principal: { nombre: 'Carlos Rodríguez', grado: 'Comisario' },
-            secundario: { nombre: 'Ana Martínez', grado: 'Subcomisario' },
-          });
-
-          setDatosDespliegue({
-            moviles: 25,
-            motos: 15,
-            hipo: 5,
-            efectivos: 120
-          });
-          
           setNivelPatrullaje([
             { nombre: 'Cerro', porcentaje: 15 },
             { nombre: 'Villa Española', porcentaje: 12 },
@@ -117,112 +370,20 @@ export default function DashboardPage() {
             efectivos: Math.floor(Math.random() * 50) + 30,
           }));
           setRecursosHora(horasData);
-          
-          setDesplieguesActuales([
-            { 
-              id: '1', 
-              titulo: 'Operativo Comercial Centro', 
-              estado: 'activo', 
-              tipo: 'Patrullaje', 
-              hora: '14:30',
-              ubicacion: 'Centro',
-              recursos: {
-                moviles: 3,
-                motos: 2,
-                efectivos: 12
-              }
-            },
-            { 
-              id: '2', 
-              titulo: 'Control Vehicular', 
-              estado: 'pendiente', 
-              tipo: 'Control', 
-              hora: '15:00',
-              ubicacion: 'Av. Italia',
-              recursos: {
-                moviles: 2,
-                motos: 4,
-                efectivos: 8
-              }
-            },
-            { 
-              id: '3', 
-              titulo: 'Vigilancia Preventiva', 
-              estado: 'activo', 
-              tipo: 'Patrullaje', 
-              hora: '14:00',
-              ubicacion: 'Parque Batlle',
-              recursos: {
-                moviles: 2,
-                motos: 2,
-                hipo: 2,
-                efectivos: 10
-              }
-            }
-          ]);
-          
-          setDesplieguesProximos([
-            { 
-              id: '4', 
-              titulo: 'Operativo Nocturno', 
-              estado: 'pendiente', 
-              tipo: 'Patrullaje', 
-              hora: '20:00',
-              ubicacion: 'Pocitos',
-              recursos: {
-                moviles: 4,
-                motos: 6,
-                efectivos: 15
-              }
-            },
-            { 
-              id: '5', 
-              titulo: 'Control de Accesos', 
-              estado: 'pendiente', 
-              tipo: 'Control', 
-              hora: '18:30',
-              ubicacion: 'Terminal Tres Cruces',
-              recursos: {
-                moviles: 2,
-                motos: 2,
-                efectivos: 8
-              }
-            },
-            { 
-              id: '6', 
-              titulo: 'Vigilancia Especial', 
-              estado: 'pendiente', 
-              tipo: 'Patrullaje', 
-              hora: '19:00',
-              ubicacion: 'Prado',
-              recursos: {
-                moviles: 3,
-                motos: 4,
-                hipo: 2,
-                efectivos: 12
-              }
-            }
-          ]);
 
           setLoading({
-            jefes: false,
-            patrullaje: false,
             recursos: false,
-            despliegues: false,
+            patrullaje: false
           });
         }, 1000);
       } catch (err) {
         setError({
-          jefes: 'Error al cargar datos',
-          patrullaje: 'Error al cargar datos',
           recursos: 'Error al cargar datos',
-          despliegues: 'Error al cargar datos',
+          patrullaje: 'Error al cargar datos'
         });
         setLoading({
-          jefes: false,
-          patrullaje: false,
           recursos: false,
-          despliegues: false,
+          patrullaje: false
         });
       }
     };
@@ -231,47 +392,23 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <Box sx={{ p: 2 }}>
-      <DashboardHeader />
-      
-      {/* Cards superiores */}
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <JefeDiaCard 
-            jefeDir1={jefesActuales.jefeDir1}
-            jefeDir2={jefesActuales.jefeDir2}
-            jefeMañanaPrincipal={jefesMañana.principal}
-            jefeMañanaSecundario={jefesMañana.secundario}
-            loading={loading.jefes} 
-            error={error.jefes}
+    <Box sx={{ p: 3 }}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <RecursosActualesCard 
+            datos={recursosActuales}
+            onDetalleClick={handleDetalleRecursoClick}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <DatosDespliegueCard 
-            {...datosDespliegue}
-            error={error.despliegues}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <DesplieguesCard 
-            titulo="Despliegues Transitorios"
-            despliegues={desplieguesActuales}
-            loading={loading.despliegues}
-            error={error.despliegues}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <DesplieguesCard 
-            titulo="Despliegues Próximo Día"
-            despliegues={desplieguesProximos}
-            loading={loading.despliegues}
-            error={error.despliegues}
+        <Grid item xs={12} md={8}>
+          <ResultadosOperativosCard 
+            datos={resultadosOperativos}
           />
         </Grid>
       </Grid>
 
       {/* Mapa y Nivel de Patrullaje */}
-      <Grid container spacing={2} sx={{ mb: 2 }}>
+      <Grid container spacing={3} sx={{ mt: 3, mb: 3 }}>
         <Grid item xs={12} md={8}>
           <MapaPatrullaje />
         </Grid>
@@ -284,13 +421,10 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
 
-      {/* Gráfica de Recursos por Hora */}
-      <Grid container spacing={2}>
+      {/* Tabla de Operativos */}
+      <Grid container spacing={3}>
         <Grid item xs={12}>
-          <RecursosHoraChart 
-            data={recursosHora}
-            error={error.recursos}
-          />
+          <TablaOperativosCard datos={operativosActuales} />
         </Grid>
       </Grid>
     </Box>
