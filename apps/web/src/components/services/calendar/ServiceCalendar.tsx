@@ -51,9 +51,36 @@ export const ServiceCalendar = ({
       'JEFE_DIA': '👮 Jefe de Día',
       'LICENCIA': '🌴 Licencia',
       'CURSO': '📚 Curso',
-      '222': '🎯 Control 222'
+      'TRANSITORIO': '🎯 Servicio Transitorio'
     };
     return `${typeLabels[service.type]} - ${service.title}`;
+  };
+
+  const getEventStyle = (service: Service) => {
+    const color = getServiceColor(service);
+    return {
+      backgroundColor: color,
+      color: theme.palette.getContrastText(color),
+      border: service.status === 'approved' 
+        ? `2px solid ${theme.palette.success.main}`
+        : 'none',
+      borderRadius: '4px',
+      padding: '4px 8px',
+      display: 'block',
+      width: '100%',
+      fontSize: '0.75rem',
+      fontWeight: 500,
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      opacity: service.status === 'pending' ? 0.8 : 1,
+      boxShadow: 'none',
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        opacity: 1,
+        transform: 'scale(1.02)'
+      }
+    };
   };
 
   const customButtons = {
@@ -75,10 +102,17 @@ export const ServiceCalendar = ({
     const baseEventProps = {
       id: service.id.toString(),
       title: getEventTitle(service),
-      backgroundColor: getServiceColor(service),
-      borderColor: getServiceColor(service),
-      textColor: theme.palette.getContrastText(getServiceColor(service)),
-      extendedProps: { service }
+      start: service.startDate,
+      end: service.endDate,
+      allDay: true,
+      display: 'block',
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+      textColor: 'inherit',
+      extendedProps: { 
+        service,
+        style: getEventStyle(service)
+      }
     };
 
     // Para servicios de Jefe de día, cada día es un evento independiente
@@ -87,14 +121,12 @@ export const ServiceCalendar = ({
         ...baseEventProps,
         id: `${service.id}-${index}`,
         start: date,
-        end: addDays(date, 1),
-        allDay: true,
-        display: 'block',
+        end: addDays(date, 1)
       }));
     }
     
     // Para Control 222, mostrar como evento puntual
-    if (service.type === '222') {
+    if (service.type === 'TRANSITORIO') {
       return [{
         ...baseEventProps,
         start: service.startDate,
@@ -115,7 +147,7 @@ export const ServiceCalendar = ({
       }];
     }
 
-    return [];
+    return [baseEventProps];
   });
 
   return (
@@ -127,6 +159,11 @@ export const ServiceCalendar = ({
         events={events}
         eventClick={handleEventClick}
         dateClick={handleDateClick}
+        eventContent={(eventInfo) => (
+          <Box sx={eventInfo.event.extendedProps.style}>
+            {eventInfo.event.title}
+          </Box>
+        )}
         headerToolbar={{
           left: 'prev,next today newService',
           center: 'title',

@@ -1,12 +1,4 @@
-import { Assignment, Officer } from '../../types';
-
-export interface AssignmentFormData {
-  officerId: string;
-  startDate: string;
-  endDate: string;
-  type: 'direccionI' | 'direccionII' | 'geo';
-  description?: string;
-}
+import { Assignment, Officer, AssignmentFormData } from '../../types';
 
 export interface AssignmentDialogProps {
   open: boolean;
@@ -31,6 +23,5 @@ export interface AssignmentDayDialogProps {
   onClose: () => void;
   selectedDate: Date;
   assignments: Assignment[];
-  onEdit: (assignment: Assignment) => void;
-  onDelete: (assignmentId: string) => Promise<void>;
+  onAssignmentClick: (assignment: Assignment) => void;
 }

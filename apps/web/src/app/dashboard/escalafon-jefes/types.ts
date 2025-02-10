@@ -1,23 +1,42 @@
 import { SvgIconComponent } from '@mui/icons-material';
 
+export type ChiefRankStatus = 'propuesto' | 'solicitado' | 'pendiente' | 'confirmado' | 'rechazado' | 'completado';
+export type AssignmentType = 'direccionI' | 'direccionII_GEO';
+
 export interface Officer {
-  id: string;
+  id: number;
   nombre: string;
   apellido: string;
   grado: string;
   legajo: string;
-  estado: 'activo' | 'licencia' | 'comision' | 'otros' | 'curso';
+  score: number;
+  lastShift?: Date;
+  shiftsThisMonth: number;
+  complianceHistory: number;
+  estado: 'activo' | 'licencia' | 'curso';
+  requestedDates?: Date[];
+  approvedDates?: Date[];
+  publicEventsCount: number;
+  unidad: AssignmentType;
   ultimaAsignacion?: string;
 }
 
 export interface Assignment {
-  id: string;
-  officerId: string;
-  startDate: string;
-  endDate: string;
-  type: 'direccionI' | 'direccionII' | 'geo';
-  status: 'asignado' | 'pendiente' | 'finalizado';
+  id: number;
+  date: Date;
+  officerId: number;
+  isSpecialService222: boolean;
+  type: AssignmentType;
+  status: ChiefRankStatus;
   description?: string;
+}
+
+export interface AssignmentFormData {
+  officerId: number;
+  type: AssignmentType;
+  date: Date;
+  description?: string;
+  isSpecialService222?: boolean;
 }
 
 export interface AssignmentWithOfficer extends Assignment {
@@ -26,6 +45,21 @@ export interface AssignmentWithOfficer extends Assignment {
 
 export interface DirectionCategory {
   label: string;
-  value: 'direccionI' | 'direccionII' | 'geo';
+  value: AssignmentType;
   icon: SvgIconComponent;
+}
+
+export interface TransitoryService {
+  id: number;
+  title: string;
+  startTime: string;
+  endTime: string;
+  date: Date;
+}
+
+// Tipos para el formulario
+export interface AssignmentFormSchema {
+  officerId: string;
+  type: AssignmentType;
+  description?: string;
 }

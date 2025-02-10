@@ -1,19 +1,13 @@
-export type ServiceType = 'JEFE_DIA' | 'CURSO' | 'LICENCIA' | '222';
-export type ServiceStatus = 'pending' | 'approved' | 'rejected';
+import { ServiceType, ServiceStatus, Service as ServiceInterface } from '@/types/service';
+
+export type { ServiceType, ServiceStatus };
 export type LicenseType = 'ANUAL' | 'MEDICA' | 'OTRA';
 
-export interface Service {
-  id: number;
-  type: ServiceType;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
+export interface Service extends ServiceInterface {
   location?: string;
   assignedBy?: string;
   rejectionReason?: string;
   notificationSent?: boolean;
-  status?: ServiceStatus;
   isAssigned?: boolean;
   selectedDates?: Date[];
   licenseType?: LicenseType;
@@ -54,7 +48,7 @@ export const createService = (
 // Colores para los tipos de servicio
 export const getServiceColor = (service: Service): string => {
   switch (service.type) {
-    case '222':
+    case 'TRANSITORIO':
       return '#4CAF50';
     case 'JEFE_DIA':
       return '#2196F3';

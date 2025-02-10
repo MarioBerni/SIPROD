@@ -22,11 +22,10 @@ export function OfficerStatusAlerts({ officers }: OfficerStatusAlertsProps) {
     switch (estado) {
       case 'licencia':
         return 'error';
-      case 'comision':
-        return 'info';
-      case 'otros':
-      default:
+      case 'curso':
         return 'warning';
+      default:
+        return 'info';
     }
   };
 

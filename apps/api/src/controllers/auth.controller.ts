@@ -220,4 +220,23 @@ export class AuthController {
       }
     }
   }
+
+  async logout(req: Request, res: Response): Promise<void> {
+    try {
+      // Limpiar la cookie httpOnly
+      res.cookie('token', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        expires: new Date(0), // Fecha en el pasado para expirar inmediatamente
+        path: '/'
+      });
+
+      logger.info('Usuario deslogueado exitosamente');
+      res.status(200).json({ message: 'Logout exitoso' });
+    } catch (error) {
+      logger.error('Error en logout:', error);
+      throw new ApiError(500, 'Error al cerrar sesión');
+    }
+  }
 }

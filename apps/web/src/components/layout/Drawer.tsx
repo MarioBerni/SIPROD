@@ -4,7 +4,6 @@ import { Box, Collapse, Drawer as MuiDrawer, IconButton, List, ListItemButton, L
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import DirectionsIcon from '@mui/icons-material/Directions';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PersonIcon from '@mui/icons-material/Person';
@@ -67,11 +66,11 @@ const menuItems: MenuItem[] = [
     icon: <PictureAsPdfIcon />,
     path: '/dashboard/despliegues-pdf',
   },
-  {
-    text: 'Dirección',
-    icon: <DirectionsIcon />,
-    path: '/dashboard/direccion-1',
-  },
+  // {
+  //   text: 'Dirección',
+  //   icon: <DirectionsIcon />,
+  //   path: '/dashboard/direccion-1',
+  // },
   {
     text: 'Escalafón Jefes',
     icon: <GroupsIcon />,

@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { authApi, User } from '@/lib/api';
 import { getCookie, setCookie, clearAuthCookies, COOKIE_NAMES } from '@/lib/cookies';
 import { DEV_CONFIG } from '@/config/development';
@@ -29,7 +28,6 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -49,11 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!token) {
         setUser(null);
         setIsLoading(false);
-        // Solo redirigir a la raíz si estamos en una ruta protegida
-        if (window.location.pathname.startsWith('/dashboard') || 
-            window.location.pathname.startsWith('/profile')) {
-          router.push('/');
-        }
         return;
       }
 
@@ -68,33 +61,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
           secure: process.env.NODE_ENV === 'production'
         });
-        
-        // Si estamos en la página de login y el token es válido, redirigir al dashboard
-        if (window.location.pathname === '/') {
-          router.push('/dashboard');
-        }
       } else {
         clearAuthCookies();
         setUser(null);
-        // Solo redirigir a la raíz si estamos en una ruta protegida
-        if (window.location.pathname.startsWith('/dashboard') || 
-            window.location.pathname.startsWith('/profile')) {
-          router.push('/');
+        if (window.location.pathname !== '/') {
+          window.location.href = '/';
         }
       }
     } catch (error) {
       console.error('Error checking auth:', error);
       setUser(null);
       clearAuthCookies();
-      // Solo redirigir a la raíz si estamos en una ruta protegida
-      if (window.location.pathname.startsWith('/dashboard') || 
-          window.location.pathname.startsWith('/profile')) {
-        router.push('/');
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
       }
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     checkAuth();
@@ -114,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       setUser(user);
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -123,21 +107,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       setIsLoading(true);
+      // Primero llamamos al endpoint de logout para limpiar la cookie httpOnly
       await authApi.logout();
+      
+      // Luego limpiamos las cookies del cliente
       clearAuthCookies();
+      
+      // Limpiamos el estado
       setUser(null);
-      // Asegurarnos de que la redirección sea a la raíz y forzar un refresh de la página
+      
+      // Usamos window.location.href para la navegación durante el logout
+      // Esto evita problemas con los hooks de React
       window.location.href = '/';
     } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
+      console.error('Error during logout:', error);
+      // Aún si hay error, intentamos limpiar las cookies del cliente
+      clearAuthCookies();
+      setUser(null);
+      window.location.href = '/';
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   return (
     <AuthContext.Provider 
