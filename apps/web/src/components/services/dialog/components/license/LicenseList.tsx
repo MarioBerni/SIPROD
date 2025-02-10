@@ -5,7 +5,7 @@ import { List, Box, IconButton } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { LicenseItem } from './LicenseItem';
-import { DateInputs } from './DateInputs';
+import { DateInputs } from '../common/DateInputs';
 import { AddLicenseButton } from './AddLicenseButton';
 import { License } from '../types';
 
@@ -68,7 +68,7 @@ export const LicenseList: FC<LicenseListProps> = ({
           <DateInputs
             startDate={newLicense.startDate || ''}
             endDate={newLicense.endDate || ''}
-            onChange={(field, value) =>
+            onChange={(field: string, value: string | Date) =>
               setNewLicense({ ...newLicense, [field]: value })
             }
             actions={
