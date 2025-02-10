@@ -78,7 +78,7 @@ export interface CalendarStyles {
       border: string;
       cursor: Property.Cursor;
       transition: string;
-      minHeight: Property.MinHeight;
+      minHeight: string;
       '&:hover': {
         transform: string;
         filter: string;
@@ -86,9 +86,9 @@ export interface CalendarStyles {
       '.fc-event-title': {
         padding: string;
         fontWeight: Property.FontWeight;
-        fontSize: Property.FontSize;
+        fontSize: string;
         whiteSpace: Property.WhiteSpace;
-        overflow: Property.Overflow;
+        overflow: string;
         textOverflow: Property.TextOverflow;
       };
     };
@@ -124,6 +124,35 @@ export interface CalendarStyles {
     };
     '.fc-day-disabled': {
       backgroundColor: string;
+    };
+    '.fc-daygrid-event-harness': {
+      '.fc-event': {
+        borderRadius: string;
+        padding: string;
+        margin: string;
+        border: string;
+        backgroundColor: string;
+        cursor: Property.Cursor;
+        transition: string;
+        minHeight: string;
+        '&:hover': {
+          transform: string;
+          filter: string;
+        };
+        '.fc-event-title': {
+          padding: string;
+          fontWeight: Property.FontWeight;
+          fontSize: string;
+          whiteSpace: Property.WhiteSpace;
+          overflow: string;
+          textOverflow: Property.TextOverflow;
+          backgroundColor: string;
+        };
+        '.fc-event-main': {
+          backgroundColor: string;
+          padding: string;
+        };
+      };
     };
   };
 }

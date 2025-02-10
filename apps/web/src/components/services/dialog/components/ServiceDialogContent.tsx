@@ -44,8 +44,8 @@ export const ServiceDialogContent = ({
       status: 'pending' as ServiceStatus,
       title: formData.title || '',
       description: formData.description || '',
-      startDate: formData.startDate || new Date(),
-      endDate: formData.endDate || new Date()
+      startDate: selectedTab === 'JEFE_DIA' ? selectedDates[0] : formData.startDate || new Date(),
+      endDate: selectedTab === 'JEFE_DIA' ? selectedDates[selectedDates.length - 1] : formData.endDate || new Date()
     };
 
     onSave(serviceData);

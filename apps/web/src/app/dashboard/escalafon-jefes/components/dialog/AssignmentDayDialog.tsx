@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,27 +13,18 @@ import {
   Select,
   MenuItem,
   Grid,
-  Box,
   Typography,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  alpha,
 } from '@mui/material';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Add as AddIcon } from '@mui/icons-material';
-import { AssignmentFormData } from './types';
-import { Officer } from '../../types';
+import { AssignmentFormSchema, Officer } from '../../types';
+import { useAssignmentForm } from './hooks/useAssignmentForm';
 
 interface AssignmentDayDialogProps {
   open: boolean;
   onClose: () => void;
   selectedDate: Date;
-  onCreateAssignment: (data: AssignmentFormData) => void;
+  onCreateAssignment: (data: AssignmentFormSchema) => void;
   officers: Officer[];
 }
 
@@ -44,130 +35,95 @@ export const AssignmentDayDialog: FC<AssignmentDayDialogProps> = ({
   onCreateAssignment,
   officers,
 }) => {
-  const [formData, setFormData] = useState<AssignmentFormData>({
-    officerId: '',
-    startDate: format(selectedDate, 'yyyy-MM-dd'),
-    endDate: format(selectedDate, 'yyyy-MM-dd'),
+  const form = useAssignmentForm({
     type: 'direccionI',
-    description: '',
   });
 
-  const handleSubmit = () => {
-    onCreateAssignment(formData);
+  const handleSubmit = (data: AssignmentFormSchema) => {
+    onCreateAssignment(data);
+    onClose();
   };
-
-  const handleTypeChange = (value: string) => {
-    if (value === 'direccionI' || value === 'direccionII' || value === 'geo') {
-      setFormData({ ...formData, type: value });
-    }
-  };
-
-  const availableOfficers = officers.filter(officer => officer.estado === 'activo');
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="md" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
           borderRadius: 2,
-          boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.primary.dark, 0.12)}`,
-        }
+        },
       }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          Nueva Asignación - {format(selectedDate, 'EEEE d \'de\' MMMM', { locale: es })}
+      <DialogTitle>
+        <Typography variant="h6" component="div">
+          Nueva Asignación
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary">
+          {format(selectedDate, "EEEE d 'de' MMMM, yyyy", { locale: es })}
         </Typography>
       </DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
-        <Grid container spacing={3}>
-          {/* Formulario de Asignación */}
-          <Grid item xs={12} md={7}>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                Detalles de la Asignación
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <InputLabel>Tipo de Servicio</InputLabel>
-                    <Select
-                      value={formData.type}
-                      label="Tipo de Servicio"
-                      onChange={(e) => handleTypeChange(e.target.value)}
-                    >
-                      <MenuItem value="direccionI">Dirección I</MenuItem>
-                      <MenuItem value="direccionII">Dirección II</MenuItem>
-                      <MenuItem value="geo">GEO</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label="Descripción"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-          </Grid>
 
-          {/* Lista de Oficiales Disponibles */}
-          <Grid item xs={12} md={5}>
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                Oficiales Disponibles ({availableOfficers.length})
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <List sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {availableOfficers.map((officer) => (
-                  <ListItem
-                    key={officer.id}
-                    sx={{
-                      borderRadius: 1,
-                      mb: 1,
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={officer.nombre}
-                      secondary={`ID: ${officer.id}`}
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton
-                        edge="end"
-                        onClick={() => setFormData({ ...formData, officerId: officer.id })}
-                        color={formData.officerId === officer.id ? 'primary' : 'default'}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <DialogContent dividers>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Tipo de Asignación</InputLabel>
+                <Select
+                  {...form.register('type')}
+                  label="Tipo de Asignación"
+                  error={!!form.formState.errors.type}
+                >
+                  <MenuItem value="direccionI">Jefe de Día</MenuItem>
+                  <MenuItem value="direccionII_GEO">Servicio 222</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Oficial</InputLabel>
+                <Select
+                  {...form.register('officerId')}
+                  label="Oficial"
+                  error={!!form.formState.errors.officerId}
+                >
+                  {officers
+                    .filter((officer) => officer.estado === 'activo')
+                    .map((officer) => (
+                      <MenuItem key={officer.id} value={officer.id.toString()}>
+                        {officer.grado} {officer.apellido} ({officer.legajo})
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                {...form.register('description')}
+                label="Descripción"
+                multiline
+                rows={3}
+                fullWidth
+                error={!!form.formState.errors.description}
+                helperText={form.formState.errors.description?.message}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button 
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!formData.officerId}
-        >
-          Crear Asignación
-        </Button>
-      </DialogActions>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={onClose} color="inherit">
+            Cancelar
+          </Button>
+          <Button type="submit" variant="contained">
+            Crear Asignación
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

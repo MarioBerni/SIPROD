@@ -1,25 +1,23 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AssignmentFormData } from '../types';
+import { AssignmentFormSchema } from '../../../types';
 
 const assignmentSchema = z.object({
   officerId: z.string().min(1, 'Seleccione un oficial'),
-  startDate: z.string().min(1, 'Seleccione una fecha de inicio'),
-  endDate: z.string().min(1, 'Seleccione una fecha de finalización'),
-  type: z.enum(['direccionI', 'direccionII', 'geo'], {
+  type: z.enum(['direccionI', 'direccionII_GEO'] as const, {
     required_error: 'Seleccione un tipo de asignación',
   }),
   description: z.string().optional(),
 });
 
-export function useAssignmentForm(defaultValues?: Partial<AssignmentFormData>) {
-  const form = useForm<AssignmentFormData>({
+export type AssignmentFormValues = z.infer<typeof assignmentSchema>;
+
+export function useAssignmentForm(defaultValues?: Partial<AssignmentFormSchema>) {
+  const form = useForm<AssignmentFormSchema>({
     resolver: zodResolver(assignmentSchema),
     defaultValues: {
       officerId: '',
-      startDate: '',
-      endDate: '',
       type: 'direccionI',
       description: '',
       ...defaultValues,

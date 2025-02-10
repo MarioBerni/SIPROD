@@ -203,13 +203,8 @@ export const authApi = {
     }
   },
   
-  async logout() {
-    try {
-      await this.instance.post('/auth/logout');
-      removeCookie('token');
-    } catch (error) {
-      handleApiError(error);
-    }
+  logout: async (): Promise<void> => {
+    await api.post('/auth/logout');
   },
   
   async validateToken() {

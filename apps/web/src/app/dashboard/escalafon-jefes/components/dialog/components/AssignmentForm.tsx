@@ -16,22 +16,12 @@ import {
 import {
   LocalPolice as JefeDiaIcon,
   Security as Control222Icon,
-  DirectionsRun as OpEspecialesIcon,
 } from '@mui/icons-material';
-import { Officer, Assignment } from '../../../types';
-import { AssignmentFormData } from '../types';
-import { format } from 'date-fns';
-
-interface AssignmentFormProps {
-  selectedDate: Date;
-  onSubmit: (data: AssignmentFormData) => void;
-  onCancel: () => void;
-  officers: Officer[];
-  initialData?: Assignment;
-}
+import { AssignmentType, AssignmentFormData } from '../../../types';
+import { AssignmentFormProps } from '../types';
 
 type AssignmentTypeInfo = {
-  value: AssignmentFormData['type'];
+  value: AssignmentType;
   label: string;
   icon: typeof JefeDiaIcon;
   color: 'primary' | 'success' | 'warning';
@@ -45,17 +35,11 @@ const assignmentTypes: AssignmentTypeInfo[] = [
     color: 'primary',
   },
   { 
-    value: 'direccionII', 
+    value: 'direccionII_GEO', 
     label: 'Servicio 222',
     icon: Control222Icon,
     color: 'success',
-  },
-  { 
-    value: 'geo', 
-    label: 'Operativo Especial',
-    icon: OpEspecialesIcon,
-    color: 'warning',
-  },
+  }
 ];
 
 export function AssignmentForm({
@@ -65,11 +49,15 @@ export function AssignmentForm({
   officers,
   initialData,
 }: AssignmentFormProps) {
-  const [selectedType, setSelectedType] = useState<AssignmentFormData['type']>(
-    (initialData?.type as AssignmentFormData['type']) || 'direccionI'
+  const [selectedType, setSelectedType] = useState<AssignmentType>(
+    initialData?.type || 'direccionI'
   );
-  const [selectedOfficerId, setSelectedOfficerId] = useState(initialData?.officerId || '');
-  const [description, setDescription] = useState(initialData?.description ?? '');
+  const [selectedOfficerId, setSelectedOfficerId] = useState<number | null>(
+    initialData?.officerId || null
+  );
+  const [description, setDescription] = useState<string>(
+    initialData?.description || ''
+  );
 
   const availableOfficers = officers.filter(
     (officer) => officer.estado === 'activo'
@@ -79,78 +67,94 @@ export function AssignmentForm({
     e.preventDefault();
     if (!selectedType || !selectedOfficerId) return;
 
-    onSubmit({
+    const formData: AssignmentFormData = {
       type: selectedType,
       officerId: selectedOfficerId,
+      date: selectedDate,
       description: description.trim(),
-      startDate: format(selectedDate, 'yyyy-MM-dd'),
-      endDate: format(selectedDate, 'yyyy-MM-dd'),
-    });
+      isSpecialService222: selectedType === 'direccionII_GEO'
+    };
+
+    onSubmit(formData);
   };
 
   const selectedTypeInfo = assignmentTypes.find(type => type.value === selectedType);
 
   return (
-    <Box component="form" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <Stack spacing={3}>
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <InputLabel>Tipo de Asignación</InputLabel>
           <Select
             value={selectedType}
             label="Tipo de Asignación"
-            onChange={(e) => setSelectedType(e.target.value as AssignmentFormData['type'])}
+            onChange={(e) => setSelectedType(e.target.value as AssignmentType)}
             required
-            sx={{
-              '& .MuiSelect-select': {
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              },
-            }}
           >
-            {assignmentTypes.map((type) => {
-              const Icon = type.icon;
-              return (
-                <MenuItem 
-                  key={type.value} 
-                  value={type.value}
+            {assignmentTypes.map((type) => (
+              <MenuItem
+                key={type.value}
+                value={type.value}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    borderRadius: 1,
+                    bgcolor: theme => alpha(theme.palette[type.color].main, 0.12),
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: theme => alpha(theme.palette[type.color].main, 0.12),
-                    }}
-                  >
-                    <Icon sx={{ fontSize: 18, color: `${type.color}.main` }} />
-                  </Box>
-                  {type.label}
-                </MenuItem>
-              );
-            })}
+                  <type.icon sx={{ fontSize: 20, color: `${type.color}.main` }} />
+                </Box>
+                {type.label}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <InputLabel>Oficial Asignado</InputLabel>
           <Select
-            value={selectedOfficerId}
+            value={selectedOfficerId || ''}
             label="Oficial Asignado"
-            onChange={(e) => setSelectedOfficerId(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedOfficerId(value === '' ? null : Number(value));
+            }}
             required
           >
             {availableOfficers.map((officer) => (
-              <MenuItem key={officer.id} value={officer.id}>
-                {`${officer.grado} ${officer.apellido}, ${officer.nombre}`}
+              <MenuItem
+                key={officer.id}
+                value={officer.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
+                  <Typography variant="body1">
+                    {officer.grado} {officer.apellido}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    ({officer.legajo})
+                  </Typography>
+                </Box>
               </MenuItem>
             ))}
           </Select>
@@ -166,16 +170,7 @@ export function AssignmentForm({
         />
 
         {selectedTypeInfo && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              p: 2,
-              borderRadius: 1,
-              bgcolor: theme => alpha(theme.palette[selectedTypeInfo.color].main, 0.08),
-            }}
-          >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box
               sx={{
                 display: 'flex',
@@ -193,7 +188,7 @@ export function AssignmentForm({
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
                 {selectedTypeInfo.label}
               </Typography>
-              {selectedOfficerId && (
+              {selectedOfficerId !== null && (
                 <Typography variant="body2" color="text.secondary">
                   {availableOfficers.find(o => o.id === selectedOfficerId)?.grado} {availableOfficers.find(o => o.id === selectedOfficerId)?.apellido}
                 </Typography>
@@ -202,15 +197,15 @@ export function AssignmentForm({
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button onClick={onCancel} variant="outlined" color="inherit">
             Cancelar
           </Button>
           <Button type="submit" variant="contained">
-            {initialData ? 'Guardar Cambios' : 'Crear Asignación'}
+            {initialData ? 'Actualizar' : 'Crear'} Asignación
           </Button>
-        </Box>
+        </Stack>
       </Stack>
-    </Box>
+    </form>
   );
 }

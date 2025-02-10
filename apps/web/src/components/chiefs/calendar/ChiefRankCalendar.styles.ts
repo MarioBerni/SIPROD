@@ -1,6 +1,5 @@
 import { Theme } from '@mui/material/styles';
-import { CalendarStyles } from './ServiceCalendar.types';
-import type * as CSS from 'csstype';
+import { CalendarStyles } from '@/components/services/calendar/ServiceCalendar.types';
 
 export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
   '.fc': {
@@ -13,10 +12,32 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
     whiteSpace: 'normal',
     textOverflow: 'clip',
 
+    '.fc-event': {
+      borderRadius: '4px',
+      padding: '4px 8px',
+      margin: '2px 0',
+      border: 'none',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      minHeight: '24px',
+      '&:hover': {
+        transform: 'scale(1.02)',
+        filter: 'brightness(1.1)'
+      },
+      '.fc-event-title': {
+        padding: '2px 4px',
+        fontWeight: 500,
+        fontSize: '0.75rem',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    },
+
     // Cabecera del calendario
     '.fc-toolbar': {
       padding: theme.spacing(2),
-      marginBottom: '0 !important',
+      marginBottom: '0',
       background: theme.palette.primary.main,
       color: theme.palette.primary.contrastText,
       
@@ -35,7 +56,7 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
         padding: '6px 16px',
 
         '&:hover': {
-          backgroundColor: `${theme.palette.primary.dark} !important`,
+          backgroundColor: theme.palette.primary.dark,
           borderColor: theme.palette.primary.contrastText
         },
 
@@ -45,7 +66,7 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
       },
 
       '.fc-button-active': {
-        backgroundColor: `${theme.palette.primary.dark} !important`,
+        backgroundColor: theme.palette.primary.dark,
         borderColor: theme.palette.primary.contrastText
       }
     },
@@ -79,7 +100,7 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
         }
       },
       '&.fc-day-today': {
-        backgroundColor: `${theme.palette.primary.light}15 !important`,
+        backgroundColor: `${theme.palette.primary.light}15`,
         '.fc-daygrid-day-number': {
           color: theme.palette.primary.main,
           fontWeight: 600
@@ -87,26 +108,63 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
       }
     },
 
-    '.fc-event': {
-      borderRadius: '4px',
-      padding: '2px 4px',
-      margin: '2px 0',
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      minHeight: '24px',
-      '&:hover': {
-        transform: 'translateY(-1px)',
-        filter: 'brightness(0.95)'
-      },
-      '.fc-event-title': {
+    '.fc-daygrid-event-harness': {
+      '.fc-event': {
+        borderRadius: '4px',
         padding: '2px 4px',
-        fontWeight: 500,
-        fontSize: '0.875rem',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        margin: '2px 0',
+        border: 'none',
+        backgroundColor: 'transparent',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        minHeight: '24px',
+
+        '&:hover': {
+          transform: 'translateY(-1px)',
+          filter: 'brightness(0.95)'
+        },
+
+        '.fc-event-title': {
+          padding: '2px 4px',
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          backgroundColor: 'transparent'
+        },
+
+        '.fc-event-main': {
+          backgroundColor: 'transparent',
+          padding: '0'
+        }
       }
+    },
+
+    '.fc-daygrid-more-link': {
+      color: theme.palette.primary.main,
+      backgroundColor: 'transparent',
+      padding: '2px 4px',
+      borderRadius: '4px',
+      margin: '0',
+      fontWeight: 500,
+      '&:hover': {
+        backgroundColor: `${theme.palette.primary.main}15`,
+        textDecoration: 'none'
+      }
+    },
+
+    '.fc-view': {
+      borderRadius: '0 0 16px 16px',
+      overflow: 'hidden'
+    },
+
+    '.fc-scrollgrid': {
+      borderColor: theme.palette.divider
+    },
+
+    '.fc-day-disabled': {
+      backgroundColor: theme.palette.action.disabledBackground
     },
 
     '.fc-event-main-frame': {
@@ -120,66 +178,6 @@ export const getCalendarStyles = (theme: Theme): CalendarStyles => ({
       '.fc-event-time': {
         display: 'none'
       }
-    },
-
-    '.fc-daygrid-event-harness': {
-      '.fc-event': {
-        borderRadius: '4px',
-        padding: '4px 8px',
-        margin: '2px 0',
-        border: `1px solid ${theme.palette.divider}`,
-        backgroundColor: theme.palette.background.paper,
-        cursor: 'pointer' as CSS.Property.Cursor,
-        transition: 'all 0.2s ease-in-out',
-        minHeight: '24px',
-        '&:hover': {
-          transform: 'translateY(-1px)',
-          filter: 'brightness(0.95)'
-        },
-        '.fc-event-title': {
-          padding: '2px 4px',
-          fontWeight: 500 as CSS.Property.FontWeight,
-          fontSize: '0.875rem',
-          whiteSpace: 'nowrap' as CSS.Property.WhiteSpace,
-          overflow: 'hidden' as CSS.Property.Overflow,
-          textOverflow: 'ellipsis' as CSS.Property.TextOverflow,
-          backgroundColor: 'transparent'
-        },
-        '.fc-event-main': {
-          backgroundColor: 'transparent',
-          padding: '2px'
-        }
-      }
-    },
-
-    // Enlace "más eventos"
-    '.fc-daygrid-more-link': {
-      color: theme.palette.primary.main,
-      backgroundColor: `${theme.palette.primary.main}15`,
-      padding: '2px 8px',
-      margin: '4px 0',
-      borderRadius: '12px',
-      fontWeight: 500,
-      '&:hover': {
-        backgroundColor: `${theme.palette.primary.main}25`,
-        textDecoration: 'underline'
-      }
-    },
-
-    // Vista del calendario
-    '.fc-view': {
-      borderRadius: '0 0 16px 16px',
-      overflow: 'hidden'
-    },
-
-    // Grid del calendario
-    '.fc-scrollgrid': {
-      borderColor: theme.palette.divider
-    },
-
-    // Días deshabilitados
-    '.fc-day-disabled': {
-      backgroundColor: theme.palette.action.disabledBackground
     }
   }
 });

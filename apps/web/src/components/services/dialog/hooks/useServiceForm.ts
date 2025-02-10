@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Service, ServiceType } from '@/data/__mocks__/servicesMock';
+import { Service, ServiceType } from '@/types/service';
 
 export interface ServiceFormData {
   type: ServiceType;
@@ -34,7 +34,7 @@ export const useServiceForm = ({ service, onSave, onClose }: UseServiceFormProps
       return {
         type: service.type,
         title: service.title,
-        description: service.description,
+        description: service.description || '',
         startDate: service.startDate,
         endDate: service.endDate,
         selectedDates: service.selectedDates || []
@@ -114,7 +114,8 @@ export const useServiceForm = ({ service, onSave, onClose }: UseServiceFormProps
         description: formData.description,
         startDate: formData.startDate || new Date(),
         endDate: formData.endDate || new Date(),
-        selectedDates: formData.selectedDates || []
+        selectedDates: formData.selectedDates || [],
+        status: 'pending'
       };
 
       onSave(serviceData);
