@@ -1,150 +1,296 @@
 'use client';
 
-import { Box, Grid, Typography, alpha } from '@mui/material';
-import { DashboardOutlined as DashboardIcon } from '@mui/icons-material';
-import { StatCard } from '@/components/dashboard/StatCard';
-import { WeeklyChart } from '@/components/dashboard/WeeklyChart';
-import { ProgressSection } from '@/components/dashboard/ProgressSection';
+import { Box, Grid } from '@mui/material';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { JefeDiaCard } from '@/components/dashboard/JefeDiaCard';
+import { DatosDespliegueCard } from '@/components/dashboard/DatosDespliegueCard';
+import { DesplieguesCard } from '@/components/dashboard/DesplieguesCard';
+import { NivelPatrullajeCard } from '@/components/dashboard/NivelPatrullajeCard';
+import { RecursosHoraChart } from '@/components/dashboard/RecursosHoraChart';
+import { MapaPatrullaje } from '@/components/dashboard/MapaPatrullaje';
+import { useEffect, useState } from 'react';
 
-const weeklyData = [
-  { day: 'Lun', percentage: 65 },
-  { day: 'Mar', percentage: 75 },
-  { day: 'Mie', percentage: 85 },
-  { day: 'Jue', percentage: 70 },
-  { day: 'Vie', percentage: 90 },
-  { day: 'Sab', percentage: 80 },
-  { day: 'Dom', percentage: 95 },
-];
+// Tipos de datos
+interface JefeInfo {
+  nombre: string;
+  grado: string;
+}
 
-const progressData = [
-  { label: 'Despliegues Completados', value: 85 },
-  { label: 'Pruebas Exitosas', value: 92 },
-  { label: 'Cobertura de Código', value: 78 },
-];
+interface BarrioInfo {
+  nombre: string;
+  porcentaje: number;
+}
+
+interface RecursoData {
+  hora: string;
+  moviles: number;
+  motos: number;
+  hipo: number;
+  efectivos: number;
+}
+
+interface DespliegueInfo {
+  id: string;
+  titulo: string;
+  estado: 'activo' | 'pendiente' | 'completado';
+  tipo: string;
+  hora: string;
+  ubicacion: string;
+  recursos: {
+    moviles: number;
+    motos: number;
+    hipo?: number;
+    efectivos: number;
+  }
+}
 
 export default function DashboardPage() {
-  const stats = [
-    {
-      title: 'Despliegues Totales',
-      value: '2,845',
-      icon: '📦',
-      trend: '+12.5%',
-      trendLabel: 'vs último mes',
-    },
-    {
-      title: 'Tiempo Promedio',
-      value: '1.2h',
-      icon: '⏱️',
-      trend: '-8.4%',
-      trendLabel: 'vs último mes',
-    },
-    {
-      title: 'Tasa de Éxito',
-      value: '98.2%',
-      icon: '✅',
-      trend: '+3.2%',
-      trendLabel: 'vs último mes',
-    },
-    {
-      title: 'Recursos Activos',
-      value: '156',
-      icon: '🔧',
-      trend: '+5.3%',
-      trendLabel: 'vs último mes',
-    },
-  ];
+  // Estados para los datos de cada componente
+  const [jefesActuales, setJefesActuales] = useState<{ jefeDir1?: JefeInfo; jefeDir2?: JefeInfo }>({});
+  const [jefesMañana, setJefesMañana] = useState<{ principal?: JefeInfo; secundario?: JefeInfo }>({});
+  const [datosDespliegue, setDatosDespliegue] = useState({
+    moviles: 0,
+    motos: 0,
+    hipo: 0,
+    efectivos: 0
+  });
+  const [nivelPatrullaje, setNivelPatrullaje] = useState<BarrioInfo[]>([]);
+  const [recursosHora, setRecursosHora] = useState<RecursoData[]>([]);
+  const [desplieguesActuales, setDesplieguesActuales] = useState<DespliegueInfo[]>([]);
+  const [desplieguesProximos, setDesplieguesProximos] = useState<DespliegueInfo[]>([]);
+  
+  // Estados de carga y error
+  const [loading, setLoading] = useState({
+    jefes: true,
+    patrullaje: true,
+    recursos: true,
+    despliegues: true,
+  });
+  const [error, setError] = useState({
+    jefes: '',
+    patrullaje: '',
+    recursos: '',
+    despliegues: '',
+  });
+
+  // Efecto para cargar los datos
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Simular tiempo de carga
+        setTimeout(() => {
+          // Datos de ejemplo
+          setJefesActuales({
+            jefeDir1: { nombre: 'Juan Pérez', grado: 'Comisario' },
+            jefeDir2: { nombre: 'María González', grado: 'Subcomisario' },
+          });
+          
+          setJefesMañana({
+            principal: { nombre: 'Carlos Rodríguez', grado: 'Comisario' },
+            secundario: { nombre: 'Ana Martínez', grado: 'Subcomisario' },
+          });
+
+          setDatosDespliegue({
+            moviles: 25,
+            motos: 15,
+            hipo: 5,
+            efectivos: 120
+          });
+          
+          setNivelPatrullaje([
+            { nombre: 'Cerro', porcentaje: 15 },
+            { nombre: 'Villa Española', porcentaje: 12 },
+            { nombre: 'Pérez Castellanos', porcentaje: 10 },
+            { nombre: 'Centro', porcentaje: 18 },
+            { nombre: 'Pocitos', porcentaje: 15 },
+            { nombre: 'Prado', porcentaje: 10 },
+            { nombre: 'Tres Cruces', porcentaje: 12 },
+            { nombre: 'Parque Batlle', porcentaje: 8 }
+          ]);
+          
+          // Generar datos de recursos por hora
+          const horasData = Array.from({ length: 24 }, (_, i) => ({
+            hora: `${i.toString().padStart(2, '0')}:00`,
+            moviles: Math.floor(Math.random() * 20) + 10,
+            motos: Math.floor(Math.random() * 15) + 5,
+            hipo: Math.floor(Math.random() * 5) + 1,
+            efectivos: Math.floor(Math.random() * 50) + 30,
+          }));
+          setRecursosHora(horasData);
+          
+          setDesplieguesActuales([
+            { 
+              id: '1', 
+              titulo: 'Operativo Comercial Centro', 
+              estado: 'activo', 
+              tipo: 'Patrullaje', 
+              hora: '14:30',
+              ubicacion: 'Centro',
+              recursos: {
+                moviles: 3,
+                motos: 2,
+                efectivos: 12
+              }
+            },
+            { 
+              id: '2', 
+              titulo: 'Control Vehicular', 
+              estado: 'pendiente', 
+              tipo: 'Control', 
+              hora: '15:00',
+              ubicacion: 'Av. Italia',
+              recursos: {
+                moviles: 2,
+                motos: 4,
+                efectivos: 8
+              }
+            },
+            { 
+              id: '3', 
+              titulo: 'Vigilancia Preventiva', 
+              estado: 'activo', 
+              tipo: 'Patrullaje', 
+              hora: '14:00',
+              ubicacion: 'Parque Batlle',
+              recursos: {
+                moviles: 2,
+                motos: 2,
+                hipo: 2,
+                efectivos: 10
+              }
+            }
+          ]);
+          
+          setDesplieguesProximos([
+            { 
+              id: '4', 
+              titulo: 'Operativo Nocturno', 
+              estado: 'pendiente', 
+              tipo: 'Patrullaje', 
+              hora: '20:00',
+              ubicacion: 'Pocitos',
+              recursos: {
+                moviles: 4,
+                motos: 6,
+                efectivos: 15
+              }
+            },
+            { 
+              id: '5', 
+              titulo: 'Control de Accesos', 
+              estado: 'pendiente', 
+              tipo: 'Control', 
+              hora: '18:30',
+              ubicacion: 'Terminal Tres Cruces',
+              recursos: {
+                moviles: 2,
+                motos: 2,
+                efectivos: 8
+              }
+            },
+            { 
+              id: '6', 
+              titulo: 'Vigilancia Especial', 
+              estado: 'pendiente', 
+              tipo: 'Patrullaje', 
+              hora: '19:00',
+              ubicacion: 'Prado',
+              recursos: {
+                moviles: 3,
+                motos: 4,
+                hipo: 2,
+                efectivos: 12
+              }
+            }
+          ]);
+
+          setLoading({
+            jefes: false,
+            patrullaje: false,
+            recursos: false,
+            despliegues: false,
+          });
+        }, 1000);
+      } catch (err) {
+        setError({
+          jefes: 'Error al cargar datos',
+          patrullaje: 'Error al cargar datos',
+          recursos: 'Error al cargar datos',
+          despliegues: 'Error al cargar datos',
+        });
+        setLoading({
+          jefes: false,
+          patrullaje: false,
+          recursos: false,
+          despliegues: false,
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-      {/* Encabezado del Dashboard */}
-      <Box
-        sx={{
-          width: '100%',
-          p: 2.5,
-          mb: 3,
-          borderRadius: 2,
-          bgcolor: 'background.paper',
-          boxShadow: 1,
-          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: `0 4px 20px ${alpha('#1565C0', 0.15)}`,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 48,
-              height: 48,
-              borderRadius: 1.5,
-              bgcolor: alpha('#1565C0', 0.12),
-              color: '#1565C0',
-            }}
-          >
-            <DashboardIcon sx={{ fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 600,
-                mb: 0.5,
-                color: 'text.primary',
-              }}
-            >
-              Panel de Control
-            </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{
-                color: 'text.secondary',
-                fontWeight: 500,
-              }}
-            >
-              Gestión y monitoreo de despliegues
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Contenido principal */}
-      <Grid 
-        container 
-        spacing={3} 
-        sx={{ 
-          width: '100%',
-          m: 0,
-          '& > .MuiGrid-item': {
-            paddingRight: '24px',
-            paddingLeft: '24px',
-          }
-        }}
-      >
-        {/* Tarjetas de estadísticas */}
-        {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
-
-        {/* Gráfico semanal */}
-        <Grid item xs={12} md={8}>
-          <WeeklyChart data={weeklyData} />
+    <Box sx={{ p: 2 }}>
+      <DashboardHeader />
+      
+      {/* Cards superiores */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <JefeDiaCard 
+            jefeDir1={jefesActuales.jefeDir1}
+            jefeDir2={jefesActuales.jefeDir2}
+            jefeMañanaPrincipal={jefesMañana.principal}
+            jefeMañanaSecundario={jefesMañana.secundario}
+            loading={loading.jefes} 
+            error={error.jefes}
+          />
         </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <DatosDespliegueCard 
+            {...datosDespliegue}
+            error={error.despliegues}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <DesplieguesCard 
+            titulo="Despliegues Transitorios"
+            despliegues={desplieguesActuales}
+            loading={loading.despliegues}
+            error={error.despliegues}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <DesplieguesCard 
+            titulo="Despliegues Próximo Día"
+            despliegues={desplieguesProximos}
+            loading={loading.despliegues}
+            error={error.despliegues}
+          />
+        </Grid>
+      </Grid>
 
-        {/* Sección de progreso */}
+      {/* Mapa y Nivel de Patrullaje */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} md={8}>
+          <MapaPatrullaje />
+        </Grid>
         <Grid item xs={12} md={4}>
-          <ProgressSection data={progressData} />
+          <NivelPatrullajeCard 
+            barrios={nivelPatrullaje}
+            loading={loading.patrullaje}
+            error={error.patrullaje}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Gráfica de Recursos por Hora */}
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <RecursosHoraChart 
+            data={recursosHora}
+            error={error.recursos}
+          />
         </Grid>
       </Grid>
     </Box>
